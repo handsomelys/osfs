@@ -20,7 +20,7 @@ public class FATService {
 		fat.getFat()[index] = 0;
 		fat.setFreeCnt(fat.getFreeCnt()+1);
 	}
-	//apply the space of block
+	//apply the space of block,set the FAT
 	public static void applyForBlock(int pre,int index,FATModel fat) {
 		fat.getFat()[pre] = (byte)index;
 		fat.setFreeCnt(fat.getFreeCnt()-1);

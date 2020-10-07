@@ -17,7 +17,9 @@ public class FileModel {
 	private boolean IsHide = false;
 	private FileModel father = null;	//the upper directory of this object
 	private String FileContent;
-	private List<FileModel> subFiles = new ArrayList<>(); 
+	private List<FileModel> subFiles = new ArrayList<>(); //sub files list
+	private int subDirNums;
+	private FileModel ParentFile;
 	private byte[] dir_items = new byte[8];
 	//[0]~[2] filenames
 	//[3]~[4] file type
@@ -109,6 +111,22 @@ public class FileModel {
 
 	public void setSubFiles(List<FileModel> subFiles) {
 		this.subFiles = subFiles;
+	}
+
+	public int getSubDirNums() {
+		return subDirNums;
+	}
+
+	public void setSubDirNums(int subDirNums) {
+		this.subDirNums = subDirNums;
+	}
+
+	public FileModel getParentFile() {
+		return ParentFile;
+	}
+
+	public void setParentFile(FileModel parentFile) {
+		ParentFile = parentFile;
 	}
 
 	public byte[] getDir_items() {

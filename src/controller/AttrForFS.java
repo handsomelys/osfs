@@ -9,7 +9,7 @@ public class AttrForFS {
 	private static DiskModel disk;
 	private static List<Object> currentFiles;
 	private static List<Object> currentDirs;
-	
+	private static List<Object> currentFilesAndDirs;
 	public static FATModel fat;
 
 	public static DiskModel getDisk() {
@@ -44,6 +44,14 @@ public class AttrForFS {
 	public static void setFat(FATModel fat) {
 		AttrForFS.fat = fat;
 		
+	}
+
+	public static List<Object> getCurrentFilesAndDirs() {
+		return currentFilesAndDirs;
+	}
+
+	public static void setCurrentFilesAndDirs(List<Object> currentFilesAndDirs) {
+		AttrForFS.currentFilesAndDirs = currentFilesAndDirs;
 	}
 	
 	

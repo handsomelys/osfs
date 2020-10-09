@@ -5,34 +5,34 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class File {
+public class FileModel {
 	//**********************
 	//members
 	private String name;	//filenames or directory names
 	private String type;	//file type
-	private int attr;	//define file or directory	1 is file,2 is directory
+	private int attribute;	//define file or directory	1 is file,2 is directory
 	private int startIndex;	//the start index of FAT
 	private int size;	//file size
-	private boolean IsReadOnly = false;
-	private boolean IsHide = false;
-	private File father = null;	//the upper directory of this object
-	private String FileContent;
-	private List<File> subFiles = new ArrayList<>(); //sub files list
+	private boolean isReadOnly = false;
+	private boolean isHide = false;
+	private FileModel father = null;	//the upper directory of this object
+	private String fileContent;
+	private List<FileModel> childFiles = new ArrayList<>(); //child files list
 	private int subDirNums;
-	private File ParentFile;
-	private byte[] dir_items = new byte[8];
+	private FileModel parentFile;
+	private byte[] directoryItem = new byte[8];
 	//[0]~[2] filenames
 	//[3]~[4] file type
 	//[5] file attr
 	//[6] start disk index
 	//[7] length of file
 	
-	public Map<String,File> subMap = new HashMap<String,File>();
+	public Map<String,FileModel> subMap = new HashMap<String,FileModel>();
 	//**********************
 	
 	//**********************
 	//Construct methods
-	public File(String name,String type,int startIndex,int size) {
+	public FileModel(String name,String type,int startIndex,int size) {
 		this.setName(name);
 		this.setType(type);
 		this.setAttr(1);
@@ -40,11 +40,11 @@ public class File {
 		this.setSize(size);
 	}
 	
-	public File(String name,int startIndex) {
+	public FileModel(String name,int startIndex) {
 		this.setName(name);
 		this.setAttr(2);
 		this.setStartIndex(startIndex);
-		this.setType(" ");
+		this.setType("dir");
 		this.setSize(1);
 	}
 	//**********************
@@ -57,7 +57,7 @@ public class File {
 	public void setName(String name) {
 		this.name = name;
 		for(int i=0;i<3;i++) {
-			this.dir_items[i] = (byte)name.charAt(i);
+			this.directoryItem[i] = (byte)name.charAt(i);
 		}
 	}
 	public String getType() {
@@ -66,15 +66,15 @@ public class File {
 	public void setType(String type) {
 		this.type = type;
 		for(int i=0;i<2;i++) {
-			this.dir_items[i+3] = (byte) type.charAt(i);
+			this.directoryItem[i+3] = (byte) type.charAt(i);
 		}
 	}
-	public int getAttr() {
-		return attr;
+	public int getAttribute() {
+		return attribute;
 	}
 	public void setAttr(int attr) {
-		this.attr = attr;
-		this.dir_items[5] = (byte) attr;
+		this.attribute = attr;
+		this.directoryItem[5] = (byte) attr;
 	}
 	public int getStartIndex() {
 		return startIndex;
@@ -82,7 +82,7 @@ public class File {
 
 	public void setStartIndex(int startIndex) {
 		this.startIndex = startIndex;
-		this.dir_items[6] = (byte) startIndex;
+		this.directoryItem[6] = (byte) startIndex;
 	}
 
 	public int getSize() {
@@ -90,27 +90,27 @@ public class File {
 	}
 	public void setSize(int size) {
 		this.size = size;
-		this.dir_items[7] = (byte) size;
+		this.directoryItem[7] = (byte) size;
 	}
-	public File getFather() {
+	public FileModel getFather() {
 		return father;
 	}
-	public void setFather(File father) {
+	public void setFather(FileModel father) {
 		this.father = father;
 	}
 	public String getFileContent() {
-		return FileContent;
+		return fileContent;
 	}
 	public void setFileContent(String fileContent) {
-		FileContent = fileContent;
+		this.fileContent = fileContent;
 	}
 	
-	public List<File> getSubFiles() {
-		return subFiles;
+	public List<FileModel> getSubFiles() {
+		return childFiles;
 	}
 
-	public void setSubFiles(List<File> subFiles) {
-		this.subFiles = subFiles;
+	public void setSubFiles(List<FileModel> childFiles) {
+		this.childFiles = childFiles;
 	}
 
 	public int getSubDirNums() {
@@ -121,39 +121,39 @@ public class File {
 		this.subDirNums = subDirNums;
 	}
 
-	public File getParentFile() {
-		return ParentFile;
+	public FileModel getParentFile() {
+		return parentFile;
 	}
 
-	public void setParentFile(File parentFile) {
-		ParentFile = parentFile;
+	public void setParentFile(FileModel parentFile) {
+		this.parentFile = parentFile;
 	}
 
 	public byte[] getDir_items() {
-		return dir_items;
+		return directoryItem;
 	}
 
 	public void setDir_items(byte[] dir_items) {
-		this.dir_items = dir_items;
+		this.directoryItem = dir_items;
 	}
 
 	public boolean isIsReadOnly() {
-		return IsReadOnly;
+		return isReadOnly;
 	}
 	public void setIsReadOnly(boolean isReadOnly) {
-		IsReadOnly = isReadOnly;
+		this.isReadOnly = isReadOnly;
 	}
 	public boolean isIsHide() {
-		return IsHide;
+		return isHide;
 	}
 	public void setIsHide(boolean isHide) {
-		IsHide = isHide;
+		this.isHide = isHide;
 	}
-	public Map<String, File> getSubMap() {
+	public Map<String, FileModel> getSubMap() {
 		return subMap;
 	}
 
-	public void setSubMap(Map<String, File> subMap) {
+	public void setSubMap(Map<String, FileModel> subMap) {
 		this.subMap = subMap;
 	}
 	//**********************

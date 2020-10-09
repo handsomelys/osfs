@@ -44,7 +44,7 @@ public class FileModel {
 		this.setName(name);
 		this.setAttr(2);
 		this.setStartIndex(startIndex);
-		this.setType(" ");
+		this.setType("dir");
 		this.setSize(1);
 	}
 	//**********************

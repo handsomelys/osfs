@@ -18,12 +18,12 @@ public class FATService {
 	//free the FAT
 	public static void freeBlock(int index,FATModel fat) {
 		fat.getFat_table()[index] = 0;
-		fat.setFreeCnt(fat.getFreeCount()+1);
+		fat.setFreeCount(fat.getFreeCount()+1);
 	}
 	//apply the space of block,set the FAT
 	public static void applyForBlock(int pre,int index,FATModel fat) {
 		fat.getFat_table()[pre] = (byte)index;
-		fat.setFreeCnt(fat.getFreeCount()-1);
+		fat.setFreeCount(fat.getFreeCount()-1);
 	}
 	//set the value of block
 	public static void SetBlockValue(int value,FATModel fat,int index) {

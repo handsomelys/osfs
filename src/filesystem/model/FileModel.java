@@ -10,7 +10,7 @@ public class FileModel {
 	//members
 	private String name;	//filenames or directory names
 	private String type;	//file type
-	private int attr;	//define file or directory	1 is file,2 is directory
+	private int attribute;	//define file or directory	1 is file,2 is directory
 	private int startIndex;	//the start index of FAT
 	private int size;	//file size
 	private boolean isReadOnly = false;
@@ -21,7 +21,7 @@ public class FileModel {
 	private List<FileModel> subFiles = new ArrayList<>(); //sub files list
 	private int subDirNums;
 	private FileModel parentFile;
-	private byte[] dir_items = new byte[8];
+	private byte[] directoryItems = new byte[8];
 	//[0]~[2] filenames
 	//[3]~[4] file type
 	//[5] file attr
@@ -36,14 +36,14 @@ public class FileModel {
 	public FileModel(String name,String type,int startIndex,int size) {
 		this.setName(name);
 		this.setType(type);
-		this.setAttr(1);
+		this.setAttribute(1);
 		this.setStartIndex(startIndex);
 		this.setSize(size);
 	}
 	
 	public FileModel(String name,int startIndex) {
 		this.setName(name);
-		this.setAttr(2);
+		this.setAttribute(2);
 		this.setStartIndex(startIndex);
 		this.setType("dir");
 		this.setSize(1);
@@ -58,7 +58,7 @@ public class FileModel {
 	public void setName(String name) {
 		this.name = name;
 		for(int i=0;i<3;i++) {
-			this.dir_items[i] = (byte)name.charAt(i);
+			this.directoryItems[i] = (byte)name.charAt(i);
 		}
 	}
 	public String getType() {
@@ -67,15 +67,15 @@ public class FileModel {
 	public void setType(String type) {
 		this.type = type;
 		for(int i=0;i<2;i++) {
-			this.dir_items[i+3] = (byte) type.charAt(i);
+			this.directoryItems[i+3] = (byte) type.charAt(i);
 		}
 	}
-	public int getAttr() {
-		return attr;
+	public int getAttribute() {
+		return attribute;
 	}
-	public void setAttr(int attr) {
-		this.attr = attr;
-		this.dir_items[5] = (byte) attr;
+	public void setAttribute(int attribute) {
+		this.attribute = attribute;
+		this.directoryItems[5] = (byte) attribute;
 	}
 	public int getStartIndex() {
 		return startIndex;
@@ -83,7 +83,7 @@ public class FileModel {
 
 	public void setStartIndex(int startIndex) {
 		this.startIndex = startIndex;
-		this.dir_items[6] = (byte) startIndex;
+		this.directoryItems[6] = (byte) startIndex;
 	}
 
 	public int getSize() {
@@ -91,7 +91,7 @@ public class FileModel {
 	}
 	public void setSize(int size) {
 		this.size = size;
-		this.dir_items[7] = (byte) size;
+		this.directoryItems[7] = (byte) size;
 	}
 	public FileModel getFather() {
 		return father;
@@ -133,12 +133,12 @@ public class FileModel {
 		this.parentFile = parentFile;
 	}
 
-	public byte[] getDir_items() {
-		return dir_items;
+	public byte[] getDirectoryItems() {
+		return directoryItems;
 	}
 
-	public void setDir_items(byte[] dir_items) {
-		this.dir_items = dir_items;
+	public void setDirectoryItems(byte[] dir_items) {
+		this.directoryItems = dir_items;
 	}
 
 	
@@ -190,7 +190,7 @@ public class FileModel {
 		
 		FileModel file = (FileModel) obj;
 		
-		if (attr != file.attr) return false;
+		if (attribute != file.attribute) return false;
         if (startIndex != file.startIndex) return false;
         if (size != file.size) return false;
         if (subDirNums != file.subDirNums) return false;
@@ -204,7 +204,7 @@ public class FileModel {
 	 @Override
 	    public int hashCode() {
 	        int result = name != null ? name.hashCode() : 0;
-	        result = 31 * result + attr;
+	        result = 31 * result + attribute;
 	        result = 31 * result + startIndex;
 	        result = 31 * result + size;
 	        result = 31 * result + subDirNums;

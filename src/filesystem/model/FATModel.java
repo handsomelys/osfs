@@ -14,7 +14,7 @@ public class FATModel {
 		return freeCount;
 	}
 
-	public void setFreeCnt(int freeCount) {
+	public void setFreeCount(int freeCount) {
 		this.freeCount = freeCount;
 	}
 

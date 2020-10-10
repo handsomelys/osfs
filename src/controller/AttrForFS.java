@@ -2,8 +2,8 @@ package controller;
 
 import java.util.List;
 
-import fileSysModel.DiskModel;
-import fileSysModel.FATModel;
+import filesystem.model.DiskModel;
+import filesystem.model.FATModel;
 
 public class AttrForFS {
 	private static DiskModel disk;
@@ -43,7 +43,6 @@ public class AttrForFS {
 
 	public static void setFat(FATModel fat) {
 		AttrForFS.fat = fat;
-		
 	}
 
 	public static List<Object> getCurrentFilesAndDirs() {

@@ -4,11 +4,11 @@ import java.util.HashMap;
 import java.util.List;
 
 import controller.AttrForFS;
-import fileSysModel.DiskModel;
-import fileSysModel.FATModel;
-import fileSysModel.FileModel;
-import fileSysService.DiskService;
-import fileSysService.FileService;
+import filesystem.model.DiskModel;
+import filesystem.model.FATModel;
+import filesystem.model.FileModel;
+import filesystem.service.DiskService;
+import filesystem.service.FileService;
 
 public class Main {
 

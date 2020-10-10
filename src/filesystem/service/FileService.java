@@ -68,6 +68,15 @@ public class FileService {
 		}
 	}
 	
+	public static String getFileContent(FileModel file) {
+		;
+		return null;
+	}
+	
+	public static void editFileContent(FileModel file) {
+		;
+	}
+	
 	private static boolean checkDuplicationOfName(FileModel file) {
 		boolean ifDuplicated = false;
 		FileModel parentFile = file.getParentFile();

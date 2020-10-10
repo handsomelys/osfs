@@ -12,19 +12,19 @@ import filesystem.model.FileModel;
 public class DiskService {
 	
 	//save directory or file into the disk
-	public static void saveFile(FileModel file,DiskModel disk) {
-		disk.getDisk_table().add(file.getStartIndex(),file);
+	public static void saveFile(FileModel file, DiskModel disk) {
+		disk.getDiskTable()[file.getStartIndex()] = file;
 	}
 	
-	//achieve content from disk by index
+	//archieve content from disk by index
 	public static Object getDiskContent(int index,DiskModel disk) {
-		return disk.getDisk_table().get(index);
+		return disk.getDiskTable()[index];
 	}
 	
 	//save content into the disk
 	public static void saveContent(Object content,DiskModel disk,int index) {
 		FATService.SetBlockValue(255, AttrForFS.getFat(), index);
-		disk.getDisk_table().set(index, content);
+		disk.getDiskTable()[index] = (FileModel) content;
 	}
 	
 	//apply free block, return the vacant index of disk, -1 stand for disk full
@@ -40,7 +40,7 @@ public class DiskService {
 	//delete object from disk
 	public static void deleteObject(DiskModel disk,int index) {
 		FATService.freeBlock(index, AttrForFS.getFat());
-		disk.getDisk_table().set(index, null);
+		disk.getDiskTable()[index] = null;
 	}
 	
 	//check if the disk is valid
@@ -61,18 +61,17 @@ public class DiskService {
 		List<Object> files = new ArrayList<>();
 		List<Object> dirs = new ArrayList<>();
 		List<Object> allFiles = new ArrayList<>();
-		List<Object> contents = disk.getDisk_table();
+		FileModel[] contents = disk.getDiskTable();
 		
 		for(int i=0;i<128;i++) {
-			if(contents.get(i) instanceof FileModel) {
-				FileModel file = (FileModel) contents.get(i);
-				allFiles.add(file);
-				if(file.getAttribute()==1) //file
-					files.add(file);
-				else {
-					dirs.add(file);	//directory
-				}
+			FileModel file = (FileModel) contents[i];
+			allFiles.add(file);
+			if(file.getAttribute()==1) //file
+				files.add(file);
+			else {
+				dirs.add(file);	//directory
 			}
+			
 		}
 		
 		hashmap.put("files", files);

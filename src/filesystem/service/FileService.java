@@ -48,7 +48,7 @@ public class FileService {
 			int[] fat = AttrForFS.getFat().getFat_table();
 			int start_index = file.getStartIndex();
 			while(fat[start_index]!=-1) {
-				AttrForFS.getDisk().getDisk_table().set(start_index, null);
+				AttrForFS.getDisk().getDiskTable()[start_index] = null;
 				int tmp = fat[start_index];
 				FATService.freeBlock(start_index, AttrForFS.getFat());
 				start_index = tmp;

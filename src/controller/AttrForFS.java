@@ -18,7 +18,7 @@ public class AttrForFS {
 
 	public static void setDisk(DiskModel disk) {
 		AttrForFS.disk = disk;
-		setFat(disk.getFat_table());
+		setFat(disk.getFat());
 	}
 
 	public static List<Object> getCurrentFiles() {

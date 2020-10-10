@@ -18,7 +18,7 @@ public class Main {
 		DiskModel disk = new DiskModel();
 		FATModel fat = new FATModel();
 		AttrForFS.setDisk(DiskService.checkDisk(disk));
-		AttrForFS.setFat(AttrForFS.getDisk().getFat_table());
+		AttrForFS.setFat(AttrForFS.getDisk().getFat());
 		HashMap hash = DiskService.getDirsAndFiles(disk);
 		AttrForFS.setCurrentFiles((List<Object>)hash.get("files"));
 		AttrForFS.setCurrentDirs((List<Object>)hash.get("dirs"));

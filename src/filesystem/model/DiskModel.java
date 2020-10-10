@@ -1,38 +1,72 @@
 package filesystem.model;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
 
 public class DiskModel {
-	private FATModel fat;
-	private List<Object> diskTable;
-	
-	public DiskModel() {
-		diskTable = new ArrayList<>(128);	//initiate capacity of 128
-		fat = new FATModel();
-		for(int i=1;i<128;i++) {
-			diskTable.add(null);
-		}
-		FileModel root = new FileModel("root",2);	// root's attr is directory,start index is 2
-		diskTable.add(2,root);	//start begin is 2
-	}
+    public static final int BLOCK_COUNT = 128;
+    public static final int BLOCK_SIZE = 64; // bytes
 
-	public FATModel getFat_table() {
-		return fat;
-	}
+    private FATModel fat;
+    private FileModel[] diskTable;
+    
+    public DiskModel() {
+        this.diskTable = new FileModel[DiskModel.BLOCK_COUNT]; // initiate capacity of 128
+        this.fat = new FATModel();
+        FileModel root = new FileModel("root", 2); // root's attribute is directory, start index is 2
+        this.diskTable[2] = root; // start begin is 2
+    }
 
-	public void setFat_table(FATModel fat_table) {
-		this.fat = fat_table;
-	}
+    /**
+     * transform the disk model into byte stream, for saving to file
+     * @return disk model in byte array
+     */
+    public byte[] toByte() {
+        byte[] result = new byte[DiskModel.BLOCK_COUNT*DiskModel.BLOCK_SIZE];
+        byte[] fatInbyte = new byte[128]; // TODO: FATModel.tobyte()
+        System.arraycopy(fatInbyte, 0, result, 0, fatInbyte.length);
+        for (int i = 2; i < DiskModel.BLOCK_COUNT; ++i) {
+            byte[] fileInbyte = new byte[64]; // TODO: FileModel.tobyte()
+            System.arraycopy(fileInbyte, 0, result, i*DiskModel.BLOCK_SIZE, fileInbyte.length);
+        }
+        return result;
+    }
 
-	public List<Object> getDisk_table() {
-		return diskTable;
-	}
+    public void saveToFile(String path) {
+        File file = new File(path);
+        try {
+            FileOutputStream fos = new FileOutputStream(file);
+            fos.write(this.toByte());
+            fos.close();
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+    public void extractFromFile(String path) {
+        File file = new File(path);
+        byte[] data;
+        try {
+            FileInputStream fis = new FileInputStream(file);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
 
-	public void setDisk_table(List<Object> disk_table) {
-		this.diskTable = disk_table;
-	}
-
-	
-	
+    public FATModel getFat() {
+        return this.fat;
+    }
+    public void setFat(FATModel fat) {
+        this.fat = fat;
+    }
+    public FileModel[] getDiskTable() {
+        return this.diskTable;
+    }
+    public void setDiskTable(FileModel[] diskTable) {
+        this.diskTable = diskTable;
+    }
 }

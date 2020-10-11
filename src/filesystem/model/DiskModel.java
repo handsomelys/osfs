@@ -7,7 +7,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 
 public class DiskModel {
-    public static final int BLOCK_COUNT = 128;
+    public static final int BLOCK_COUNT = 256;
     public static final int BLOCK_SIZE = 64; // bytes
 
     private FATModel fat;
@@ -24,12 +24,15 @@ public class DiskModel {
      * transform the disk model into byte stream, for saving to file
      * @return disk model in byte array
      */
-    public byte[] toByte() {
+    public byte[] toBytes() {
         byte[] result = new byte[DiskModel.BLOCK_COUNT*DiskModel.BLOCK_SIZE];
-        byte[] fatInbyte = new byte[128]; // TODO: FATModel.tobyte()
+        byte[] fatInbyte = this.fat.toBytes();
         System.arraycopy(fatInbyte, 0, result, 0, fatInbyte.length);
-        for (int i = 2; i < DiskModel.BLOCK_COUNT; ++i) {
-            byte[] fileInbyte = new byte[64]; // TODO: FileModel.tobyte()
+        for (int i = DiskModel.BLOCK_COUNT/DiskModel.BLOCK_SIZE; i < DiskModel.BLOCK_COUNT; ++i) {
+            byte[] fileInbyte = new byte[DiskModel.BLOCK_SIZE];
+            if (this.diskTable[i] != null) {
+                fileInbyte = diskTable[i].contentToByte();
+            }
             System.arraycopy(fileInbyte, 0, result, i*DiskModel.BLOCK_SIZE, fileInbyte.length);
         }
         return result;
@@ -39,7 +42,7 @@ public class DiskModel {
         File file = new File(path);
         try {
             FileOutputStream fos = new FileOutputStream(file);
-            fos.write(this.toByte());
+            fos.write(this.toBytes());
             fos.close();
         } catch (FileNotFoundException e) {
             e.printStackTrace();

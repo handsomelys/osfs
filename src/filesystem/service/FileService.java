@@ -45,7 +45,7 @@ public class FileService {
 	
 	public static void removeFileContent(FileModel file) {
 		try {
-			int[] fat = AttrForFS.getFat().getFat_table();
+			int[] fat = AttrForFS.getFat().getTable();
 			int start_index = file.getStartIndex();
 			while(fat[start_index]!=-1) {
 				AttrForFS.getDisk().getDiskTable()[start_index] = null;

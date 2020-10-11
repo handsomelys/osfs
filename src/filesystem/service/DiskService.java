@@ -29,8 +29,8 @@ public class DiskService {
 	
 	//apply free block, return the vacant index of disk, -1 stand for disk full
 	public static int applyFreeBlock(FATModel fat) {
-		for(int i=3;i<fat.getFat_table().length;i++) {
-			if(fat.getFat_table()[i]==0) {
+		for(int i=3;i<fat.getTable().length;i++) {
+			if(fat.getTable()[i]==0) {
 				return i;
 			}
 		}

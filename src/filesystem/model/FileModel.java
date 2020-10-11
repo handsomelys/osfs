@@ -5,11 +5,13 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import util.TypeTransfrom;
+
 public class FileModel {
 	//**********************
 	//members
 	private String name;	//filenames or directory names
-	private String type;	//file type
+	private char type;	//file type
 	private int attribute;	//define file or directory	1 is file,2 is directory
 	private int startIndex;	//the start index of FAT
 	private int size;	//file size
@@ -21,19 +23,18 @@ public class FileModel {
 	private List<FileModel> subFiles = new ArrayList<>(); //sub files list
 	private int subDirNums;
 	private FileModel parentFile;
-	private byte[] directoryItems = new byte[8];
 	//[0]~[2] filenames
-	//[3]~[4] file type
-	//[5] file attr
-	//[6] start disk index
-	//[7] length of file
+	//[3] file type
+	//[4] file attribute
+	//[5] start disk index
+	//[6]~[7] length of file
 	
 	public Map<String,FileModel> subMap = new HashMap<String,FileModel>();
 	//**********************
 	
 	//**********************
 	//Construct methods
-	public FileModel(String name,String type,int startIndex,int size) {
+	public FileModel(String name,char type,int startIndex,int size) {
 		this.setName(name);
 		this.setType(type);
 		this.setAttribute(1);
@@ -45,138 +46,32 @@ public class FileModel {
 		this.setName(name);
 		this.setAttribute(2);
 		this.setStartIndex(startIndex);
-		this.setType("dir");
+		this.setType(' ');
 		this.setSize(1);
-	}
-	//**********************
-	
-	//**********************
-	//setters && getters
-	public String getName() {
-		return name;
-	}
-	public void setName(String name) {
-		this.name = name;
-		for(int i=0;i<3;i++) {
-			this.directoryItems[i] = (byte)name.charAt(i);
-		}
-	}
-	public String getType() {
-		return type;
-	}
-	public void setType(String type) {
-		this.type = type;
-		for(int i=0;i<2;i++) {
-			this.directoryItems[i+3] = (byte) type.charAt(i);
-		}
-	}
-	public int getAttribute() {
-		return attribute;
-	}
-	public void setAttribute(int attribute) {
-		this.attribute = attribute;
-		this.directoryItems[5] = (byte) attribute;
-	}
-	public int getStartIndex() {
-		return startIndex;
-	}
-
-	public void setStartIndex(int startIndex) {
-		this.startIndex = startIndex;
-		this.directoryItems[6] = (byte) startIndex;
-	}
-
-	public int getSize() {
-		return size;
-	}
-	public void setSize(int size) {
-		this.size = size;
-		this.directoryItems[7] = (byte) size;
-	}
-	public FileModel getFather() {
-		return father;
-	}
-	public void setFather(FileModel father) {
-		this.father = father;
-	}
-	
-	
-	public String getFileContent() {
-		return fileContent;
-	}
-
-	public void setFileContent(String fileContent) {
-		this.fileContent = fileContent;
-	}
-
-	public List<FileModel> getSubFiles() {
-		return subFiles;
-	}
-
-	public void setSubFiles(List<FileModel> subFiles) {
-		this.subFiles = subFiles;
-	}
-
-	public int getSubDirNums() {
-		return subDirNums;
-	}
-
-	public void setSubDirNums(int subDirNums) {
-		this.subDirNums = subDirNums;
-	}
-
-	public FileModel getParentFile() {
-		return parentFile;
-	}
-
-	public void setParentFile(FileModel parentFile) {
-		this.parentFile = parentFile;
-	}
-
-	public byte[] getDirectoryItems() {
-		return directoryItems;
-	}
-
-	public void setDirectoryItems(byte[] dir_items) {
-		this.directoryItems = dir_items;
-	}
-
-	
-	public boolean isReadOnly() {
-		return isReadOnly;
-	}
-
-	public void setReadOnly(boolean isReadOnly) {
-		this.isReadOnly = isReadOnly;
-	}
-
-	public boolean isHide() {
-		return isHide;
-	}
-
-	public void setHide(boolean isHide) {
-		this.isHide = isHide;
-	}
-
-	public boolean isOpen() {
-		return isOpen;
-	}
-
-	public void setOpen(boolean isOpen) {
-		this.isOpen = isOpen;
-	}
-
-	public Map<String, FileModel> getSubMap() {
-		return subMap;
-	}
-
-	public void setSubMap(Map<String, FileModel> subMap) {
-		this.subMap = subMap;
 	}
 	//**********************
 
 	//**********************
 	//methods
+	
+	public byte[] itemToBytes() {
+		byte[] item = new byte[8];
+		System.arraycopy(this.name.getBytes(), 0, item, 0, 3);	// [0]~[2] file name
+		item[3] = (byte) this.type;	// [3] file type
+		item[4] = (byte) this.attribute;	// [4] file attribute
+		item[5] = (byte) this.startIndex;	// [5] start disk index
+		System.arraycopy(TypeTransfrom.intToByteArray(this.size), 0, item, 6, 2);	// [6]~[7] length of file
+		return item;
+	}
+	public byte[] contentToByte() {
+		byte[] content = new byte[DiskModel.BLOCK_SIZE];
+		if (this.fileContent != null) {
+			byte[] b = this.fileContent.getBytes();
+			System.arraycopy(b, 0, content, 0, b.length);
+		}
+		return content;
+	}
+
 	@Override
 	protected Object clone() throws CloneNotSupportedException{
 		return super.clone();
@@ -215,5 +110,119 @@ public class FileModel {
 	        return result;
 	    }
 	
+	//**********************
+
+	//**********************
+	//setters && getters
+	public String getName() {
+		return name;
+	}
+
+	public void setName(String name) {
+		this.name = name;
+	}
+
+	public char getType() {
+		return type;
+	}
+
+	public void setType(char type) {
+		this.type = type;
+	}
+
+	public int getAttribute() {
+		return attribute;
+	}
+
+	public void setAttribute(int attribute) {
+		this.attribute = attribute;
+	}
+	public int getStartIndex() {
+		return startIndex;
+	}
+
+	public void setStartIndex(int startIndex) {
+		this.startIndex = startIndex;
+	}
+
+	public int getSize() {
+		return size;
+	}
+
+	public void setSize(int size) {
+		this.size = size;
+	}
+
+	public FileModel getFather() {
+		return father;
+	}
+
+	public void setFather(FileModel father) {
+		this.father = father;
+	}
+	
+	public String getFileContent() {
+		return fileContent;
+	}
+
+	public void setFileContent(String fileContent) {
+		this.fileContent = fileContent;
+	}
+
+	public List<FileModel> getSubFiles() {
+		return subFiles;
+	}
+
+	public void setSubFiles(List<FileModel> subFiles) {
+		this.subFiles = subFiles;
+	}
+
+	public int getSubDirNums() {
+		return subDirNums;
+	}
+
+	public void setSubDirNums(int subDirNums) {
+		this.subDirNums = subDirNums;
+	}
+
+	public FileModel getParentFile() {
+		return parentFile;
+	}
+
+	public void setParentFile(FileModel parentFile) {
+		this.parentFile = parentFile;
+	}
+
+	public boolean isReadOnly() {
+		return isReadOnly;
+	}
+
+	public void setReadOnly(boolean isReadOnly) {
+		this.isReadOnly = isReadOnly;
+	}
+
+	public boolean isHide() {
+		return isHide;
+	}
+
+	public void setHide(boolean isHide) {
+		this.isHide = isHide;
+	}
+
+	public boolean isOpen() {
+		return isOpen;
+	}
+
+	public void setOpen(boolean isOpen) {
+		this.isOpen = isOpen;
+	}
+
+	public Map<String, FileModel> getSubMap() {
+		return subMap;
+	}
+
+	public void setSubMap(Map<String, FileModel> subMap) {
+		this.subMap = subMap;
+	}
 	//**********************
 }

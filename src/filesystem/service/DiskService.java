@@ -80,4 +80,12 @@ public class DiskService {
 		return hashmap;
 	}
 	
+	public static int calculateNeedBlock(String Data) {
+        if (Data != null) {
+            double requireBlock = Data.length() * 1.0 / 64;
+            return (int) Math.ceil(requireBlock);
+        } else {
+            return 0;
+        }
+    }
 }

@@ -50,18 +50,18 @@ public class FileService {
 		try {
 			int[] fat = AttrForFS.getFat().getTable();
 			int start_index = file.getStartIndex();
-			while(fat[start_index]!=-1) {
-				AttrForFS.getDisk().getDiskTable()[start_index] = null;
+			while(fat[start_index]!=255) {
+				AttrForFS.getDisk().getDiskTable()[start_index] = null;	//remove the file block
 				int tmp = fat[start_index];
 				FATService.freeBlock(start_index, AttrForFS.getFat());
 				start_index = tmp;
-				int size = file.getSize() - 1;
+				int size = file.getSize() - 1;	//file length -1
 				file.setSize(size);
 			}if(file.getStartIndex()!=start_index) {
-				FATService.SetBlockValue(0, AttrForFS.getFat(), start_index);
+				FATService.SetBlockValue(0, AttrForFS.getFat(), start_index);	//set the former block value to 0, stands for vacant
 			}
 			else {
-				FATService.SetBlockValue(-1, AttrForFS.getFat(), start_index);
+				FATService.SetBlockValue(255, AttrForFS.getFat(), start_index);	//set the current block value to 255, stands for the file end
 			}
 		}	catch(Exception e) {
 			e.printStackTrace();
@@ -69,12 +69,40 @@ public class FileService {
 	}
 	
 	public static String getFileContent(FileModel file) {
-		;
-		return null;
+		String result = "";
+		int start_index = file.getStartIndex();
+		int[] fatTable = AttrForFS.getFat().getTable();
+		while(fatTable[start_index]!=255){	//until the end of file
+			result = result.concat(AttrForFS.getDisk().getDiskTable()[fatTable[start_index]].toString());
+			start_index = fatTable[start_index];	//point to the next index
+		}
+		return result;
 	}
 	
-	public static void editFileContent(FileModel file) {
-		;
+	public static void editFileContent(FileModel file,String content) {
+		int requireBlocks = DiskService.calculateNeedBlock(content);
+		int remainBlocks = DiskService.getDiskFreeCnt();
+		if(requireBlocks>remainBlocks) {
+			System.out.println("Error!Do not have the enough blocks");
+			return ;
+		}
+		removeFileContent(file);
+		char[] buffer = new char[110];
+		char[] txt = content.toCharArray();
+		int index = file.getStartIndex();
+		int cur = 0;
+		for(int i=requireBlocks;i>0;i--) {
+			int pre = index;
+			index = DiskService.applyFreeBlock(AttrForFS.getFat());
+			for(int j=0;j<64&&cur<txt.length;cur++,j++) {
+				buffer[j] = txt[cur];
+			}
+			DiskService.saveContent(String.valueOf(buffer), AttrForFS.getDisk(), index);
+			FATService.applyForBlock(pre, index, AttrForFS.getFat());
+			buffer = new char[110];
+			file.setSize(file.getSize()+1);
+		}
+		FATService.SetBlockValue(255, AttrForFS.getFat(), index);
 	}
 	
 	private static boolean checkDuplicationOfName(FileModel file) {

@@ -1,5 +1,8 @@
 package filesystem.service;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import controller.AttrForFS;
 import filesystem.model.DiskModel;
 import filesystem.model.FATModel;
@@ -65,8 +68,38 @@ public class FileService {
 		}
 	}
 	
+	public static String getFileContent(FileModel file) {
+		;
+		return null;
+	}
+	
+	public static void editFileContent(FileModel file) {
+		;
+	}
+	
 	private static boolean checkDuplicationOfName(FileModel file) {
+		boolean ifDuplicated = false;
+		FileModel parentFile = file.getParentFile();
+		List<Object> subFiles = FileService.getSubFiles(parentFile);
+		for(int i=0;i<subFiles.size();i++) {
+			FileModel tmpFile = (FileModel) subFiles.get(i);
+			if(file.getName().equals(tmpFile.getName())&&file.getAttribute()==tmpFile.getAttribute()) {
+				ifDuplicated = true;
+			}
+		}
+		return ifDuplicated;
+	}
+
+	private static List<Object> getSubFiles(FileModel parentFile) {
 		// TODO Auto-generated method stub
-		return false;
+		List<Object> subFiles = new ArrayList<>();
+		List<Object> allFilesSet = AttrForFS.getCurrentFilesAndDirs();
+		for(int i=0;i<allFilesSet.size();i++) {
+			FileModel tmpFile = (FileModel) allFilesSet.get(i);
+			if(parentFile.equals(tmpFile.getParentFile())) {
+				subFiles.add(tmpFile);
+			}
+		}
+		return subFiles;
 	}
 }

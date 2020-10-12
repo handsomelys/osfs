@@ -23,7 +23,7 @@ public class Main {
 		AttrForFS.setCurrentFiles((List<Object>)hash.get("files"));
 		AttrForFS.setCurrentDirs((List<Object>)hash.get("dirs"));
 		AttrForFS.setCurrentFilesAndDirs((List<Object>)hash.get("allFiles"));
-		FileService.creatFile(file, disk, fat);
+		FileService.createFile(file, disk, fat);
 	}
 
 }

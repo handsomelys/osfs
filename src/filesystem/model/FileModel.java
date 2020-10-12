@@ -5,6 +5,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import filesystem.service.DiskService;
+import filesystem.service.FATService;
 import util.TypeTransfrom;
 
 public class FileModel {
@@ -53,7 +55,7 @@ public class FileModel {
 
 	//**********************
 	//methods
-	
+
 	public byte[] itemToBytes() {
 		byte[] item = new byte[8];
 		System.arraycopy(this.name.getBytes(), 0, item, 0, 3);	// [0]~[2] file name

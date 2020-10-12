@@ -7,9 +7,9 @@ import javafx.scene.Scene;
 // import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.Pane;
 import javafx.scene.text.Text;
-import filesystem.model.DiskModel;
-import filesystem.model.FileModel;
+import filesystem.model.*;
 import util.*;
+import filesystem.service.*;
 
 public class Main extends Application {
     @Override
@@ -36,7 +36,8 @@ public class Main extends Application {
         DiskModel d = new DiskModel();
         d.saveToFile("disk.dat");
 
-        d.getDiskTable()[5] = f;
+        // d.getDiskTable()[5] = f;
+        FileService.createFile(f, d, d.getFat());
     }
     
     public static void main(String[] args) {

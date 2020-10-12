@@ -10,15 +10,15 @@ import filesystem.model.FileModel;
 
 public class FileService {
 
-	public static void creatFile(FileModel file,DiskModel disk,FATModel fat) {
-		int start_index = FATService.addressOfFreeBlock(fat);
-		if(start_index == -1) {
+	public static void createFile(FileModel file, DiskModel disk, FATModel fat) {
+		int startIndex = FATService.addressOfFreeBlock(disk.getFat());
+		if(startIndex == -1) {
 			System.out.println("Disk is full!!");
 			return ;
 		}
 		else {
-			file.setStartIndex(start_index);
-			FATService.applyForBlock(start_index, 255, fat);
+			file.setStartIndex(startIndex);
+			FATService.applyForBlock(startIndex, 255, fat);
 			file.setSize(1);
 			if(file==null||file.getName().trim().equals("")) {
 				System.out.println("The names'length can not be blank");

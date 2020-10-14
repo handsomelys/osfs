@@ -3,13 +3,17 @@ package filesystem.model;
 public class FATModel {
 	public static final int RESERVED_BLOCK_COUNT = DiskModel.BLOCK_COUNT/DiskModel.BLOCK_SIZE + 1;	// directory items && root
 	private int[] table;
-	private int freeCount = DiskModel.BLOCK_COUNT-FATModel.RESERVED_BLOCK_COUNT;
+	private int freeCount = 125;
+	public static final int USED_BLOCK = 255;
+	public static final int UNUSED_BLOCK = 0;
+	public static final int THE_FILE_END = -1;
 	
 	public FATModel() {
 		this.table = new int[DiskModel.BLOCK_COUNT];
-		for (int i = 0; i < FATModel.RESERVED_BLOCK_COUNT; ++i) {
-			this.table[i] = -1;
-		}
+		this.table[0] = USED_BLOCK;
+		this.table[1] = USED_BLOCK;
+		this.table[2] = USED_BLOCK;
+
 	}
 
 	public byte[] toBytes() {

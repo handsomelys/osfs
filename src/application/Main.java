@@ -34,9 +34,9 @@ public class Main extends Application {
         }
 
         DiskModel d = new DiskModel();
-        d.saveToFile("disk.dat");
+        //d.saveToFile("disk.dat");
 
-        d.getDiskTable()[5] = f;
+       // d.getDiskTable()[5] = f;
     }
     
     public static void main(String[] args) {

@@ -57,8 +57,9 @@ public class DiskService {
 		return AttrForFS.getFat().getFreeCount();
 	}
 	
-	public static HashMap<String,Object> getDirsAndFiles(DiskModel disk) {
-		HashMap<String,Object> hashmap = new HashMap<String,Object>();
+
+	public static HashMap<String, Object> getDirsAndFiles(DiskModel disk) {
+		HashMap<String, Object> hashmap = new HashMap<String, Object>();
 		List<Object> files = new ArrayList<>();
 		List<Object> dirs = new ArrayList<>();
 		List<Object> allFiles = new ArrayList<>();

@@ -1,6 +1,7 @@
 package filesystem.service;
 
 import java.util.ArrayList;
+import java.util.Scanner;
 import java.util.List;
 
 import controller.AttrForFS;
@@ -9,12 +10,39 @@ import filesystem.model.FATModel;
 import filesystem.model.FileModel;
 
 public class FileService {
-
-	public static void creatFile(FileModel file,DiskModel disk,FATModel fat) {
+	static Scanner sc = new Scanner(System.in);
+	public static boolean createFile(FileModel parentFile,int fileAttribute) {
+		System.out.println("parents sub nums: "+parentFile.getSubFiles().size());
+		if(parentFile.getSubFiles().size()>=8) {
+			
+			System.out.println("at most 8 files in one directory!!");
+			return false;
+		}
+		FileModel file = new FileModel();
+		file.setAttribute(fileAttribute);
+		System.out.println("input the file name");
+		String filename = sc.nextLine();
+		
+		if(filename.length()>3) {
+			System.out.println("the file name should not over 3 chars");
+			return false;
+		}
+		file.setName(filename);
+		file.setParentFile(parentFile);
+		file.setReadOnly(false);
+		if(addFile(file,AttrForFS.getDisk(),AttrForFS.getFat())) {
+			updateDirectorySub(parentFile,file);
+			return true;
+		}
+		
+		return false;
+	}
+	
+	public static boolean addFile(FileModel file,DiskModel disk,FATModel fat) {
 		int start_index = FATService.addressOfFreeBlock(fat);
 		if(start_index == -1) {
 			System.out.println("Disk is full!!");
-			return ;
+			return false;
 		}
 		else {
 			file.setStartIndex(start_index);
@@ -22,21 +50,24 @@ public class FileService {
 			file.setSize(1);
 			if(file==null||file.getName().trim().equals("")) {
 				System.out.println("The names'length can not be blank");
+				return false;
 			}
-			else if(file.getName().length()>3) {
-				System.out.println("The names length must smaller than 3");
-			}
+			//else if(file.getName().length()>3) {	duplicated method
+			//	System.out.println("The names length must smaller than 3");
+			//}
 			else if(checkDuplicationOfName(file)) {
+				
 				System.out.println("Duplication of name!!");
+				return false;
 			}
 			else {
 				DiskService.saveFile(file, disk);
 				AttrForFS.getCurrentFiles().add(file);
 				AttrForFS.getCurrentFilesAndDirs().add(file);
-				System.out.println("Create File successed");
+				//System.out.println("Create File successed");
 			}
 		}
-		
+		return true;
 	}
 	
 	public static void removeFile(FileModel file) {
@@ -47,11 +78,11 @@ public class FileService {
 	}
 	
 	public static void removeFileContent(FileModel file) {
-		try {
+		
 			int[] fat = AttrForFS.getFat().getTable();
 			int start_index = file.getStartIndex();
 			while(fat[start_index]!=255) {
-				AttrForFS.getDisk().getDiskTable()[start_index] = null;	//remove the file block
+				AttrForFS.getDisk().getDiskTable().set(start_index, null);	//remove the file block
 				int tmp = fat[start_index];
 				FATService.freeBlock(start_index, AttrForFS.getFat());
 				start_index = tmp;
@@ -63,17 +94,15 @@ public class FileService {
 			else {
 				FATService.SetBlockValue(255, AttrForFS.getFat(), start_index);	//set the current block value to 255, stands for the file end
 			}
-		}	catch(Exception e) {
-			e.printStackTrace();
 		}
-	}
+	
 	
 	public static String getFileContent(FileModel file) {
 		String result = "";
 		int start_index = file.getStartIndex();
 		int[] fatTable = AttrForFS.getFat().getTable();
 		while(fatTable[start_index]!=255){	//until the end of file
-			result = result.concat(AttrForFS.getDisk().getDiskTable()[fatTable[start_index]].toString());
+			result = result.concat(AttrForFS.getDisk().getDiskTable().get(fatTable[start_index]).toString());
 			start_index = fatTable[start_index];	//point to the next index
 		}
 		return result;
@@ -118,7 +147,7 @@ public class FileService {
 		return ifDuplicated;
 	}
 
-	private static List<Object> getSubFiles(FileModel parentFile) {
+	public static List<Object> getSubFiles(FileModel parentFile) {
 		// TODO Auto-generated method stub
 		List<Object> subFiles = new ArrayList<>();
 		List<Object> allFilesSet = AttrForFS.getCurrentFilesAndDirs();
@@ -129,5 +158,38 @@ public class FileService {
 			}
 		}
 		return subFiles;
+	}
+	
+	public static boolean updateDirectorySub(FileModel directory,FileModel sub) {
+		if(directory.getSubFiles().size()<8) {
+			directory.getSubFiles().add(sub);
+			directory.setSubDirNums(directory.getSubDirNums()+1);
+			return true;
+		}
+		System.out.println("the directory's subfiles number is over 8!!");
+		return false;
+	}
+	
+	//delete the sub-directory and files in the input directory, not include the directory itself
+	public static boolean deleteDirectoryContent(FileModel directory) {
+		List<Object> sub = (List<Object>)getSubFiles(directory);
+		for(int i=0;i<sub.size();i++) {
+			FileModel currentFile = (FileModel)sub.get(i);
+			List<Object> currentSub = (List<Object>) getSubFiles(currentFile);
+			if(currentSub.size()>0) {
+				deleteDirectoryContent(currentFile);
+			}
+			else {
+				removeFile(currentFile);
+			}
+		}
+		return true;
+	}
+	
+	//delete the directory itself and the sub content
+	public static boolean deleteDirectory(FileModel directory) {
+		deleteDirectoryContent(directory);
+		removeFile(directory);
+		return true;
 	}
 }

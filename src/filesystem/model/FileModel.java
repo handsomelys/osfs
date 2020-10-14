@@ -5,14 +5,19 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import filesystem.service.DiskService;
+import filesystem.service.FATService;
 import util.TypeTransfrom;
 
 public class FileModel {
 	//**********************
 	//members
+	public static final int FILE = 1;
+	public static final int DIRECTORY = 2;
+	public static final int ROOT = 3;
 	private String name;	//filenames or directory names
 	private char type;	//file type
-	private int attribute;	//define file or directory	1 is file,2 is directory
+	private int attribute;	//define file or directory	1 is file,2 is directory,3 is root
 	private int startIndex;	//the start index of FAT
 	private int size;	//file size
 	private boolean isReadOnly = false;
@@ -34,6 +39,9 @@ public class FileModel {
 	
 	//**********************
 	//Construct methods
+	public FileModel() {
+		;
+	}
 	public FileModel(String name,char type,int startIndex,int size) {
 		this.setName(name);
 		this.setType(type);
@@ -53,7 +61,7 @@ public class FileModel {
 
 	//**********************
 	//methods
-	
+
 	public byte[] itemToBytes() {
 		byte[] item = new byte[8];
 		System.arraycopy(this.name.getBytes(), 0, item, 0, 3);	// [0]~[2] file name
@@ -108,6 +116,21 @@ public class FileModel {
 	        result = 31 * result + (parentFile != null ? parentFile.hashCode() : 0);
 	        result = 31 * result + (isReadOnly ? 1 : 0);
 	        return result;
+	    }
+	 
+	 @Override
+	    public String toString() {
+	        return "FileModel{" +
+	                "name='" + this.name + '\'' +
+	                ", attribute=" + this.attribute +
+	                ", startIndex=" + this.startIndex +
+	                ", size=" + this.size +
+	                ", subDirNums=" + this.subDirNums +
+	                ", open=" + this.isOpen +
+	                ", subFiles=" + this.subFiles +
+	                ", parentFile=" + this.parentFile +
+	                ", ReadOnly=" + this.isReadOnly +
+	                '}';
 	    }
 	
 	//**********************

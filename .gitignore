@@ -1,6 +1,7 @@
 .metadata/
 .settings/
 .vscode/
+.document/
 .classpath
 .project
 bin/

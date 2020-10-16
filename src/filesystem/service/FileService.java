@@ -11,6 +11,37 @@ import filesystem.model.FileModel;
 
 public class FileService {
 	static Scanner sc = new Scanner(System.in);
+	
+	//create file in the disk, need to point out the parent file
+	public static boolean createFile(FileModel file) {
+		System.out.println("parents sub nums: "+file.getParentFile().getSubFiles().size());
+		if(file.getParentFile().getSubFiles().size()>=8) {
+			
+			System.out.println("at most 8 files in one directory!!");
+			return false;
+		}
+		System.out.println("input the file name");
+		String filename = sc.nextLine();
+		
+		if(filename.length()>3) {
+			System.out.println("the file name should not over 3 chars");
+			return false;
+		}
+		file.setName(filename);
+		if(addFile(file,AttrForFS.getDisk(),AttrForFS.getFat())) {
+			updateDirectorySub(file.getParentFile(),file);
+			AttrForFS.getCurrentFilesAndDirs().add(file);
+			if(file.getAttribute()==FileModel.FILE) {
+				AttrForFS.getCurrentFiles().add(file);
+			}
+			else {
+				AttrForFS.getCurrentDirs().add(file);
+			}
+			return true;
+		}
+		
+		return false;
+	}
 	public static boolean createFile(FileModel parentFile,int fileAttribute) {
 		System.out.println("parents sub nums: "+parentFile.getSubFiles().size());
 		if(parentFile.getSubFiles().size()>=8) {
@@ -32,6 +63,13 @@ public class FileService {
 		file.setReadOnly(false);
 		if(addFile(file,AttrForFS.getDisk(),AttrForFS.getFat())) {
 			updateDirectorySub(parentFile,file);
+			AttrForFS.getCurrentFilesAndDirs().add(file);
+			if(file.getAttribute()==FileModel.FILE) {
+				AttrForFS.getCurrentFiles().add(file);
+			}
+			else {
+				AttrForFS.getCurrentDirs().add(file);
+			}
 			return true;
 		}
 		
@@ -70,6 +108,7 @@ public class FileService {
 		return true;
 	}
 	
+	//remove the file from disk
 	public static void removeFile(FileModel file) {
 		removeFileContent(file);
 		AttrForFS.getCurrentFiles().remove(file);
@@ -108,6 +147,7 @@ public class FileService {
 		return result;
 	}
 	
+	//edit the file's content
 	public static void editFileContent(FileModel file,String content) {
 		int requireBlocks = DiskService.calculateNeedBlock(content);
 		int remainBlocks = DiskService.getDiskFreeCnt();
@@ -134,6 +174,7 @@ public class FileService {
 		FATService.SetBlockValue(255, AttrForFS.getFat(), index);
 	}
 	
+	// check if there has the duplicated name in the same directory,if true, reject to create
 	private static boolean checkDuplicationOfName(FileModel file) {
 		boolean ifDuplicated = false;
 		FileModel parentFile = file.getParentFile();
@@ -146,7 +187,8 @@ public class FileService {
 		}
 		return ifDuplicated;
 	}
-
+	
+	//get the specific directory's sub files
 	public static List<Object> getSubFiles(FileModel parentFile) {
 		// TODO Auto-generated method stub
 		List<Object> subFiles = new ArrayList<>();
@@ -160,6 +202,7 @@ public class FileService {
 		return subFiles;
 	}
 	
+	//update the directory's sub files
 	public static boolean updateDirectorySub(FileModel directory,FileModel sub) {
 		if(directory.getSubFiles().size()<8) {
 			directory.getSubFiles().add(sub);
@@ -190,6 +233,33 @@ public class FileService {
 	public static boolean deleteDirectory(FileModel directory) {
 		deleteDirectoryContent(directory);
 		removeFile(directory);
+		return true;
+	}
+	
+	public static boolean copyFile(FileModel file) throws CloneNotSupportedException {
+		FileModel coloneFile = (FileModel)file.clone();
+		if(createFile(coloneFile)) {
+			System.out.println("clone sussess!");
+			return true;
+		}
+		return false;
+	}
+	
+	
+	public static boolean copydir(FileModel directory) throws CloneNotSupportedException {
+		FileModel coloneDir = (FileModel)directory.clone();
+		if(createFile(coloneDir)) {
+			for(FileModel f:coloneDir.getSubFiles()) {
+			if(createFile((FileModel)f.clone())) {
+				System.out.println("clone sucess!");
+			}
+			}
+		}
+		for(FileModel f:coloneDir.getSubFiles()) {
+			if(f.getAttribute()==FileModel.DIRECTORY) {
+				if(!copydir((FileModel)f))	return false;
+			}
+		}		
 		return true;
 	}
 }

@@ -9,7 +9,7 @@ import filesystem.service.DiskService;
 import filesystem.service.FATService;
 import util.TypeTransfrom;
 
-public class FileModel {
+public class FileModel implements Cloneable {
 	//**********************
 	//members
 	public static final int FILE = 1;
@@ -23,7 +23,7 @@ public class FileModel {
 	private boolean isReadOnly = false;
 	private boolean isHide = false;
 	private boolean isOpen = false;
-	private FileModel father = null;	//the upper directory of this object
+	
 	private String fileContent;
 	private List<FileModel> subFiles = new ArrayList<>(); //sub files list
 	private int subDirNums;
@@ -81,8 +81,35 @@ public class FileModel {
 	}
 
 	@Override
-	protected Object clone() throws CloneNotSupportedException{
-		return super.clone();
+	public Object clone() throws CloneNotSupportedException{
+		Object obj = super.clone();
+		FileModel parentFile = ((FileModel)obj).getParentFile();
+		//String name = ((FileModel)obj).getName();	//这里应该加个查重 名字只有三个字符 还要考虑长度
+		String name = ((FileModel)obj).getName();	//filenames or directory names
+		char type = ((FileModel)obj).getType();	//file type
+		int attribute = ((FileModel)obj).getAttribute();	//define file or directory	1 is file,2 is directory,3 is root
+		//int startIndex = ;	//the start index of FAT  起始盘块要重新申请
+		int size = ((FileModel)obj).getSize();	//file size
+		boolean isReadOnly = ((FileModel)obj).isReadOnly();
+		boolean isHide = ((FileModel)obj).isHide();
+		boolean isOpen = ((FileModel)obj).isOpen();
+		String fileContent = ((FileModel)obj).getFileContent();
+		List<FileModel> subFiles = ((FileModel)obj).getSubFiles(); //sub files list
+		int subDirNums = ((FileModel)obj).getSubDirNums();
+		
+
+		((FileModel)obj).setParentFile((FileModel) parentFile);
+		((FileModel)obj).setName(name);
+		((FileModel)obj).setType(type);
+		((FileModel)obj).setAttribute(attribute);
+		((FileModel)obj).setSize(size);
+		((FileModel)obj).setReadOnly(isReadOnly);
+		((FileModel)obj).setHide(isHide);
+		((FileModel)obj).setOpen(isOpen);
+		((FileModel)obj).setFileContent(fileContent);
+		((FileModel)obj).setSubFiles(subFiles);
+		((FileModel)obj).setSubDirNums(subDirNums);
+		return obj;
 	}
 	
 	@Override
@@ -174,14 +201,6 @@ public class FileModel {
 
 	public void setSize(int size) {
 		this.size = size;
-	}
-
-	public FileModel getFather() {
-		return father;
-	}
-
-	public void setFather(FileModel father) {
-		this.father = father;
 	}
 	
 	public String getFileContent() {

@@ -13,7 +13,7 @@ import filesystem.service.FileService;
 public class Main {
 
 	@SuppressWarnings("unchecked")
-	public static void main(String[] args) {
+	public static void main(String[] args) throws CloneNotSupportedException {
 		// TODO Auto-generated method stub
 		Scanner sc = new Scanner(System.in);
 		
@@ -28,11 +28,14 @@ public class Main {
 		AttrForFS.setCurrentDirs((List<Object>)hash.get("dirs"));
 		AttrForFS.setCurrentFilesAndDirs((List<Object>)hash.get("allFiles"));
 		FileModel parentFile = (FileModel) AttrForFS.getDisk().getDiskTable().get(2);
+		FileService.createFile(parentFile, FileModel.DIRECTORY);
+		System.out.println(AttrForFS.getDisk().getDiskFreeCount());
 		for(int i=0;i<3;i++)
 		if(FileService.createFile(parentFile, FileModel.FILE)) {
 			System.out.println("yes");
 		}
-		//String content = sc.nextLine();
+		FileService.copyFile((FileModel)AttrForFS.getDisk().getDiskTable().get(4));
+		System.out.println(AttrForFS.getDisk().getDiskFreeCount());
 	}
-
+		
 }

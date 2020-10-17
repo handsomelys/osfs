@@ -1,12 +1,6 @@
 package filesystem.model;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
 import java.util.ArrayList;
-
 import java.util.HashMap;
 import java.util.List;
 
@@ -37,7 +31,7 @@ public class DiskModel {
          root.setParentFile(null);
          root.setAttribute(3);
          root.setStartIndex(2);
-         root.setName("¸ùÄ¿Â¼");
+         root.setName("root");
          this.diskTable.add(2, root);;
     }
     /**
@@ -163,11 +157,6 @@ public class DiskModel {
             e.printStackTrace();
         }
     }
-<<<<<<< HEAD
-    
-=======
-
->>>>>>> branch 'master' of git@github.com:handsomelys/osfs.git
     public void extractFromFile(String path) {
         File file = new File(path);
         byte[] data;

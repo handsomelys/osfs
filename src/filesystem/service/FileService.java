@@ -12,6 +12,7 @@ import filesystem.model.FileModel;
 public class FileService {
 	static Scanner sc = new Scanner(System.in);
 	public static boolean createFile(FileModel parentFile,int fileAttribute) {
+		System.out.println(parentFile);
 		System.out.println("parents sub nums: "+parentFile.getSubFiles().size());
 		if(parentFile.getSubFiles().size()>=8) {
 			

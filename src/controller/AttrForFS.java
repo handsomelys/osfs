@@ -4,6 +4,8 @@ import java.util.List;
 
 import filesystem.model.DiskModel;
 import filesystem.model.FATModel;
+import filesystem.model.FileModel;
+import filesystem.service.DiskService;
 
 public class AttrForFS {
 	private static DiskModel disk;
@@ -11,6 +13,10 @@ public class AttrForFS {
 	private static List<Object> currentDirs;
 	private static List<Object> currentFilesAndDirs;
 	public static FATModel fat;
+
+	public static FileModel getRoot() {
+		return (FileModel) DiskService.getDiskContent(FATModel.RESERVED_BLOCK_COUNT-1, AttrForFS.getDisk());
+	}
 
 	public static DiskModel getDisk() {
 		return disk;

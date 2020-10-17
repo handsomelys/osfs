@@ -5,8 +5,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import filesystem.service.DiskService;
-import filesystem.service.FATService;
 import util.TypeTransfrom;
 
 public class FileModel {
@@ -130,7 +128,7 @@ public class FileModel {
 	                ", subFiles=" + this.subFiles +
 	                ", parentFile=" + this.parentFile +
 	                ", ReadOnly=" + this.isReadOnly +
-	                '}';
+			        '}';
 	    }
 	
 	//**********************

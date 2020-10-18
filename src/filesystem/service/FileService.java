@@ -145,6 +145,15 @@ public class FileService {
 		DiskService.deleteObject(AttrForFS.getDisk(), file.getStartIndex());
 	}
 	
+	public static void removeDir(FileModel directory) {
+		if(FileService.getSubFiles(directory).size()!=0) {
+			System.out.println("The directory is not empty!");
+		}
+		else {
+			removeFile(directory);
+		}
+	}
+	
 	public static void removeFileContent(FileModel file) {
 		
 			int[] fat = AttrForFS.getFat().getTable();

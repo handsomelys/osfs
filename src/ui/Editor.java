@@ -29,8 +29,8 @@ public class Editor {
 	
 	private static Stage stage;
 
-	public void initiate(FileModel file) {
-		;
+	public void save(ActionEvent t) {
+		System.out.println("我要保存了");
 	}
 	
 	//带参数的话 不能bind到fxml中

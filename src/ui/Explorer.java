@@ -9,7 +9,6 @@ import java.util.List;
 import java.util.ResourceBundle;
 
 import javafx.application.Platform;
-import javafx.beans.value.ChangeListener;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
@@ -26,7 +25,6 @@ import javafx.scene.control.MenuBar;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.SplitPane;
-import javafx.scene.control.TextField;
 import javafx.scene.control.TitledPane;
 import javafx.scene.control.ToolBar;
 import javafx.scene.control.TreeCell;
@@ -34,14 +32,13 @@ import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeView;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
-import javafx.scene.input.KeyCode;
-import javafx.scene.input.KeyEvent;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.VBox;
 import javafx.util.Callback;
 
 public class Explorer implements Initializable {
-    
+
     public static final Node DIRECTORY_ICON = new ImageView(new Image("resource/directory.png"));
 
     public FileModel current;
@@ -87,7 +84,7 @@ public class Explorer implements Initializable {
 
     @FXML
     private ToolBar toolBar;
-    
+
     @FXML
     private Label toolBarCurrent;
 
@@ -148,13 +145,13 @@ public class Explorer implements Initializable {
     @FXML
     void createDirectory(ActionEvent event) {
         FileService.createFile(this.current, 2);
-        this.treeView.refresh();
+        this.updateTreeView();
     }
 
     @FXML
     void createFile(ActionEvent event) {
         FileService.createFile(this.current, 1);
-        this.treeView.refresh();
+        this.updateTreeView();
     }
 
     @FXML
@@ -184,7 +181,13 @@ public class Explorer implements Initializable {
 
     @FXML
     void openSelected(ActionEvent event) {
-
+        for (Object o : FileService.getSubFiles(this.current)) {
+            System.out.println(o);
+            // for (Object oo: FileService.getSubFiles((FileModel) o)) {
+            // System.out.println("2");
+            // System.out.println(oo);
+            // }
+        }
     }
 
     @FXML
@@ -199,11 +202,12 @@ public class Explorer implements Initializable {
 
     @FXML
     void selectAll(ActionEvent event) {
-
+        
+        this.treeView.setRoot(Explorer.createNode(AttrForFS.getRoot()));
     }
 
     void configureTreeView() {
-        
+
     }
 
     void switchDirectory(FileModel f) {
@@ -212,34 +216,49 @@ public class Explorer implements Initializable {
             this.toolBarCurrent.setText(f.getName());
         }
     }
+    void updateTreeView() {
+        this.treeView.setRoot(Explorer.createNode(AttrForFS.getRoot()));
+    }
 
     public static TreeItem<FileModel> createNode(final FileModel f) {
-        return new TreeItem<FileModel>(f) {
+        TreeItem<FileModel> treeItem = new TreeItem<FileModel>(f) {
+
+            private boolean isLeaf = false;
+            private boolean isFirstTimeChildren = true;
+            private boolean isFirstTimeLeaf = true;
 
             @Override
             public ObservableList<TreeItem<FileModel>> getChildren() {
-                super.getChildren().setAll(buildChildren(this));
+                if (isFirstTimeChildren) {
+                    isFirstTimeChildren = false;
+                    super.getChildren().setAll(buildChildren(this));
+                }
                 return super.getChildren();
             }
 
             @Override
             public boolean isLeaf() {
-                FileModel f1 = (FileModel) this.getValue();
-                if (f1.getAttribute() == 1) {
-                    return true;
-                } else if (f1.getAttribute() == 2 || f1.getAttribute() == 3) {
-                    List<Object> files = FileService.getSubFiles(f);
-                    return files.isEmpty();
+                if (isFirstTimeLeaf) {
+                    isFirstTimeLeaf = false;
+                    FileModel file = (FileModel) this.getValue();
+                    if (file.getAttribute() == 1) {
+                        this.isLeaf = true;
+                    } else if (file.getAttribute() == 2 || file.getAttribute() == 3) {
+                        List<Object> files = FileService.getSubFiles(file);
+                        this.isLeaf = files.isEmpty();
+                    } else {
+                        this.isLeaf = false;
+                    }
                 }
-                return false;
+                return this.isLeaf;
             }
 
             private ObservableList<TreeItem<FileModel>> buildChildren(TreeItem<FileModel> i) {
-                FileModel f = i.getValue();
-                if (f == null) {
+                FileModel file = i.getValue();
+                if (file == null) {
                     return FXCollections.emptyObservableList();
-                } else if (f.getAttribute() == 2 || f.getAttribute() == 3) {
-                    List<Object> files = FileService.getSubFiles(f);
+                } else if (file.getAttribute() == 2 || file.getAttribute() == 3) {
+                    List<Object> files = FileService.getSubFiles(file);
                     if (!files.isEmpty()) {
                         ObservableList<TreeItem<FileModel>> children = FXCollections.observableArrayList();
                         for (Object childFile : files) {
@@ -250,75 +269,32 @@ public class Explorer implements Initializable {
                         }
                         return children;
                     }
+                    return FXCollections.emptyObservableList();
+                } else {
+                    return FXCollections.emptyObservableList();
                 }
-                return FXCollections.emptyObservableList();
             }
         };
+        treeItem.setExpanded(true);
+        return treeItem;
     }
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         switchDirectory(AttrForFS.getRoot());
+        this.updateTreeView();
 
-        this.treeView.setRoot(Explorer.createNode(AttrForFS.getRoot()));
-        
         this.treeView.setCellFactory(new Callback<TreeView<FileModel>, TreeCell<FileModel>>() {
             @Override
             public TreeCell<FileModel> call(TreeView<FileModel> param) {
-                return new TreeCell<FileModel>() {
-                    private TextField tf;
+                FileModelTreeCell c = new FileModelTreeCell();
+                c.setOnMouseClicked(new EventHandler<MouseEvent>() {
                     @Override
-                    public void startEdit() {
-                        super.startEdit();
-                        if (this.tf == null) {
-                            createTextField();
-                        }
-                        this.setText(null);
-                        this.setGraphic(this.tf);
-                        tf.selectAll();
+                    public void handle(MouseEvent event) {
+                        Explorer.this.switchDirectory(c.getItem());
                     }
-                    @Override
-                    public void cancelEdit() {
-                        super.cancelEdit();
-                        this.setText(this.getTreeItem().getValue().getName());
-                        this.setGraphic(getTreeItem().getGraphic());
-                    }
-                    @Override
-                    protected void updateItem(FileModel f, boolean empty) {
-                        super.updateItem(f, empty);
-                        if (empty) {
-                            this.setText(null);
-                            this.setGraphic(null);
-                        } else {
-                            if (isEditing()) {
-                                if (this.tf != null) {
-                                    this.tf.setText(this.getTreeItem().getValue().getName());
-                                }
-                            } else {
-                                this.getTreeItem().getChildren();
-                                this.setText(this.getTreeItem().getValue().getName());
-                                this.setGraphic(getTreeItem().getGraphic());
-                            }
-                            // this.setGraphic(Explorer.DIRECTORY_ICON);
-                        }
-                    }
-
-                    public void createTextField() {
-                        this.tf = new TextField(this.getTreeItem().getValue().getName());
-                        this.tf.setOnKeyReleased(new EventHandler<KeyEvent>(){
-                            @Override
-                            public void handle(KeyEvent event) {
-                                if (event.getCode() == KeyCode.ENTER) {
-                                    // TODO: rename
-                                    commitEdit(getTreeItem().getValue());
-                                } else if (event.getCode() == KeyCode.ESCAPE) {
-                                    cancelEdit();
-                                }
-                            }
-                            
-                        });
-                    }
-                };
+                });
+                return c;
             }
         });
     }

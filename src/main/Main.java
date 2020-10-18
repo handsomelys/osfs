@@ -3,6 +3,7 @@ package main;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Scanner;
 
 import controller.AttrForFS;
 import filesystem.model.DiskModel;
@@ -31,7 +32,9 @@ public class Main extends Application {
         }
 	}
 	@SuppressWarnings("unchecked")
-	public static void main(String[] args) {
+	public static void main(String[] args) throws CloneNotSupportedException {
+		Scanner sc = new Scanner(System.in);
+		
 		DiskModel disk = new DiskModel();
 		AttrForFS.setDisk(DiskService.checkDisk(disk));
 		AttrForFS.setFat(AttrForFS.getDisk().getFat());
@@ -42,6 +45,15 @@ public class Main extends Application {
 		AttrForFS.setCurrentDirs((List<Object>)hash.get("dirs"));
 		AttrForFS.setCurrentFilesAndDirs((List<Object>)hash.get("allFiles"));
 
+		FileModel parentFile = (FileModel) AttrForFS.getDisk().getDiskTable().get(2);
+		// FileService.createFile(parentFile, FileModel.DIRECTORY);
+		// System.out.println(AttrForFS.getDisk().getDiskFreeCount());
+		// for (int i=0;i<3;i++) {
+		// 	FileService.createFile(parentFile, FileModel.FILE);
+		// }
+		// FileService.copyFile((FileModel)AttrForFS.getDisk().getDiskTable().get(4));
+		// System.out.println(AttrForFS.getDisk().getDiskFreeCount());
 		launch(args);
 	}
+		
 }

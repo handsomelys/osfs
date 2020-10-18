@@ -29,7 +29,7 @@ public class DiskModel {
          }
          FileModel root = new FileModel();
          root.setParentFile(null);
-         root.setAttribute(3);
+         root.setAttribute(FileModel.ROOT);
          root.setStartIndex(2);
          root.setName("root");
          this.diskTable.add(2, root);;

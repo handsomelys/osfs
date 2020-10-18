@@ -33,7 +33,9 @@ public class Editor {
 		;
 	}
 	
+	//带参数的话 不能bind到fxml中
 	public void editFileContent(FileModel file) {
+		
 		save.setOnAction((ActionEvent t) -> {
             FileService.editFileContent(file,textArea.getText());
         });

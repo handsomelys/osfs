@@ -22,18 +22,30 @@ public class Main extends Application {
 
     @Override
     public void start(Stage primaryStage) {
-        Parent explorer = new Pane();
+        /*Parent explorer = new Pane();
         try {
             explorer = FXMLLoader.load(getClass().getResource("/ui/explorer.fxml"));
             primaryStage.setScene(new Scene(explorer, 900, 600));
             primaryStage.show();
         } catch (IOException e) {
             e.printStackTrace();
-        }
+        }*/
+    	try {
+			Parent editer = FXMLLoader.load(getClass().getResource("/ui/editor.fxml"));
+			Scene scene = new Scene(editer,500,522);
+			primaryStage.setScene(scene);
+			primaryStage.setResizable(true);
+			primaryStage.setTitle("editor");
+			primaryStage.show();
+    	} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+    	
 	}
 	@SuppressWarnings("unchecked")
 	public static void main(String[] args) throws CloneNotSupportedException {
-		Scanner sc = new Scanner(System.in);
+		/*Scanner sc = new Scanner(System.in);
 		
 		DiskModel disk = new DiskModel();
 		AttrForFS.setDisk(DiskService.checkDisk(disk));
@@ -53,7 +65,7 @@ public class Main extends Application {
 		// }
 		// FileService.copyFile((FileModel)AttrForFS.getDisk().getDiskTable().get(4));
 		// System.out.println(AttrForFS.getDisk().getDiskFreeCount());
-		launch(args);
+*/		launch(args);
 	}
 		
 }

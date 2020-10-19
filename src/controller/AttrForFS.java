@@ -1,5 +1,6 @@
 package controller;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import filesystem.model.DiskModel;
@@ -13,6 +14,8 @@ public class AttrForFS {
 	private static List<Object> currentDirs;
 	private static List<Object> currentFilesAndDirs;
 	public static FATModel fat;
+	
+	private static List<FileModel> currentOpenFile = new ArrayList<>();
 
 	public static FileModel getRoot() {
 		return (FileModel) DiskService.getDiskContent(FATModel.RESERVED_BLOCK_COUNT-1, AttrForFS.getDisk());
@@ -57,6 +60,14 @@ public class AttrForFS {
 
 	public static void setCurrentFilesAndDirs(List<Object> currentFilesAndDirs) {
 		AttrForFS.currentFilesAndDirs = currentFilesAndDirs;
+	}
+
+	public static List<FileModel> getCurrentOpenFile() {
+		return currentOpenFile;
+	}
+
+	public static void setCurrentOpenFile(List<FileModel> currentOpenFile) {
+		AttrForFS.currentOpenFile = currentOpenFile;
 	}
 	
 	

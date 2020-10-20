@@ -11,10 +11,11 @@
 <?import javafx.scene.control.Separator?>
 <?import javafx.scene.control.SeparatorMenuItem?>
 <?import javafx.scene.control.SplitPane?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
 <?import javafx.scene.control.TitledPane?>
 <?import javafx.scene.control.ToolBar?>
 <?import javafx.scene.control.TreeView?>
-<?import javafx.scene.layout.FlowPane?>
 <?import javafx.scene.layout.VBox?>
 
 <VBox fx:id="filesystemScene" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="600.0" prefWidth="900.0" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="ui.Explorer">
@@ -69,10 +70,16 @@
                   </ContextMenu>
                </contextMenu>
             </ScrollPane>
-            <ScrollPane fx:id="fileViewScrollPane" fitToWidth="true" hbarPolicy="NEVER" pannable="true">
+            <ScrollPane fx:id="fileViewScrollPane" fitToHeight="true" fitToWidth="true" hbarPolicy="NEVER" pannable="true">
                <content>
-                  <FlowPane fx:id="fileViewContent" minWidth="400.0">
-                  </FlowPane>
+                  <TableView fx:id="fileView" editable="true" minWidth="400.0">
+                     <columns>
+                        <TableColumn fx:id="fileViewColumnName" editable="false" prefWidth="75.0" text="名称" />
+                        <TableColumn fx:id="fileViewColumnType" editable="false" prefWidth="75.0" text="类型" />
+                        <TableColumn fx:id="fileViewColumnSize" editable="false" prefWidth="75.0" text="大小（块）" />
+                        <TableColumn fx:id="fileViewColumnReadonly" editable="false" prefWidth="75.0" text="只读" />
+                        <TableColumn fx:id="fileViewColumnStartindex" editable="false" prefWidth="75.0" text="起始盘块" />
+                     </columns></TableView>
                </content>
                <contextMenu>
                   <ContextMenu fx:id="fileViewPopupMenu">

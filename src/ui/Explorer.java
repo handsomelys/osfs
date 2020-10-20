@@ -5,7 +5,9 @@ import filesystem.model.FileModel;
 import filesystem.service.FileService;
 
 import java.net.URL;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.ResourceBundle;
 
 import javafx.application.Platform;
@@ -25,15 +27,17 @@ import javafx.scene.control.MenuBar;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.SplitPane;
+import javafx.scene.control.TableColumn;
+import javafx.scene.control.TableView;
 import javafx.scene.control.TitledPane;
 import javafx.scene.control.ToolBar;
 import javafx.scene.control.TreeCell;
 import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeView;
+import javafx.scene.control.cell.MapValueFactory;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
-import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.VBox;
 import javafx.util.Callback;
 
@@ -106,6 +110,26 @@ public class Explorer implements Initializable {
     @FXML
     private TreeView<FileModel> treeView;
 
+    @SuppressWarnings("all")
+    @FXML
+    private TableColumn<Map, String> fileViewColumnName;
+
+    @SuppressWarnings("all")
+    @FXML
+    private TableColumn<Map, String> fileViewColumnType;
+
+    @SuppressWarnings("all")
+    @FXML
+    private TableColumn<Map, String> fileViewColumnSize;
+
+    @SuppressWarnings("all")
+    @FXML
+    private TableColumn<Map, String> fileViewColumnReadonly;
+
+    @SuppressWarnings("all")
+    @FXML
+    private TableColumn<Map, String> fileViewColumnStartindex;
+
     @FXML
     private ContextMenu treeViewPopupMenu;
 
@@ -119,7 +143,7 @@ public class Explorer implements Initializable {
     private ScrollPane fileViewScrollPane;
 
     @FXML
-    private FlowPane fileViewContent;
+    private TableView<Map<String, String>> fileView;
 
     @FXML
     private ContextMenu fileViewPopupMenu;
@@ -146,12 +170,14 @@ public class Explorer implements Initializable {
     void createDirectory(ActionEvent event) {
         FileService.createFile(this.current, 2);
         this.updateTreeView();
+        this.updateFileView();
     }
 
     @FXML
     void createFile(ActionEvent event) {
         FileService.createFile(this.current, 1);
         this.updateTreeView();
+        this.updateFileView();
     }
 
     @FXML
@@ -202,8 +228,8 @@ public class Explorer implements Initializable {
 
     @FXML
     void selectAll(ActionEvent event) {
-        
-        this.treeView.setRoot(Explorer.createNode(AttrForFS.getRoot()));
+        this.updateTreeView();
+        this.updateFileView();
     }
 
     void configureTreeView() {
@@ -218,6 +244,36 @@ public class Explorer implements Initializable {
     }
     void updateTreeView() {
         this.treeView.setRoot(Explorer.createNode(AttrForFS.getRoot()));
+    }
+    
+    void updateFileView() {
+        ObservableList<Map<String, String>> oo = generateFile(this.current);
+        System.out.println(oo);
+        this.fileView.setItems(oo);
+    }
+    
+    ObservableList<Map<String, String>> generateFile(FileModel f) {
+        ObservableList<Map<String, String>> all = FXCollections.observableArrayList();
+        for (Object o: FileService.getSubFiles(f)) {
+            if (o instanceof FileModel) {
+                FileModel ff = (FileModel) o;
+                Map<String, String> m = new HashMap<String, String>();
+                if (ff.getAttribute() == 1) {
+                    m.put(FileModelListCell.COLUMN_1_MAP_KEY, ff.getName()+"."+ff.getType());
+                    m.put(FileModelListCell.COLUMN_2_MAP_KEY, "文件");
+                } else if (ff.getAttribute() == 2 || ff.getAttribute() == 3) {
+                    m.put(FileModelListCell.COLUMN_1_MAP_KEY, ff.getName());
+                    m.put(FileModelListCell.COLUMN_2_MAP_KEY, "目录");
+                }
+                m.put(FileModelListCell.COLUMN_3_MAP_KEY, String.valueOf(ff.getSize()));
+                m.put(FileModelListCell.COLUMN_4_MAP_KEY, ff.isReadOnly()?"√":"×");
+                m.put(FileModelListCell.COLUMN_5_MAP_KEY, String.valueOf(ff.getStartIndex()));
+                System.out.println(ff);
+                System.out.println(m);
+                all.add(m);
+            }
+        }
+        return all;
     }
 
     public static TreeItem<FileModel> createNode(final FileModel f) {
@@ -283,6 +339,13 @@ public class Explorer implements Initializable {
     public void initialize(URL location, ResourceBundle resources) {
         switchDirectory(AttrForFS.getRoot());
         this.updateTreeView();
+
+        this.fileViewColumnName.setCellValueFactory(new MapValueFactory<String>(FileModelListCell.COLUMN_1_MAP_KEY));
+        this.fileViewColumnType.setCellValueFactory(new MapValueFactory<String>(FileModelListCell.COLUMN_2_MAP_KEY));
+        this.fileViewColumnSize.setCellValueFactory(new MapValueFactory<String>(FileModelListCell.COLUMN_3_MAP_KEY));
+        this.fileViewColumnReadonly.setCellValueFactory(new MapValueFactory<String>(FileModelListCell.COLUMN_4_MAP_KEY));
+        this.fileViewColumnStartindex.setCellValueFactory(new MapValueFactory<String>(FileModelListCell.COLUMN_5_MAP_KEY));
+        this.updateFileView();
 
         this.treeView.setCellFactory(new Callback<TreeView<FileModel>, TreeCell<FileModel>>() {
             @Override

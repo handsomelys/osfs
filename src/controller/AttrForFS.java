@@ -2,6 +2,7 @@ package controller;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.HashMap;
 
 import filesystem.model.DiskModel;
 import filesystem.model.FATModel;
@@ -70,5 +71,15 @@ public class AttrForFS {
 		AttrForFS.currentOpenFile = currentOpenFile;
 	}
 	
-	
+	@SuppressWarnings("unchecked")
+	public static void init() {
+		DiskModel d = (DiskModel) DiskService.achieve2Disk(main.Main.DISK);
+		d = DiskService.checkDisk(d);
+		AttrForFS.disk = d;
+		AttrForFS.fat = d.getFat();
+		HashMap<String, Object> hash = DiskService.getDirsAndFiles(disk);
+		AttrForFS.setCurrentFiles((List<Object>)hash.get("files"));
+		AttrForFS.setCurrentDirs((List<Object>)hash.get("dirs"));
+		AttrForFS.setCurrentFilesAndDirs((List<Object>)hash.get("allFiles"));
+	}
 }

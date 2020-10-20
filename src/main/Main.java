@@ -1,71 +1,45 @@
 package main;
 
-import java.io.IOException;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Scanner;
 
-import controller.AttrForFS;
-import filesystem.model.DiskModel;
-import filesystem.model.FATModel;
-import filesystem.model.FileModel;
-import filesystem.service.DiskService;
-import filesystem.service.FileService;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
-import javafx.scene.layout.Pane;
 import javafx.stage.Stage;
+
+import java.io.IOException;
+
+import controller.AttrForFS;
+import ui.Terminal;
 
 public class Main extends Application {
 
+    public static final String DISK = "disk.dat";
+
     @Override
     public void start(Stage primaryStage) {
-        /*Parent explorer = new Pane();
         try {
-            explorer = FXMLLoader.load(getClass().getResource("/ui/explorer.fxml"));
+            Parent explorer = FXMLLoader.load(getClass().getResource("/ui/explorer.fxml"));
             primaryStage.setScene(new Scene(explorer, 900, 600));
             primaryStage.show();
         } catch (IOException e) {
             e.printStackTrace();
-        }*/
-    	try {
-			Parent editer = FXMLLoader.load(getClass().getResource("/ui/editor.fxml"));
-			Scene scene = new Scene(editer,500,522);
-			primaryStage.setScene(scene);
-			primaryStage.setResizable(true);
-			primaryStage.setTitle("editor");
-			primaryStage.show();
-    	} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-    	
-	}
-	@SuppressWarnings("unchecked")
-	public static void main(String[] args) throws CloneNotSupportedException {
-		/*Scanner sc = new Scanner(System.in);
-		
-		DiskModel disk = new DiskModel();
-		AttrForFS.setDisk(DiskService.checkDisk(disk));
-		AttrForFS.setFat(AttrForFS.getDisk().getFat());
-		
-		HashMap<String, Object> hash = DiskService.getDirsAndFiles(disk);
-		// this have unchecked warning
-		AttrForFS.setCurrentFiles((List<Object>)hash.get("files"));
-		AttrForFS.setCurrentDirs((List<Object>)hash.get("dirs"));
-		AttrForFS.setCurrentFilesAndDirs((List<Object>)hash.get("allFiles"));
-
-		FileModel parentFile = (FileModel) AttrForFS.getDisk().getDiskTable().get(2);
-		// FileService.createFile(parentFile, FileModel.DIRECTORY);
-		// System.out.println(AttrForFS.getDisk().getDiskFreeCount());
-		// for (int i=0;i<3;i++) {
-		// 	FileService.createFile(parentFile, FileModel.FILE);
-		// }
-		// FileService.copyFile((FileModel)AttrForFS.getDisk().getDiskTable().get(4));
-		// System.out.println(AttrForFS.getDisk().getDiskFreeCount());
-*/		launch(args);
-	}
-		
+        }
+        (new Terminal()).start(new Stage());
+        try {
+            Parent editer = FXMLLoader.load(getClass().getResource("/ui/editor.fxml"));
+            Scene scene = new Scene(editer,500,522);
+            Stage editorStage = new Stage();
+            editorStage.setScene(scene);
+            editorStage.setResizable(true);
+            editorStage.setTitle("editor");
+            editorStage.show();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+    public static void main(String[] args) throws CloneNotSupportedException {
+        AttrForFS.init();
+        launch(args);
+    }
 }

@@ -125,7 +125,9 @@ public class DiskService {
             ois.close();
             input.close();
             return object;
-        }catch (Exception e){
+        } catch (java.io.FileNotFoundException e) {
+            // do nothing
+        } catch (Exception e) {
             e.printStackTrace();
         }
       return null;

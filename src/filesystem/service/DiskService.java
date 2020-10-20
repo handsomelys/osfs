@@ -1,5 +1,10 @@
 package filesystem.service;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -93,4 +98,36 @@ public class DiskService {
             return 0;
         }
     }
+	
+	//save the virtual disk to the real disk
+	public static void save2Disk(DiskModel disk,String filename,FATModel fat) {
+		File file = new File(filename);
+		disk.setFat(fat);
+		try{
+	           FileOutputStream output=new FileOutputStream(file);
+	           ObjectOutputStream oos=new ObjectOutputStream(output);
+	           oos.writeObject(disk);
+	           oos.flush();
+	           oos.close();
+	           output.close();
+	       }catch (Exception e){
+	            e.printStackTrace();
+	       }
+	}
+	
+	//achieve the disk data from the real disk
+	public static Object achieve2Disk(String filename) {
+		File file=new File(filename);
+        try{
+            FileInputStream input=new FileInputStream(file);
+            ObjectInputStream ois=new ObjectInputStream(input);
+            Object object=ois.readObject();
+            ois.close();
+            input.close();
+            return object;
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+      return null;
+	}
 }

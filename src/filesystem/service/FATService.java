@@ -13,7 +13,7 @@ public class FATService {
 	}
 	//while the file end, set the fat value = -1
 	public static void fileEnd(int index,FATModel fat) {
-		fat.getTable()[index] = -1;
+		fat.getTable()[index] = FATModel.USED_BLOCK;
 	}
 	//free the FAT
 	public static void freeBlock(int index,FATModel fat) {

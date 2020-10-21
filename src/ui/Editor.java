@@ -71,10 +71,10 @@ public class Editor extends Application {
 	}
 
 	public void save(ActionEvent t) {
-		System.out.println("我要保存了");
+		System.out.println("保存成功");
 	}
 	
-	//带参数的话 不能bind到fxml中
+	//edit the file content
 	public void editFileContent(FileModel file) {
 		
 		save.setOnAction((ActionEvent t) -> {
@@ -83,9 +83,19 @@ public class Editor extends Application {
 		
 		String text = FileService.getFileContent(file);
 		textArea.setText(text);
+		//click the 'X' to close the window
+		stage.setOnCloseRequest(new EventHandler<WindowEvent>() {
+            public void handle(WindowEvent windowEvent) {
+                windowEvent.consume();
+                String content = textArea.getText();
+                   FileService.editFileContent(file, content);
+                   stage.close();
+            }
+        });
         stage.show();
 	}
-	
+
+	//show the file content
 	public void showFileContent(FileModel file) {
 		String content = FileService.getFileContent(file);
 		textArea.setText(content);

@@ -43,7 +43,7 @@ public class FileService {
 	//create file in the disk, need to point out the parent file
 	public static boolean createFile(FileModel file) {
 		System.out.println("parents sub nums: "+file.getParentFile().getSubFiles().size());
-		if(file.getParentFile().getSubFiles().size()>=8) {
+		if(!addSubFileValid(file.getParentFile())) {
 			
 			System.out.println("at most 8 files in one directory!!");
 			return false;
@@ -141,9 +141,7 @@ public class FileService {
 				System.out.println("The names'length can not be blank");
 				return false;
 			}
-			//else if(file.getName().length()>3) {	duplicated method
-			//	System.out.println("The names length must smaller than 3");
-			//}
+
 			else if(checkDuplicationOfName(file)) {
 				
 				System.out.println("Duplication of name!!");
@@ -151,9 +149,6 @@ public class FileService {
 			}
 			else {
 				DiskService.saveFile(file, disk);
-				// AttrForFS.getCurrentFiles().add(file);
-				// AttrForFS.getCurrentFilesAndDirs().add(file);
-				//System.out.println("Create File successed");
 			}
 		}
 		return true;
@@ -226,9 +221,8 @@ public class FileService {
 			}if(file.getStartIndex()!=start_index) {
 				FATService.SetBlockValue(0, AttrForFS.getFat(), start_index);	//set the former block value to 0, stands for vacant
 			}
-			else {
-				FATService.SetBlockValue(255, AttrForFS.getFat(), start_index);	//set the current block value to 255, stands for the file end
-			}
+				FATService.SetBlockValue(255, AttrForFS.getFat(), file.getStartIndex());	//set the current block value to 255, stands for the file end
+
 		}
 	
 	
@@ -299,7 +293,7 @@ public class FileService {
 	
 	//update the directory's sub files
 	public static boolean updateDirectorySub(FileModel directory,FileModel sub) {
-		if(directory.getSubFiles().size()<8) {
+		if(addSubFileValid(directory)) {
 			directory.getSubFiles().add(sub);
 			directory.setSubDirNums(directory.getSubDirNums()+1);
 			return true;
@@ -355,6 +349,30 @@ public class FileService {
 				if(!copydir((FileModel)f))	return false;
 			}
 		}		
+		return true;
+	}
+
+	public static boolean addSubFileValid(FileModel parentFile){
+		if(getSubFiles(parentFile).size()>=FileModel.MAX_SUB_NUMS){
+			System.out.println("It's subs nums over 8!");
+			return false;
+		}
+		return true;
+	}
+
+	public static boolean validInputName(String fileName){
+		if(fileName==null||fileName.equals("")){
+			System.out.println("null error");
+			return false;
+		}
+		else if(fileName.toCharArray().length>3){
+			System.out.println("name over size error");
+			return false;
+		}
+		else if(fileName.contains("$")||fileName.contains("/")||fileName.contains(".")){
+			System.out.println("invalid chars error");
+			return false;
+		}
 		return true;
 	}
 }

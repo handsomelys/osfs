@@ -1,5 +1,6 @@
 package filesystem.model;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -7,12 +8,16 @@ import java.util.Map;
 
 import util.TypeTransfrom;
 
-public class FileModel implements Cloneable {
-	//**********************
+public class FileModel implements Cloneable, Serializable {
+
+	private static final long serialVersionUID = -2985024558554604396L;
+	
+	// **********************
 	//members
 	public static final int FILE = 1;
 	public static final int DIRECTORY = 2;
 	public static final int ROOT = 3;
+	public static final int MAX_SUB_NUMS = 8;
 	private String name;	//filenames or directory names
 	private char type;	//file type
 	private int attribute;	//define file or directory	1 is file,2 is directory,3 is root

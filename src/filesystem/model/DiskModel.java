@@ -1,5 +1,6 @@
 package filesystem.model;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -7,7 +8,7 @@ import java.util.List;
 import filesystem.service.FATService;
 
 
-public class DiskModel {
+public class DiskModel implements Serializable {
     public static final int BLOCK_COUNT = 128;
     public static final int BLOCK_SIZE = 64; // bytes
 

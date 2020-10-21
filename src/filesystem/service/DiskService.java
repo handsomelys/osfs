@@ -114,7 +114,8 @@ public class DiskService {
 	            e.printStackTrace();
 	       }
 	}
-	
+
+
 	//achieve the disk data from the real disk
 	public static Object achieve2Disk(String filename) {
 		File file=new File(filename);

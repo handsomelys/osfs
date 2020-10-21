@@ -27,10 +27,10 @@ public class Editor {
 	private static Stage stage;
 
 	public void save(ActionEvent t) {
-		System.out.println("我要保存了");
+		System.out.println("保存成功");
 	}
 	
-	//带参数的话 不能bind到fxml中
+	//edit the file content
 	public void editFileContent(FileModel file) {
 		
 		save.setOnAction((ActionEvent t) -> {
@@ -39,18 +39,19 @@ public class Editor {
 		
 		String text = FileService.getFileContent(file);
 		textArea.setText(text);
-		//如果按了x 默认保留文本内容
+		//click the 'X' to close the window
 		stage.setOnCloseRequest(new EventHandler<WindowEvent>() {
             public void handle(WindowEvent windowEvent) {
                 windowEvent.consume();
                 String content = textArea.getText();
-                   FileService.editFileContent(file, content);//更新文件内容
+                   FileService.editFileContent(file, content);
                    stage.close();
             }
         });
         stage.show();
 	}
-	
+
+	//show the file content
 	public void showFileContent(FileModel file) {
 		String content = FileService.getFileContent(file);
 		textArea.setText(content);

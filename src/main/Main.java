@@ -5,6 +5,7 @@ import javafx.event.EventHandler;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+
 import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
 
@@ -13,6 +14,7 @@ import java.io.IOException;
 import controller.AttrForFS;
 import filesystem.service.*;
 import ui.Terminal;
+
 
 public class Main extends Application {
 
@@ -27,6 +29,7 @@ public class Main extends Application {
         } catch (IOException e) {
             e.printStackTrace();
         }
+
         try {
             Parent editer = FXMLLoader.load(getClass().getResource("/ui/editor.fxml"));
             Scene scene = new Scene(editer,500,522);
@@ -51,4 +54,5 @@ public class Main extends Application {
         AttrForFS.init();
         launch(args);
     }
+
 }

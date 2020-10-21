@@ -4,6 +4,7 @@ import controller.AttrForFS;
 import filesystem.model.FileModel;
 import filesystem.service.FileService;
 
+import java.io.File;
 import java.net.URL;
 import java.util.HashMap;
 import java.util.List;
@@ -38,13 +39,33 @@ import javafx.scene.control.cell.MapValueFactory;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
+import javafx.scene.layout.TilePane;
 import javafx.scene.layout.VBox;
+import javafx.stage.Stage;
 import javafx.util.Callback;
 
 public class Explorer implements Initializable {
 
     public static final Node DIRECTORY_ICON = new ImageView(new Image("resource/directory.png"));
 
+    public static Stage getStage() {
+        return stage;
+    }
+
+    public static void setStage(Stage stage) {
+        Explorer.stage = stage;
+    }
+
+    public static TilePane getShowPane() {
+        return showPane;
+    }
+
+    public static void setShowPane(TilePane showPane) {
+        Explorer.showPane = showPane;
+    }
+
+    private static Stage stage;
+    private static TilePane showPane;
     public FileModel current;
 
     @FXML
@@ -175,7 +196,9 @@ public class Explorer implements Initializable {
 
     @FXML
     void createFile(ActionEvent event) {
-        FileService.createFile(this.current, 1);
+        /*FileService.createFile(this.current, 1);*/
+
+        ShowFilePane.show((FileModel) AttrForFS.getDisk().getDiskTable().get(2),FileModel.FILE,stage,showPane);
         this.updateTreeView();
         this.updateFileView();
     }

@@ -15,13 +15,14 @@ import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Font;
 import javafx.stage.Stage;
-
-import filesystem.model.FileModel;
-import filesystem.service.FileService;
+import javafx.stage.WindowEvent;
 
 import java.util.ArrayList;
 import java.util.function.UnaryOperator;
 
+import filesystem.model.FileModel;
+import filesystem.service.DiskService;
+import filesystem.service.FileService;
 import controller.AttrForFS;
 
 public class Terminal extends Application {
@@ -86,24 +87,68 @@ public class Terminal extends Application {
         this.display.appendText(s+"\n");
     }
 
-    public void parseCommand(String s) {
-        String[] command = s.split(" ");
-
-        // for (String ss: command) {
-        //     System.out.print(ss+", ");
-        // }
-        // System.out.println();
-        switch (command[0]) {
-            case "create": {
-                this.putLine("you are creating something");
-                if (command.length>1) {
-                    String[] way = command[1].split("\\");
-                    if (command[1].startsWith("\\")) {
-                        for (Object o: FileService.getSubFiles(AttrForFS.getRoot())) {
-
+    public void parseCommand(String command) {
+        String[] commands = command.split(" ");
+        switch (commands[0]) {
+            case "create": 
+            case "touch": {
+                if (commands.length>1) {
+                    String[] path = commands[1].split("/");
+                    FileModel destination = AttrForFS.getRoot();
+                    if (commands[1].startsWith("/")) {
+                        path = commands[1].substring(1).split("/");
+                    } else {
+                        destination = this.current;
+                    }
+                    boolean allFound = true;
+                    for (int i = 0; i < path.length-1; ++i) {
+                        boolean found = false;
+                        FileModel next = null;
+                        for (Object o: FileService.getSubFiles(destination)) {
+                            next = (FileModel) o;
+                            if (next.getName().equals(path[i])) {
+                                found = true;
+                                break;
+                            }
+                        }
+                        if (found) {
+                            destination = next;
+                        } else {
+                            allFound = false;
+                            break;
                         }
                     }
-
+                    if (allFound) {
+                        String fileName = path[path.length-1];
+                        int dot = fileName.lastIndexOf(".");
+                        if (dot == -1) {
+                            if (fileName.length()>3) {
+                                this.putLine(fileName+": invalid file name (too long)");
+                            } else {
+                                FileService.createFile(destination, 1, fileName, ' ');
+                            }
+                        } else {
+                            if (dot == fileName.length()-2) {
+                                String name = fileName.substring(0, dot);
+                                char extend = fileName.charAt(fileName.length()-1);
+                                if (name.length()>3) {
+                                    this.putLine(fileName+": invalid file name (too long)");
+                                } else {
+                                    FileService.createFile(destination, 1, name, extend);
+                                }
+                            } else {
+                                this.putLine(fileName+": invalid file name (extension too long)");
+                            }
+                        }
+                    } else {
+                        String err = "/";
+                        for (String s: path) {
+                            err = err+s+"/";
+                        }
+                        this.putLine(err+": path no exist");
+                    }
+                } else {
+                    FileService.createFile(this.current, 1);
                 }
                 break;
             }
@@ -112,16 +157,34 @@ public class Terminal extends Application {
 
                 break;
             }
+            case "dir":
             case "ls": {
-                this.putLine("you are listing something");
-
+                this.putLine("----Directory of "+this.current.getName()+"----");
+                if (FileService.getSubFiles(this.current).size() == 0) {
+                    this.putLine("It's quite empty here!");
+                } else {
+                    this.putLine("type  size  index  name");
+                    String format = "%-4s  %-4d  %-5d  %-8s";
+                    for (Object o: FileService.getSubFiles(this.current)) {
+                        FileModel f = (FileModel) o;
+                        this.putLine(String.format(format,
+                            f.getAttribute()==1?"file":"dir",
+                            f.getSize(),
+                            f.getStartIndex(),
+                            f.getNormalName()));
+                    }
+                }
                 break;
+            }
+            case "exit": {
+                DiskService.save2Disk(AttrForFS.getDisk(), main.Main.DISK, AttrForFS.getFat());
+                Platform.exit();
             }
             case "": {
                 break;
             }
             default: {
-                this.putLine(command[0]+": command not found");
+                this.putLine(commands[0]+": command not found");
             }
         }
     }
@@ -161,6 +224,12 @@ public class Terminal extends Application {
         AttrForFS.init();
         this.current = AttrForFS.getRoot();
         this.input.setText(this.getPrompt());
+        primaryStage.setOnCloseRequest(new EventHandler<WindowEvent>() {
+            @Override
+            public void handle(WindowEvent event) {
+                DiskService.save2Disk(AttrForFS.getDisk(), main.Main.DISK, AttrForFS.getFat());
+            }
+        });
     }
     public static void main(String args[]) {
         launch(args);

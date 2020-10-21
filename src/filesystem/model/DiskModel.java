@@ -69,25 +69,6 @@ public class DiskModel {
         this.diskTable.set(index,content);
     }
     
-    // TODO: ?
-    // apply free block, return the vacant index of disk, -1 stand for disk full
-    // public static int applyFreeBlock(FATModel fat) {
-    //     for(int i=3;i<fat.getTable().length;i++) {
-    //         if(fat.getTable()[i]==0) {
-    //             return i;
-    //         }
-    //     }
-    //     return -1;
-    // }
-    
-    // check if the disk is valid
-    // public static DiskModel checkDisk(DiskModel disk) {
-    //     if(disk==null) {
-    //         return new DiskModel();
-    //     }
-    //     return disk;
-    // }
-    
     //get the free blocks counts
     public int getDiskFreeCount() {
         return this.fat.getFreeCount();

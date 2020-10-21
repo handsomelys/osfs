@@ -1,8 +1,5 @@
 package ui;
 
-import java.net.URL;
-import java.util.ResourceBundle;
-
 import filesystem.model.FileModel;
 import filesystem.service.FileService;
 import javafx.event.ActionEvent;
@@ -30,10 +27,10 @@ public class Editor {
 	private static Stage stage;
 
 	public void save(ActionEvent t) {
-		System.out.println("ÎÒÒª±£´æÁË");
+		System.out.println("æˆ‘è¦ä¿å­˜äº†");
 	}
 	
-	//´ø²ÎÊıµÄ»° ²»ÄÜbindµ½fxmlÖĞ
+	//å¸¦å‚æ•°çš„è¯ ä¸èƒ½bindåˆ°fxmlä¸­
 	public void editFileContent(FileModel file) {
 		
 		save.setOnAction((ActionEvent t) -> {
@@ -42,12 +39,12 @@ public class Editor {
 		
 		String text = FileService.getFileContent(file);
 		textArea.setText(text);
-		//Èç¹û°´ÁËx Ä¬ÈÏ±£ÁôÎÄ±¾ÄÚÈİ
+		//å¦‚æœæŒ‰äº†x é»˜è®¤ä¿ç•™æ–‡æœ¬å†…å®¹
 		stage.setOnCloseRequest(new EventHandler<WindowEvent>() {
             public void handle(WindowEvent windowEvent) {
                 windowEvent.consume();
                 String content = textArea.getText();
-                   FileService.editFileContent(file, content);//¸üĞÂÎÄ¼şÄÚÈİ
+                   FileService.editFileContent(file, content);//æ›´æ–°æ–‡ä»¶å†…å®¹
                    stage.close();
             }
         });

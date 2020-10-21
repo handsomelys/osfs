@@ -156,7 +156,14 @@ public class FileModel implements Cloneable {
 	                // ", parentFile=" + this.parentFile +
 	                ", ReadOnly=" + this.isReadOnly +
 					"}";
-	    }
+		}
+		public String getNormalName() {
+			if (this.attribute == 1) {
+				if (this.type != ' ')
+					return this.name+"."+this.type;
+			}
+			return this.name;
+		}
 	
 	//**********************
 

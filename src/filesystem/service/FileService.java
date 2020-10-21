@@ -70,26 +70,25 @@ public class FileService {
 		return false;
 	}
 	public static boolean createFile(FileModel parentFile, int fileAttribute) {
-		// System.out.println(parentFile);
-		// System.out.println("parents sub nums: "+parentFile.getSubFiles().size());
+		return FileService.createFile(parentFile, fileAttribute, FileService.getNewName(parentFile, fileAttribute), 'x');
+	}
+
+	public static boolean createFile(FileModel parentFile, int fileAttribute, String fileName, char fileType) {
 		if(parentFile.getSubFiles().size()>=8) {
 			System.out.println("at most 8 files in one directory!!");
 			return false;
 		}
+		if (fileName.length() > 3) {
+			System.out.println("wjmcdbndy3");
+		}
 		FileModel file = new FileModel();
 		file.setAttribute(fileAttribute);
-		// System.out.println("input the file name");
-		// String filename = sc.nextLine();
-		
-		// if(filename.length()>3) {
-		// 	System.out.println("the file name should not over 3 chars");
-		// 	return false;
-		// }
-		String filename = FileService.getNewName(parentFile, fileAttribute);
-		file.setName(filename);
+		file.setName(fileName);
+		if (fileAttribute == 1 && fileType != 0) {
+			file.setType(fileType);
+		}
 		file.setParentFile(parentFile);
 		file.setReadOnly(false);
-		// System.out.println(file);
 		if(addFile(file,AttrForFS.getDisk(),AttrForFS.getFat())) {
 			updateDirectorySub(parentFile,file);
 			AttrForFS.getCurrentFilesAndDirs().add(file);
@@ -101,9 +100,9 @@ public class FileService {
 			}
 			return true;
 		}
-		
 		return false;
 	}
+	
 	
 	public static boolean addFile(FileModel file,DiskModel disk,FATModel fat) {
 		int start_index = FATService.addressOfFreeBlock(fat);
@@ -228,7 +227,6 @@ public class FileService {
 	
 	//get the specific directory's sub files
 	public static List<Object> getSubFiles(FileModel parentFile) {
-		// TODO Auto-generated method stub
 		List<Object> subFiles = new ArrayList<>();
 		List<Object> allFilesSet = AttrForFS.getCurrentFilesAndDirs();
 		for(int i=0;i<allFilesSet.size();i++) {

@@ -1,15 +1,17 @@
 package main;
 
-
 import javafx.application.Application;
+import javafx.event.EventHandler;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
+import javafx.stage.WindowEvent;
 
 import java.io.IOException;
 
 import controller.AttrForFS;
+import filesystem.service.*;
 import ui.Terminal;
 
 public class Main extends Application {
@@ -25,7 +27,6 @@ public class Main extends Application {
         } catch (IOException e) {
             e.printStackTrace();
         }
-        (new Terminal()).start(new Stage());
         try {
             Parent editer = FXMLLoader.load(getClass().getResource("/ui/editor.fxml"));
             Scene scene = new Scene(editer,500,522);
@@ -37,6 +38,14 @@ public class Main extends Application {
         } catch (IOException e) {
             e.printStackTrace();
         }
+        (new Terminal()).start(new Stage());
+        
+        primaryStage.setOnCloseRequest(new EventHandler<WindowEvent>() {
+            @Override
+            public void handle(WindowEvent event) {
+                DiskService.save2Disk(AttrForFS.getDisk(), main.Main.DISK, AttrForFS.getFat());
+            }
+        });
     }
     public static void main(String[] args) throws CloneNotSupportedException {
         AttrForFS.init();

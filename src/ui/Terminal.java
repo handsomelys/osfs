@@ -17,6 +17,7 @@ import javafx.scene.text.Font;
 import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.function.UnaryOperator;
 
@@ -93,59 +94,38 @@ public class Terminal extends Application {
             case "create": 
             case "touch": {
                 if (commands.length>1) {
-                    String[] path = commands[1].split("/");
-                    FileModel destination = AttrForFS.getRoot();
                     if (commands[1].startsWith("/")) {
-                        path = commands[1].substring(1).split("/");
-                    } else {
-                        destination = this.current;
-                    }
-                    boolean allFound = true;
-                    for (int i = 0; i < path.length-1; ++i) {
-                        boolean found = false;
-                        FileModel next = null;
-                        for (Object o: FileService.getSubFiles(destination)) {
-                            next = (FileModel) o;
-                            if (next.getName().equals(path[i])) {
-                                found = true;
-                                break;
-                            }
-                        }
-                        if (found) {
-                            destination = next;
-                        } else {
-                            allFound = false;
-                            break;
-                        }
-                    }
-                    if (allFound) {
-                        String fileName = path[path.length-1];
-                        int dot = fileName.lastIndexOf(".");
-                        if (dot == -1) {
-                            if (fileName.length()>3) {
-                                this.putLine(fileName+": invalid file name (too long)");
-                            } else {
-                                FileService.createFile(destination, 1, fileName, ' ');
+                        // absolute path
+                        int lastDash = commands[1].lastIndexOf("/");
+                        if (lastDash == 0) {
+                            try {
+                                FileService.createFileWithExtension(AttrForFS.getRoot(), commands[1].substring(1));
+                            } catch (IOException e) {
+                                this.putLine(e.getMessage());
                             }
                         } else {
-                            if (dot == fileName.length()-2) {
-                                String name = fileName.substring(0, dot);
-                                char extend = fileName.charAt(fileName.length()-1);
-                                if (name.length()>3) {
-                                    this.putLine(fileName+": invalid file name (too long)");
-                                } else {
-                                    FileService.createFile(destination, 1, name, extend);
-                                }
-                            } else {
-                                this.putLine(fileName+": invalid file name (extension too long)");
+                            try {
+                                FileService.createFileWithExtension(FileService.getFileTraversal(commands[1].substring(1, lastDash)), commands[1].substring(lastDash+1));
+                            } catch (IOException e) {
+                                this.putLine(e.getMessage());
                             }
                         }
                     } else {
-                        String err = "/";
-                        for (String s: path) {
-                            err = err+s+"/";
+                        // relative path
+                        int lastDash = commands[1].lastIndexOf("/");
+                        if (lastDash == -1) {
+                            try {
+                                FileService.createFileWithExtension(AttrForFS.getRoot(), commands[1]);
+                            } catch (IOException e) {
+                                this.putLine(e.getMessage());
+                            }
+                        } else {
+                            try {
+                                FileService.createFileWithExtension(FileService.getFileTraversal(this.current, commands[1].substring(0, lastDash)), commands[1].substring(lastDash+1));
+                            } catch (IOException e) {
+                                this.putLine(e.getMessage());
+                            }
                         }
-                        this.putLine(err+": path no exist");
                     }
                 } else {
                     FileService.createFile(this.current, 1);
@@ -153,8 +133,59 @@ public class Terminal extends Application {
                 break;
             }
             case "delete": {
-                this.putLine("you are deleteing something");
-
+                if (commands.length>1) {
+                    if (commands[1].startsWith("/")) {
+                        // absolute path
+                        try {
+                            FileService.removeFile(FileService.getFileTraversal(commands[1].substring(1)));
+                        } catch (IOException e) {
+                            this.putLine(e.getMessage());
+                        }
+                    } else {
+                        // relative path
+                        try {
+                            FileService.removeFile(FileService.getFileTraversal(commands[1]));
+                        } catch (IOException e) {
+                            this.putLine(e.getMessage());
+                        }
+                    }
+                    // String[] path = commands[1].split("/");
+                    // FileModel destination = AttrForFS.getRoot();
+                    // if (commands[1].startsWith("/")) {
+                    //     path = commands[1].substring(1).split("/");
+                    // } else {
+                    //     destination = this.current;
+                    // }
+                    // boolean allFound = true;
+                    // for (int i = 0; i < path.length; ++i) {
+                    //     boolean found = false;
+                    //     FileModel next = null;
+                    //     for (Object o: FileService.getSubFiles(destination)) {
+                    //         next = (FileModel) o;
+                    //         if (next.getName().equals(path[i])) {
+                    //             found = true;
+                    //             break;
+                    //         }
+                    //     }
+                    //     if (found) {
+                    //         destination = next;
+                    //     } else {
+                    //         allFound = false;
+                    //         break;
+                    //     }
+                    // }
+                    // if (allFound) {
+                    //     if (destination.getAttribute() == 1) {
+                    //         FileService.removeFile(destination);
+                    //     } else {
+                    //         this.putLine("could not delete directory!");
+                    //     }
+                    // } else {
+                    //     this.putLine(commands[1]+": path no exist");
+                    // }
+                } else {
+                    this.putLine("delete: no file specified");
+                }
                 break;
             }
             case "dir":
@@ -171,10 +202,19 @@ public class Terminal extends Application {
                             f.getAttribute()==1?"file":"dir",
                             f.getSize(),
                             f.getStartIndex(),
-                            f.getNormalName()));
+                            f.getNormalName())
+                        );
                     }
                 }
                 break;
+            }
+            case "type":
+            case "cat": {
+                
+                break;
+            }
+            case "open": {
+
             }
             case "exit": {
                 DiskService.save2Disk(AttrForFS.getDisk(), main.Main.DISK, AttrForFS.getFat());

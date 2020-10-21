@@ -9,10 +9,10 @@
    <children>
       <MenuBar>
         <menus>
-          <Menu mnemonicParsing="false" text="File">
+          <Menu mnemonicParsing="false" text="文件">
             <items>
-                  <MenuItem fx:id="save" mnemonicParsing="false" onAction="#save" text="Save" />
-              <MenuItem fx:id="close" mnemonicParsing="false" text="Close" />
+                <MenuItem fx:id="save" mnemonicParsing="false" onAction="#save" text="保存" />
+                <MenuItem fx:id="close" mnemonicParsing="false" text="关闭" />
             </items>
           </Menu>
         </menus>

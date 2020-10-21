@@ -1,5 +1,6 @@
 package filesystem.service;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Scanner;
 import java.util.List;
@@ -102,7 +103,29 @@ public class FileService {
 		}
 		return false;
 	}
-	
+
+	public static boolean createFileWithExtension(FileModel parentFile, String rawFileName) throws IOException {
+		int dot = rawFileName.lastIndexOf(".");
+		if (dot == -1) {
+			if (rawFileName.length()>3) {
+				throw new IOException(rawFileName+": invalid file name (too long)");
+			} else {
+				return FileService.createFile(parentFile, 1, rawFileName, ' ');
+			}
+		} else {
+			if (dot == rawFileName.length()-2) {
+				String realFileName = rawFileName.substring(0, dot);
+				char extension = rawFileName.charAt(rawFileName.length()-1);
+				if (realFileName.length()>3) {
+					throw new IOException(rawFileName+": invalid file name (too long)");
+				} else {
+					return FileService.createFile(parentFile, 1, realFileName, extension);
+				}
+			} else {
+				throw new IOException(rawFileName+": invalid file name (extension too long)");
+			}
+		}
+	}	
 	
 	public static boolean addFile(FileModel file,DiskModel disk,FATModel fat) {
 		int start_index = FATService.addressOfFreeBlock(fat);
@@ -134,6 +157,42 @@ public class FileService {
 			}
 		}
 		return true;
+	}
+	public static FileModel getFileTraversal(String path) throws IOException {
+		return FileService.getFileTraversal(AttrForFS.getRoot(), path);
+	}
+
+	public static FileModel getFileTraversal(FileModel start, String path) throws IOException {
+		FileModel result = start;
+		String[] way = path.split("/");
+		boolean all = true;
+		int index = 0;
+		for (; index < way.length; ++index) {
+			boolean found = false;
+			FileModel next = null;
+			for (Object o: FileService.getSubFiles(result)) {
+				next = (FileModel) o;
+				if (next.getName().equals(way[index])) {
+					found = true;
+					break;
+				}
+			}
+			if (found) {
+				result = next;
+			} else {
+				all = false;
+				break;
+			}
+		}
+		if (all) {
+			return result;
+		} else {
+			String error = "";
+			for (int i = 0; i <= index; ++i) {
+				error = error+way[i]+"/";
+			}
+			throw new IOException(error+": path not exist");
+		}
 	}
 	
 	//remove the file from disk

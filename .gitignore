@@ -3,6 +3,7 @@
 .vscode/
 .document/
 .idea/
+classes/
 .classpath
 .project
 bin/

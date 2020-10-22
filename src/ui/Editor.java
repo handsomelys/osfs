@@ -49,7 +49,7 @@ public class Editor extends Application {
 	@Override
 	public void start(Stage primaryStage) throws Exception {
         try {
-            Parent editor = FXMLLoader.load(getClass().getResource("/ui/editor.fxml"));
+            Parent editor = FXMLLoader.load(getClass().getResource("/src/ui/editor.fxml"));
             Scene scene = new Scene(editor, 400, 300);
             primaryStage.setScene(scene);
             primaryStage.setResizable(true);

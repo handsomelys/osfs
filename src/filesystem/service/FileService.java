@@ -1,6 +1,8 @@
 package filesystem.service;
 
+
 import java.io.IOException;
+
 import java.util.ArrayList;
 import java.util.Scanner;
 import java.util.List;
@@ -41,7 +43,7 @@ public class FileService {
 	}
 	
 	//create file in the disk, need to point out the parent file
-	public static boolean createFile(FileModel file) {
+	public static boolean createFile(FileModel file,FileModel parentFile,String filename) {
 		System.out.println("parents sub nums: "+file.getParentFile().getSubFiles().size());
 		if(!addSubFileValid(file.getParentFile())) {
 			
@@ -49,12 +51,13 @@ public class FileService {
 			return false;
 		}
 		System.out.println("input the file name");
-		String filename = sc.nextLine();
+
 		
 		if(filename.length()>3) {
 			System.out.println("the file name should not over 3 chars");
 			return false;
 		}
+		file.setParentFile(parentFile);
 		file.setName(filename);
 		if(addFile(file,AttrForFS.getDisk(),AttrForFS.getFat())) {
 			updateDirectorySub(file.getParentFile(),file);
@@ -128,14 +131,14 @@ public class FileService {
 	}	
 	
 	public static boolean addFile(FileModel file,DiskModel disk,FATModel fat) {
-		int start_index = FATService.addressOfFreeBlock(fat);
+		int start_index = filesystem.service.FATService.addressOfFreeBlock(fat);
 		if(start_index == -1) {
 			System.out.println("Disk is full!!");
 			return false;
 		}
 		else {
 			file.setStartIndex(start_index);
-			FATService.applyForBlock(start_index, 255, fat);
+			filesystem.service.FATService.applyForBlock(start_index, 255, fat);
 			file.setSize(1);
 			if(file==null||file.getName().trim().equals("")) {
 				System.out.println("The names'length can not be blank");
@@ -221,17 +224,17 @@ public class FileService {
 		
 			int[] fat = AttrForFS.getFat().getTable();
 			int start_index = file.getStartIndex();
-			while(fat[start_index]!=255) {
+			while(fat[start_index]!=255&&fat[start_index]!=-1) {
 				AttrForFS.getDisk().getDiskTable().set(start_index, null);	//remove the file block
 				int tmp = fat[start_index];
-				FATService.freeBlock(start_index, AttrForFS.getFat());
+				filesystem.service.FATService.freeBlock(start_index, AttrForFS.getFat());
 				start_index = tmp;
 				int size = file.getSize() - 1;	//file length -1
 				file.setSize(size);
 			}if(file.getStartIndex()!=start_index) {
-				FATService.SetBlockValue(0, AttrForFS.getFat(), start_index);	//set the former block value to 0, stands for vacant
+				filesystem.service.FATService.SetBlockValue(0, AttrForFS.getFat(), start_index);	//set the former block value to 0, stands for vacant
 			}
-				FATService.SetBlockValue(255, AttrForFS.getFat(), file.getStartIndex());	//set the current block value to 255, stands for the file end
+				filesystem.service.FATService.SetBlockValue(255, AttrForFS.getFat(), file.getStartIndex());	//set the current block value to 255, stands for the file end
 
 		}
 	
@@ -267,11 +270,11 @@ public class FileService {
 				buffer[j] = txt[cur];
 			}
 			DiskService.saveContent(String.valueOf(buffer), AttrForFS.getDisk(), index);
-			FATService.applyForBlock(pre, index, AttrForFS.getFat());
+			filesystem.service.FATService.applyForBlock(pre, index, AttrForFS.getFat());
 			buffer = new char[110];
 			file.setSize(file.getSize()+1);
 		}
-		FATService.SetBlockValue(255, AttrForFS.getFat(), index);
+		filesystem.service.FATService.SetBlockValue(255, AttrForFS.getFat(), index);
 	}
 	
 	// check if there has the duplicated name in the same directory,if true, reject to create
@@ -335,10 +338,10 @@ public class FileService {
 		return true;
 	}
 	
-	public static boolean copyFile(FileModel file) {
+	public static boolean copyFile(FileModel file,FileModel parentFile,String filename) {
 		try {
 			FileModel coloneFile = (FileModel)file.clone();
-			if(createFile(coloneFile)) {
+			if(createFile(coloneFile,parentFile,filename)) {
 				System.out.println("clone sussess!");
 				return true;
 			}
@@ -348,15 +351,13 @@ public class FileService {
 		return false;
 	}
 	
-	public static boolean copydir(FileModel directory) {
-		try {
-			FileModel coloneDir = (FileModel)directory.clone();
-			if(createFile(coloneDir)) {
-				for(FileModel f:coloneDir.getSubFiles()) {
-					if(createFile((FileModel)f.clone())) {
-						System.out.println("clone sucess!");
-					}
-				}
+	
+/*	public static boolean copydir(FileModel directory) throws CloneNotSupportedException {
+		FileModel coloneDir = (FileModel)directory.clone();
+		if(createFile(coloneDir)) {
+			for(FileModel f:coloneDir.getSubFiles()) {
+			if(createFile((FileModel)f.clone())) {
+				System.out.println("clone sucess!");
 			}
 			for(FileModel f:coloneDir.getSubFiles()) {
 				if(f.getAttribute()==FileModel.DIRECTORY) {
@@ -367,7 +368,7 @@ public class FileService {
 			e.printStackTrace();
 		}
 		return true;
-	}
+	}*/
 
 	public static boolean addSubFileValid(FileModel parentFile){
 		if(getSubFiles(parentFile).size()>=FileModel.MAX_SUB_NUMS){
@@ -391,5 +392,22 @@ public class FileService {
 			return false;
 		}
 		return true;
+	}
+	public static void main(String[] args) throws CloneNotSupportedException {
+
+		AttrForFS.init();
+		createFile((FileModel)AttrForFS.getDisk().getDiskTable().get(2),1,"abc",'c');
+		System.out.println(AttrForFS.getCurrentFiles());
+//		System.out.println(AttrForFS.getFat().getTable());
+		copyFile((FileModel)AttrForFS.getDisk().getDiskTable().get(3),(FileModel)AttrForFS.getDisk().getDiskTable().get(2),"ab");
+		for(int i=0;i<AttrForFS.getFat().getTable().length;i++){
+			System.out.println(AttrForFS.getFat().getTable()[i]);
+		}
+		System.out.println(AttrForFS.getCurrentFiles());
+		editFileContent((FileModel)AttrForFS.getDisk().getDiskTable().get(3),"hello,world");
+		for(int i=0;i<AttrForFS.getFat().getTable().length;i++){
+			System.out.println(AttrForFS.getFat().getTable()[i]);
+		}
+		System.out.println((String) AttrForFS.getDisk().getDiskTable().get(5));
 	}
 }

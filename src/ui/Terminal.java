@@ -158,18 +158,18 @@ public class Terminal extends Application {
                 if (commands.length>1) {
                     if (commands[1].startsWith("/")) {
                         // absolute path
-                        try {
-                            FileService.copyFile(FileService.getFileTraversal(commands[1].substring(1)));
-                        } catch (IOException e) {
-                            this.putLine(e.getMessage());
-                        }
+                        // try {
+                        //     FileService.copyFile(FileService.getFileTraversal(commands[1].substring(1)));
+                        // } catch (IOException e) {
+                        //     this.putLine(e.getMessage());
+                        // }
                     } else {
                         // relative path
-                        try {
-                            FileService.copyFile(FileService.getFileTraversal(commands[1]));
-                        } catch (IOException e) {
-                            this.putLine(e.getMessage());
-                        }
+                        // try {
+                        //     FileService.copyFile(FileService.getFileTraversal(commands[1]));
+                        // } catch (IOException e) {
+                        //     this.putLine(e.getMessage());
+                        // }
                     }
                 } else {
                     this.putLine("delete: no file specified");

@@ -75,7 +75,7 @@ public class FileModel implements Cloneable, Serializable {
 		return item;
 	}
 	public byte[] contentToByte() {
-		byte[] content = new byte[DiskModel.BLOCK_SIZE];
+		byte[] content = new byte[filesystem.model.DiskModel.BLOCK_SIZE];
 		if (this.fileContent != null) {
 			byte[] b = this.fileContent.getBytes();
 			System.arraycopy(b, 0, content, 0, b.length);

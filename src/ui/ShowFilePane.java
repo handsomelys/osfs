@@ -1,4 +1,4 @@
-package src.ui;
+package ui;
 import controller.AttrForFS;
 import filesystem.model.FileModel;
 import filesystem.service.FileService;

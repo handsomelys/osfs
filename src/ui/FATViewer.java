@@ -1,4 +1,4 @@
-package src.ui;
+package ui;
 
 import filesystem.model.FATItem;
 import filesystem.model.FATModel;

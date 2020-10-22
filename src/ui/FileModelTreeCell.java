@@ -1,4 +1,4 @@
-package src.ui;
+package ui;
 
 import filesystem.model.FileModel;
 import javafx.beans.value.ChangeListener;

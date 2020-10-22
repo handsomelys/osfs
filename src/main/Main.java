@@ -8,12 +8,12 @@ import javafx.scene.Scene;
 
 import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
+import ui.Terminal;
 
 import java.io.IOException;
 
 import controller.AttrForFS;
 import filesystem.service.DiskService;
-import src.ui.Terminal;
 
 
 public class Main extends Application {

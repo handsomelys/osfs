@@ -1,4 +1,4 @@
-package src.ui;
+package ui;
 
 import controller.AttrForFS;
 import filesystem.model.FileModel;
@@ -18,22 +18,7 @@ import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.Node;
-import javafx.scene.control.Accordion;
-import javafx.scene.control.Button;
-import javafx.scene.control.ContextMenu;
-import javafx.scene.control.Label;
-import javafx.scene.control.Menu;
-import javafx.scene.control.MenuBar;
-import javafx.scene.control.MenuItem;
-import javafx.scene.control.ScrollPane;
-import javafx.scene.control.SplitPane;
-import javafx.scene.control.TableColumn;
-import javafx.scene.control.TableView;
-import javafx.scene.control.TitledPane;
-import javafx.scene.control.ToolBar;
-import javafx.scene.control.TreeCell;
-import javafx.scene.control.TreeItem;
-import javafx.scene.control.TreeView;
+import javafx.scene.control.*;
 import javafx.scene.control.cell.MapValueFactory;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
@@ -195,9 +180,9 @@ public class Explorer implements Initializable {
 
     @FXML
     void createFile(ActionEvent event) {
-        /*FileService.createFile(this.current, 1);*/
+        FileService.createFile(this.current, 1);
 
-        src.ui.ShowFilePane.show((FileModel) AttrForFS.getDisk().getDiskTable().get(2),FileModel.FILE,stage,showPane);
+        ui.ShowFilePane.show((FileModel) AttrForFS.getDisk().getDiskTable().get(2),FileModel.FILE,stage,showPane);
         this.updateTreeView();
         this.updateFileView();
     }
@@ -281,15 +266,15 @@ public class Explorer implements Initializable {
                 FileModel ff = (FileModel) o;
                 Map<String, String> m = new HashMap<String, String>();
                 if (ff.getAttribute() == 1) {
-                    m.put(src.ui.FileModelListCell.COLUMN_1_MAP_KEY, ff.getName()+"."+ff.getType());
-                    m.put(src.ui.FileModelListCell.COLUMN_2_MAP_KEY, "文件");
+                    m.put(ui.FileModelListCell.COLUMN_1_MAP_KEY, ff.getName()+"."+ff.getType());
+                    m.put(ui.FileModelListCell.COLUMN_2_MAP_KEY, "文件");
                 } else if (ff.getAttribute() == 2 || ff.getAttribute() == 3) {
-                    m.put(src.ui.FileModelListCell.COLUMN_1_MAP_KEY, ff.getName());
-                    m.put(src.ui.FileModelListCell.COLUMN_2_MAP_KEY, "目录");
+                    m.put(ui.FileModelListCell.COLUMN_1_MAP_KEY, ff.getName());
+                    m.put(ui.FileModelListCell.COLUMN_2_MAP_KEY, "目录");
                 }
-                m.put(src.ui.FileModelListCell.COLUMN_3_MAP_KEY, String.valueOf(ff.getSize()));
-                m.put(src.ui.FileModelListCell.COLUMN_4_MAP_KEY, ff.isReadOnly()?"√":"×");
-                m.put(src.ui.FileModelListCell.COLUMN_5_MAP_KEY, String.valueOf(ff.getStartIndex()));
+                m.put(ui.FileModelListCell.COLUMN_3_MAP_KEY, String.valueOf(ff.getSize()));
+                m.put(ui.FileModelListCell.COLUMN_4_MAP_KEY, ff.isReadOnly()?"√":"×");
+                m.put(ui.FileModelListCell.COLUMN_5_MAP_KEY, String.valueOf(ff.getStartIndex()));
                 System.out.println(ff);
                 System.out.println(m);
                 all.add(m);
@@ -362,17 +347,17 @@ public class Explorer implements Initializable {
         switchDirectory(AttrForFS.getRoot());
         this.updateTreeView();
 
-        this.fileViewColumnName.setCellValueFactory(new MapValueFactory<String>(src.ui.FileModelListCell.COLUMN_1_MAP_KEY));
-        this.fileViewColumnType.setCellValueFactory(new MapValueFactory<String>(src.ui.FileModelListCell.COLUMN_2_MAP_KEY));
-        this.fileViewColumnSize.setCellValueFactory(new MapValueFactory<String>(src.ui.FileModelListCell.COLUMN_3_MAP_KEY));
-        this.fileViewColumnReadonly.setCellValueFactory(new MapValueFactory<String>(src.ui.FileModelListCell.COLUMN_4_MAP_KEY));
-        this.fileViewColumnStartindex.setCellValueFactory(new MapValueFactory<String>(src.ui.FileModelListCell.COLUMN_5_MAP_KEY));
+        this.fileViewColumnName.setCellValueFactory(new MapValueFactory<String>(ui.FileModelListCell.COLUMN_1_MAP_KEY));
+        this.fileViewColumnType.setCellValueFactory(new MapValueFactory<String>(ui.FileModelListCell.COLUMN_2_MAP_KEY));
+        this.fileViewColumnSize.setCellValueFactory(new MapValueFactory<String>(ui.FileModelListCell.COLUMN_3_MAP_KEY));
+        this.fileViewColumnReadonly.setCellValueFactory(new MapValueFactory<String>(ui.FileModelListCell.COLUMN_4_MAP_KEY));
+        this.fileViewColumnStartindex.setCellValueFactory(new MapValueFactory<String>(ui.FileModelListCell.COLUMN_5_MAP_KEY));
         this.updateFileView();
 
         this.treeView.setCellFactory(new Callback<TreeView<FileModel>, TreeCell<FileModel>>() {
             @Override
             public TreeCell<FileModel> call(TreeView<FileModel> param) {
-                src.ui.FileModelTreeCell c = new src.ui.FileModelTreeCell();
+                ui.FileModelTreeCell c = new ui.FileModelTreeCell();
                 c.setOnMouseClicked(new EventHandler<MouseEvent>() {
                     @Override
                     public void handle(MouseEvent event) {

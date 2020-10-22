@@ -192,6 +192,16 @@ public class FileService {
 			throw new IOException(error+": path not exist");
 		}
 	}
+
+	public static FileModel getFile(FileModel parentFile, String name) {
+		for (Object o: FileService.getSubFiles(parentFile)) {
+			FileModel result = (FileModel) o;
+			if (result.getName().equals(name)) {
+				return result;
+			}
+		}
+		return null;
+	}
 	
 	//remove the file from disk
 	public static void removeFile(FileModel file) {
@@ -328,11 +338,15 @@ public class FileService {
 		return true;
 	}
 	
-	public static boolean copyFile(FileModel file,FileModel parentFile,String filename) throws CloneNotSupportedException {
-		FileModel coloneFile = (FileModel)file.clone();
-		if(createFile(coloneFile,parentFile,filename)) {
-			System.out.println("clone sussess!");
-			return true;
+	public static boolean copyFile(FileModel file,FileModel parentFile,String filename) {
+		try {
+			FileModel coloneFile = (FileModel)file.clone();
+			if(createFile(coloneFile,parentFile,filename)) {
+				System.out.println("clone sussess!");
+				return true;
+			}
+		} catch (CloneNotSupportedException e) {
+			e.printStackTrace();
 		}
 		return false;
 	}
@@ -345,13 +359,14 @@ public class FileService {
 			if(createFile((FileModel)f.clone())) {
 				System.out.println("clone sucess!");
 			}
+			for(FileModel f:coloneDir.getSubFiles()) {
+				if(f.getAttribute()==FileModel.DIRECTORY) {
+					if(!copydir((FileModel)f))	return false;
+				}
 			}
+		} catch (CloneNotSupportedException e) {
+			e.printStackTrace();
 		}
-		for(FileModel f:coloneDir.getSubFiles()) {
-			if(f.getAttribute()==FileModel.DIRECTORY) {
-				if(!copydir((FileModel)f))	return false;
-			}
-		}		
 		return true;
 	}*/
 

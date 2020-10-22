@@ -107,9 +107,4 @@ public class Editor extends Application {
         });
         stage.show();
 	}
-	
-	/*
-	 * public void initialize(URL location,ResourceBundle resources) {
-	 * textArea.prefWidthProperty().bind(vbox.widthProperty()); }
-	 */
 }

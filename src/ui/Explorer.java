@@ -18,22 +18,7 @@ import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.Node;
-import javafx.scene.control.Accordion;
-import javafx.scene.control.Button;
-import javafx.scene.control.ContextMenu;
-import javafx.scene.control.Label;
-import javafx.scene.control.Menu;
-import javafx.scene.control.MenuBar;
-import javafx.scene.control.MenuItem;
-import javafx.scene.control.ScrollPane;
-import javafx.scene.control.SplitPane;
-import javafx.scene.control.TableColumn;
-import javafx.scene.control.TableView;
-import javafx.scene.control.TitledPane;
-import javafx.scene.control.ToolBar;
-import javafx.scene.control.TreeCell;
-import javafx.scene.control.TreeItem;
-import javafx.scene.control.TreeView;
+import javafx.scene.control.*;
 import javafx.scene.control.cell.MapValueFactory;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
@@ -195,7 +180,7 @@ public class Explorer implements Initializable {
 
     @FXML
     void createFile(ActionEvent event) {
-        /*FileService.createFile(this.current, 1);*/
+        FileService.createFile(this.current, 1);
 
         ShowFilePane.show((FileModel) AttrForFS.getDisk().getDiskTable().get(2),FileModel.FILE,stage,showPane);
         this.updateTreeView();

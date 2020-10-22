@@ -149,40 +149,28 @@ public class Terminal extends Application {
                             this.putLine(e.getMessage());
                         }
                     }
-                    // String[] path = commands[1].split("/");
-                    // FileModel destination = AttrForFS.getRoot();
-                    // if (commands[1].startsWith("/")) {
-                    //     path = commands[1].substring(1).split("/");
-                    // } else {
-                    //     destination = this.current;
-                    // }
-                    // boolean allFound = true;
-                    // for (int i = 0; i < path.length; ++i) {
-                    //     boolean found = false;
-                    //     FileModel next = null;
-                    //     for (Object o: FileService.getSubFiles(destination)) {
-                    //         next = (FileModel) o;
-                    //         if (next.getName().equals(path[i])) {
-                    //             found = true;
-                    //             break;
-                    //         }
-                    //     }
-                    //     if (found) {
-                    //         destination = next;
-                    //     } else {
-                    //         allFound = false;
-                    //         break;
-                    //     }
-                    // }
-                    // if (allFound) {
-                    //     if (destination.getAttribute() == 1) {
-                    //         FileService.removeFile(destination);
-                    //     } else {
-                    //         this.putLine("could not delete directory!");
-                    //     }
-                    // } else {
-                    //     this.putLine(commands[1]+": path no exist");
-                    // }
+                } else {
+                    this.putLine("delete: no file specified");
+                }
+                break;
+            }
+            case "copy": {
+                if (commands.length>1) {
+                    if (commands[1].startsWith("/")) {
+                        // absolute path
+                        try {
+                            FileService.copyFile(FileService.getFileTraversal(commands[1].substring(1)));
+                        } catch (IOException e) {
+                            this.putLine(e.getMessage());
+                        }
+                    } else {
+                        // relative path
+                        try {
+                            FileService.copyFile(FileService.getFileTraversal(commands[1]));
+                        } catch (IOException e) {
+                            this.putLine(e.getMessage());
+                        }
+                    }
                 } else {
                     this.putLine("delete: no file specified");
                 }
@@ -210,11 +198,40 @@ public class Terminal extends Application {
             }
             case "type":
             case "cat": {
-                
+                if (commands.length>1) {
+                    if (commands[1].startsWith("/")) {
+                        // absolute path
+                        try {
+                            this.putLine(FileService.getFileContent(FileService.getFileTraversal(commands[1].substring(1))));
+                        } catch (IOException e) {
+                            this.putLine(e.getMessage());
+                        }
+                    } else {
+                        // relative path
+                        try {
+                            this.putLine(FileService.getFileContent(FileService.getFileTraversal(commands[1])));
+                        } catch (IOException e) {
+                            this.putLine(e.getMessage());
+                        }
+                    }
+                } else {
+                    this.putLine("type: no file specified");
+                }
                 break;
             }
             case "open": {
+                if (commands.length>1) {
 
+                } else {
+                    String name = FileService.getNewName(this.current, 1);
+                    FileService.createFile(this.current, 1, name, ' ');
+                    try {
+                        (new Editor(FileService.getFile(this.current, name))).start(new Stage());
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                }
+                break;
             }
             case "exit": {
                 DiskService.save2Disk(AttrForFS.getDisk(), main.Main.DISK, AttrForFS.getFat());

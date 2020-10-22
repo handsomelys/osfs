@@ -1,4 +1,4 @@
-package ui;
+package src.ui;
 
 import controller.AttrForFS;
 import filesystem.model.FileModel;
@@ -197,7 +197,7 @@ public class Explorer implements Initializable {
     void createFile(ActionEvent event) {
         /*FileService.createFile(this.current, 1);*/
 
-        ShowFilePane.show((FileModel) AttrForFS.getDisk().getDiskTable().get(2),FileModel.FILE,stage,showPane);
+        src.ui.ShowFilePane.show((FileModel) AttrForFS.getDisk().getDiskTable().get(2),FileModel.FILE,stage,showPane);
         this.updateTreeView();
         this.updateFileView();
     }
@@ -281,15 +281,15 @@ public class Explorer implements Initializable {
                 FileModel ff = (FileModel) o;
                 Map<String, String> m = new HashMap<String, String>();
                 if (ff.getAttribute() == 1) {
-                    m.put(FileModelListCell.COLUMN_1_MAP_KEY, ff.getName()+"."+ff.getType());
-                    m.put(FileModelListCell.COLUMN_2_MAP_KEY, "文件");
+                    m.put(src.ui.FileModelListCell.COLUMN_1_MAP_KEY, ff.getName()+"."+ff.getType());
+                    m.put(src.ui.FileModelListCell.COLUMN_2_MAP_KEY, "文件");
                 } else if (ff.getAttribute() == 2 || ff.getAttribute() == 3) {
-                    m.put(FileModelListCell.COLUMN_1_MAP_KEY, ff.getName());
-                    m.put(FileModelListCell.COLUMN_2_MAP_KEY, "目录");
+                    m.put(src.ui.FileModelListCell.COLUMN_1_MAP_KEY, ff.getName());
+                    m.put(src.ui.FileModelListCell.COLUMN_2_MAP_KEY, "目录");
                 }
-                m.put(FileModelListCell.COLUMN_3_MAP_KEY, String.valueOf(ff.getSize()));
-                m.put(FileModelListCell.COLUMN_4_MAP_KEY, ff.isReadOnly()?"√":"×");
-                m.put(FileModelListCell.COLUMN_5_MAP_KEY, String.valueOf(ff.getStartIndex()));
+                m.put(src.ui.FileModelListCell.COLUMN_3_MAP_KEY, String.valueOf(ff.getSize()));
+                m.put(src.ui.FileModelListCell.COLUMN_4_MAP_KEY, ff.isReadOnly()?"√":"×");
+                m.put(src.ui.FileModelListCell.COLUMN_5_MAP_KEY, String.valueOf(ff.getStartIndex()));
                 System.out.println(ff);
                 System.out.println(m);
                 all.add(m);
@@ -362,17 +362,17 @@ public class Explorer implements Initializable {
         switchDirectory(AttrForFS.getRoot());
         this.updateTreeView();
 
-        this.fileViewColumnName.setCellValueFactory(new MapValueFactory<String>(FileModelListCell.COLUMN_1_MAP_KEY));
-        this.fileViewColumnType.setCellValueFactory(new MapValueFactory<String>(FileModelListCell.COLUMN_2_MAP_KEY));
-        this.fileViewColumnSize.setCellValueFactory(new MapValueFactory<String>(FileModelListCell.COLUMN_3_MAP_KEY));
-        this.fileViewColumnReadonly.setCellValueFactory(new MapValueFactory<String>(FileModelListCell.COLUMN_4_MAP_KEY));
-        this.fileViewColumnStartindex.setCellValueFactory(new MapValueFactory<String>(FileModelListCell.COLUMN_5_MAP_KEY));
+        this.fileViewColumnName.setCellValueFactory(new MapValueFactory<String>(src.ui.FileModelListCell.COLUMN_1_MAP_KEY));
+        this.fileViewColumnType.setCellValueFactory(new MapValueFactory<String>(src.ui.FileModelListCell.COLUMN_2_MAP_KEY));
+        this.fileViewColumnSize.setCellValueFactory(new MapValueFactory<String>(src.ui.FileModelListCell.COLUMN_3_MAP_KEY));
+        this.fileViewColumnReadonly.setCellValueFactory(new MapValueFactory<String>(src.ui.FileModelListCell.COLUMN_4_MAP_KEY));
+        this.fileViewColumnStartindex.setCellValueFactory(new MapValueFactory<String>(src.ui.FileModelListCell.COLUMN_5_MAP_KEY));
         this.updateFileView();
 
         this.treeView.setCellFactory(new Callback<TreeView<FileModel>, TreeCell<FileModel>>() {
             @Override
             public TreeCell<FileModel> call(TreeView<FileModel> param) {
-                FileModelTreeCell c = new FileModelTreeCell();
+                src.ui.FileModelTreeCell c = new src.ui.FileModelTreeCell();
                 c.setOnMouseClicked(new EventHandler<MouseEvent>() {
                     @Override
                     public void handle(MouseEvent event) {

@@ -1,4 +1,4 @@
-package ui;
+package src.ui;
 
 import filesystem.model.FileModel;
 import javafx.scene.control.ListCell;

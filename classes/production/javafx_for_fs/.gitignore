@@ -1,0 +1,12 @@
+.metadata/
+.settings/
+.vscode/
+.document/
+.idea/
+.classpath
+.project
+bin/
+build.fxbuild
+getjar.bat
+manifest
+disk.dat

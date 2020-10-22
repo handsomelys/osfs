@@ -15,13 +15,13 @@ public class DiskModel implements Serializable {
     public static final int BLOCK_SIZE = 64; // bytes
 
 
-    private FATModel fat;
+    private filesystem.model.FATModel fat;
     private List<Object> diskTable;
     
     public DiskModel() {
 
         this.diskTable = new ArrayList<>(BLOCK_COUNT); // initiate capacity of 128
-        this.fat = new FATModel();
+        this.fat = new filesystem.model.FATModel();
         initDiskModel();
     }
 
@@ -153,10 +153,10 @@ public class DiskModel implements Serializable {
         }
     }
 	*/
-    public FATModel getFat() {
+    public filesystem.model.FATModel getFat() {
         return this.fat;
     }
-    public void setFat(FATModel fat) {
+    public void setFat(filesystem.model.FATModel fat) {
         this.fat = fat;
     }
     public List<Object> getDiskTable() {

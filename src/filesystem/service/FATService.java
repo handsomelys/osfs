@@ -6,7 +6,7 @@ public class FATService {
 	//query the free address of fat
 	//return the index
 	public static int addressOfFreeBlock(FATModel fat) {
-		for(int i = 0; i < fat.getTable().length; i++) {
+		for(int i = 3; i < fat.getTable().length; i++) {
 			if(fat.getTable()[i]==0) return i;
 		}
 		return -1;

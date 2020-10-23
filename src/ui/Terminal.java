@@ -39,6 +39,10 @@ public class Terminal extends Application {
 
     protected FileModel current;
 
+    /**
+     * start a new terminal interface on {@code root} directory.
+     * <p>use <pre>{@code (new Terminal()).start(new Stage())}</pre> to get a terminal!</p>
+     */
     public Terminal() {
         this.root = new VBox();
 
@@ -84,95 +88,162 @@ public class Terminal extends Application {
         this.root.getChildren().add(this.input);
     }
 
+    /**
+     * put a line in the terminal
+     * @param s some string
+     */
     public void putLine(String s) {
         this.display.appendText(s+"\n");
     }
 
+    /**
+     * to eval the command
+     * @param command the command
+     */
     public void parseCommand(String command) {
         String[] commands = command.split(" ");
         switch (commands[0]) {
             case "create": 
             case "touch": {
-                if (commands.length>1) {
-                    if (commands[1].startsWith("/")) {
-                        // absolute path
-                        int lastDash = commands[1].lastIndexOf("/");
-                        if (lastDash == 0) {
-                            try {
-                                FileService.createFileWithExtension(AttrForFS.getRoot(), commands[1].substring(1));
-                            } catch (IOException e) {
-                                this.putLine(e.getMessage());
+                // create file
+                try {
+                    if (commands.length>1) {
+                        if (commands[1].startsWith("/")) {
+                            // absolute path
+                            int lastDash = commands[1].lastIndexOf("/");
+                            if (lastDash == 0) {
+                                FileService.createFile(AttrForFS.getRoot(), commands[1].substring(1));
+                            } else {
+                                FileService.createFile(FileService.getFileTraversal(commands[1].substring(1, lastDash)), commands[1].substring(lastDash+1));
                             }
                         } else {
-                            try {
-                                FileService.createFileWithExtension(FileService.getFileTraversal(commands[1].substring(1, lastDash)), commands[1].substring(lastDash+1));
-                            } catch (IOException e) {
-                                this.putLine(e.getMessage());
+                            // relative path
+                            int lastDash = commands[1].lastIndexOf("/");
+                            if (lastDash == -1) {
+                                FileService.createFile(AttrForFS.getRoot(), commands[1]);
+                            } else {
+                                FileService.createFile(FileService.getFileTraversal(this.current, commands[1].substring(0, lastDash)), commands[1].substring(lastDash+1));
                             }
                         }
                     } else {
-                        // relative path
-                        int lastDash = commands[1].lastIndexOf("/");
-                        if (lastDash == -1) {
-                            try {
-                                FileService.createFileWithExtension(AttrForFS.getRoot(), commands[1]);
-                            } catch (IOException e) {
-                                this.putLine(e.getMessage());
-                            }
-                        } else {
-                            try {
-                                FileService.createFileWithExtension(FileService.getFileTraversal(this.current, commands[1].substring(0, lastDash)), commands[1].substring(lastDash+1));
-                            } catch (IOException e) {
-                                this.putLine(e.getMessage());
-                            }
-                        }
+                        FileService.createNew(this.current, FileModel.FILE);
                     }
-                } else {
-                    FileService.createFile(this.current, 1);
+                } catch (IOException e) {
+                    this.putLine(e.getMessage());
                 }
                 break;
             }
             case "delete": {
+                // delete file
                 if (commands.length>1) {
-                    if (commands[1].startsWith("/")) {
+                    try {
+                        if (commands[1].startsWith("/")) {
                         // absolute path
-                        try {
                             FileService.removeFile(FileService.getFileTraversal(commands[1].substring(1)));
-                        } catch (IOException e) {
-                            this.putLine(e.getMessage());
-                        }
-                    } else {
+                        } else {
                         // relative path
-                        try {
-                            FileService.removeFile(FileService.getFileTraversal(commands[1]));
-                        } catch (IOException e) {
-                            this.putLine(e.getMessage());
+                            FileService.removeFile(FileService.getFileTraversal(this.current, commands[1]));
                         }
+                    } catch (IOException e) {
+                        this.putLine(e.getMessage());
                     }
                 } else {
                     this.putLine("delete: no file specified");
                 }
                 break;
             }
-            case "copy": {
-                if (commands.length>1) {
-                    if (commands[1].startsWith("/")) {
-                        // absolute path
-                        // try {
-                        //     FileService.copyFile(FileService.getFileTraversal(commands[1].substring(1)));
-                        // } catch (IOException e) {
-                        //     this.putLine(e.getMessage());
-                        // }
+            case "mkdir": {
+                // make directory
+                try {
+                    if (commands.length>1) {
+                        if (commands[1].startsWith("/")) {
+                            // absolute path
+                            int lastDash = commands[1].lastIndexOf("/");
+                            if (lastDash == 0) {
+                                FileService.createDirectory(AttrForFS.getRoot(), commands[1].substring(1));
+                            } else {
+                                FileService.createDirectory(FileService.getFileTraversal(commands[1].substring(1, lastDash)), commands[1].substring(lastDash+1));
+                            }
+                        } else {
+                            // relative path
+                            int lastDash = commands[1].lastIndexOf("/");
+                            if (lastDash == -1) {
+                                FileService.createDirectory(AttrForFS.getRoot(), commands[1]);
+                            } else {
+                                FileService.createDirectory(FileService.getFileTraversal(this.current, commands[1].substring(0, lastDash)), commands[1].substring(lastDash+1));
+                            }
+                        }
                     } else {
-                        // relative path
-                        // try {
-                        //     FileService.copyFile(FileService.getFileTraversal(commands[1]));
-                        // } catch (IOException e) {
-                        //     this.putLine(e.getMessage());
-                        // }
+                        FileService.createNew(this.current, FileModel.DIRECTORY);
+                    }
+                } catch (IOException e) {
+                    this.putLine(e.getMessage());
+                }
+                break;
+            }
+            case "rmdir": {
+                // remove directory
+                if (commands.length>1) {
+                    try {
+                        if (commands[1].startsWith("/")) {
+                            // absolute path
+                            FileService.removeDir(FileService.getFileTraversal(commands[1].substring(1)));
+                        } else {
+                            // relative path
+                            FileService.removeDir(FileService.getFileTraversal(this.current, commands[1]));
+                        }
+                    } catch (IOException e) {
+                        this.putLine(e.getMessage());
                     }
                 } else {
-                    this.putLine("delete: no file specified");
+                    this.putLine("rmdir: no file specified");
+                }
+                break;
+            }
+            case "cd": {
+                if (commands.length>1) {
+                    if (commands[1].startsWith("/")) {
+                        this.current = FileService.getFile(AttrForFS.getRoot(), commands[1].substring(1));
+                    } else if(commands[1].equals("..")) {
+                        this.current = this.current.getParentFile();
+                    } else {
+                        if (commands[1].contains("..")) {
+                            this.putLine("Sorry! This function is difficult to complete! Please go back by step.");
+                        } else {
+                            this.current = FileService.getFile(this.current, commands[1]);
+                        }
+                    }
+                }
+                break;
+            }
+            case "copy": {
+                if (commands.length>2) {
+                    // TODO: write this
+                    // try {
+                    //     if (commands[1].startsWith("/")) {
+                    //         // absolute path
+                    //         if (commands[2].startsWith("/")) {
+                    //             // absolute path
+                    //             FileService.copyFile(FileService.getFileTraversal(commands[2].substring(1)), FileService.getFileTraversal(commands[1].substring(1)));
+                    //         } else {
+                    //             // relative path
+                    //             FileService.copyFile(FileService.getFileTraversal(commands[1]));
+                    //         }
+                    //     } else {
+                    //         // relative path
+                    //         if (commands[2].startsWith("/")) {
+                    //             // absolute path
+                    //             FileService.copyFile(FileService.getFileTraversal(commands[1].substring(1)));
+                    //         } else {
+                    //             // relative path
+                    //             FileService.copyFile(FileService.getFileTraversal(commands[1]));
+                    //         }
+                    //     }
+                    // } catch (IOException e) {
+                    //     this.putLine(e.getMessage());
+                    // }
+                } else {
+                    this.putLine("copy: imcompleted command");
                 }
                 break;
             }
@@ -224,13 +295,21 @@ public class Terminal extends Application {
 
                 } else {
                     String name = FileService.getNewName(this.current, 1);
-                    FileService.createFile(this.current, 1, name, ' ');
+                    try {
+                        FileService.createFile(this.current, name);
+                    } catch (IOException e) {
+                        this.putLine(e.getMessage());
+                    }
                     try {
                         (new Editor(FileService.getFile(this.current, name))).start(new Stage());
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
                 }
+                break;
+            }
+            case "format": {
+                AttrForFS.format();
                 break;
             }
             case "exit": {
@@ -246,16 +325,23 @@ public class Terminal extends Application {
         }
     }
 
+    /**
+     * get a prompt string like this {@code user@disk.dat:/$ }
+     * @return the prompt string
+     */
     public String getPrompt() {
         String dir = "/";
         FileModel traversal = this.current;
-        while(this.current.getAttribute() != 3) {
-            dir = dir + traversal.getName() + "/";
+        while(traversal.getAttribute() != 3) {
+            dir = "/" + traversal.getName() + dir;
             traversal = traversal.getParentFile();
         }
         return Terminal.USER_NAME+"@"+main.Main.DISK+":"+dir+"$ ";
     }
 
+    /**
+     * clean the terminal
+     */
     public void clearInput() {
         this.input.setText(this.getPrompt());
         this.input.selectEnd();

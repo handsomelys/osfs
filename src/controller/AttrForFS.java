@@ -82,4 +82,15 @@ public class AttrForFS {
 		AttrForFS.setCurrentDirs((List<Object>)hash.get("dirs"));
 		AttrForFS.setCurrentFilesAndDirs((List<Object>)hash.get("allFiles"));
 	}
+
+	@SuppressWarnings("unchecked")
+	public static void format() {
+		DiskModel d = new DiskModel();
+		AttrForFS.disk = d;
+		AttrForFS.fat = d.getFat();
+		HashMap<String, Object> hash = DiskService.getDirsAndFiles(disk);
+		AttrForFS.setCurrentFiles((List<Object>)hash.get("files"));
+		AttrForFS.setCurrentDirs((List<Object>)hash.get("dirs"));
+		AttrForFS.setCurrentFilesAndDirs((List<Object>)hash.get("allFiles"));
+	}
 }

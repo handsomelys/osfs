@@ -1,4 +1,5 @@
 package ui;
+
 import controller.AttrForFS;
 import filesystem.model.FileModel;
 import filesystem.service.FileService;
@@ -18,6 +19,7 @@ import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 
+import java.io.IOException;
 import java.util.List;
 
 public class ShowFilePane extends Application {
@@ -31,7 +33,7 @@ public class ShowFilePane extends Application {
         List<Object> currentSubs = FileService.getSubFiles(parentFile);
         //or this might be alert when the sub files is 7
         //go fucking it
-        if(!FileService.addSubFileValid(parentFile)){
+        if(!FileService.checkSubFileValid(parentFile)){
             System.out.println("this directory has 8 sub files");
         }
 
@@ -61,33 +63,21 @@ public class ShowFilePane extends Application {
             @Override
             public void handle(MouseEvent event) {
                 if(event.getButton() == MouseButton.PRIMARY){   //mouse one click event
-                    FileModel newFile = new FileModel();
-                    newFile.setAttribute(fileAttribute);
                     if (!FileService.validInputName(nameText.getText())){
                         System.out.println("error");
                         //raise error;
-                    }
-                    else{
-                        newFile.setName(nameText.getText());
-                        newFile.setParentFile(parentFile);
-
-                        //judge the filetype to select the file icon
-                        if(fileAttribute==FileModel.FILE){
-                            //set the correspondent icon
-                            iconPath = "src/resource/file.png";
-                        }
-                        else if(fileAttribute==FileModel.DIRECTORY){
-                            //set the correspondent icon
-                        }
-
-                        newFile.setReadOnly(false); //set only read
-
-                        if(FileService.addFile(newFile, AttrForFS.getDisk(),AttrForFS.getFat())){
-                            //add new file to the panel
-                            //showPane.getChildren().add()
-                        }
-                        else{
-                            System.out.println("error");
+                    } else {
+                        try {
+                            if (fileAttribute == FileModel.FILE) {
+                                iconPath = "src/resource/file.png";
+                                FileService.createFile(parentFile, nameText.getText());
+                            } else if (fileAttribute == FileModel.DIRECTORY) {
+                                // set the correspondent icon
+                                FileService.createDirectory(parentFile, nameText.getText());
+                            }
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                            // 在这里弹点窗，把e的message弹出来
                         }
                     }
                 }

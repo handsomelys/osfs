@@ -4,6 +4,7 @@ import controller.AttrForFS;
 import filesystem.model.FileModel;
 import filesystem.service.FileService;
 
+import java.io.IOException;
 import java.net.URL;
 import java.util.HashMap;
 import java.util.List;
@@ -173,14 +174,24 @@ public class Explorer implements Initializable {
 
     @FXML
     void createDirectory(ActionEvent event) {
-        FileService.createFile(this.current, 2);
+        try {
+            FileService.createNew(this.current, FileModel.DIRECTORY);
+        } catch (IOException e) {
+            e.printStackTrace();
+            // TODO: 整点弹窗
+        }
         this.updateTreeView();
         this.updateFileView();
     }
 
     @FXML
     void createFile(ActionEvent event) {
-        FileService.createFile(this.current, 1);
+        try {
+            FileService.createNew(this.current, FileModel.FILE);
+        } catch (IOException e) {
+            e.printStackTrace();
+            // TODO: 整点弹窗
+        }
 
         ui.ShowFilePane.show((FileModel) AttrForFS.getDisk().getDiskTable().get(2),FileModel.FILE,stage,showPane);
         this.updateTreeView();

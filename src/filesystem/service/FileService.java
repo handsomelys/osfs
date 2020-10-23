@@ -1,20 +1,178 @@
 package filesystem.service;
 
-
+import java.util.ArrayList;
+import java.util.List;
 import java.io.IOException;
 
-import java.util.ArrayList;
-import java.util.Scanner;
-import java.util.List;
-
 import controller.AttrForFS;
-import filesystem.model.DiskModel;
-import filesystem.model.FATModel;
-import filesystem.model.FileModel;
+import filesystem.model.*;
 
 public class FileService {
-	static Scanner sc = new Scanner(System.in);
 
+	/**
+	 * this is the universial method to create something on disk.
+	 * <p>assure all your parameters is correct if you want to use this method</p>
+	 * @param parentFile the parent file to store the newly created thing
+	 * @param fileAttribute file or directory
+	 * @param fileName name
+	 * @param fileType type (this is needed only if you are creating a file)
+	 * @throws IOException if create failed (see the throw out message)
+	 * @see #createFile(FileModel, String) use example
+	 */
+	public static void create(FileModel parentFile, int fileAttribute, String fileName, char fileType) throws IOException {
+		if(parentFile.getSubFiles().size()>=8) {
+			throw new IOException(parentFile+": at most 8 files in this directory");
+		}
+		// configure the file attributes
+		FileModel file = new FileModel();
+		file.setAttribute(fileAttribute);
+		file.setName(fileName);
+		if (fileAttribute == FileModel.FILE) {
+			file.setType(fileType);
+		} else if (fileAttribute == FileModel.DIRECTORY) {
+			file.setType(' ');
+		}
+		file.setParentFile(parentFile);
+		file.setReadOnly(false);
+
+		// configure the disk and fat
+		int start_index = FATService.addressOfFreeBlock(AttrForFS.getFat());
+		if(start_index == -1) {
+			throw new IOException("Disk is full.");
+		}
+		else {
+			file.setStartIndex(start_index);
+			FATService.applyForBlock(start_index, 255, AttrForFS.getFat());
+			file.setSize(1);
+			if (checkDuplicationOfName(file)) {
+				throw new IOException("Duplication of name.");
+			} else {
+				DiskService.saveFile(file, AttrForFS.getDisk());
+			}
+		}
+
+		// update current files
+		updateDirectorySub(parentFile, file);
+		AttrForFS.getCurrentFilesAndDirs().add(file);
+		if(file.getAttribute() == FileModel.FILE) {
+			AttrForFS.getCurrentFiles().add(file);
+		}
+		else {
+			AttrForFS.getCurrentDirs().add(file);
+		}
+	}
+
+	/**
+	 * create a new thing with an auto-generated name.
+	 * @param parentFile the parent file to store the newly created file
+	 * @param fileAttribute file or directory
+	 * @throws IOException if create failed (see the throw out message)
+	 */
+	public static void createNew(FileModel parentFile, int fileAttribute) throws IOException {
+		FileService.create(parentFile, fileAttribute, FileService.getNewName(parentFile, fileAttribute), ' ');
+	}
+
+	/**
+	 * create a new file with specific name and type (which contain in rawFileName).
+	 * @param parentFile the parent file to store the newly created file
+	 * @param rawFileName name and type in one string, for example: {@code abc.d}
+	 * @throws IOException if create failed (see the throw out message)
+	 */
+	public static void createFile(FileModel parentFile, String rawFileName) throws IOException {
+		int dot = rawFileName.lastIndexOf(".");
+		if (dot == -1) {
+			if (rawFileName.length() > 3) {
+				throw new IOException(rawFileName+": invalid file name (too long)");
+			} else {
+				FileService.create(parentFile, FileModel.FILE, rawFileName, ' ');
+			}
+		} else {
+			if (dot == rawFileName.length()-2) {
+				String realFileName = rawFileName.substring(0, dot);
+				char extension = rawFileName.charAt(rawFileName.length()-1);
+				if (realFileName.length()>3) {
+					throw new IOException(rawFileName+": invalid file name (too long)");
+				} else {
+					FileService.create(parentFile, FileModel.FILE, realFileName, extension);
+				}
+			} else {
+				throw new IOException(rawFileName+": invalid file name (extension too long)");
+			}
+		}
+	}
+
+	/**
+	 * create a new directory with specific name.
+	 * @param parentFile the parent file to store the newly created directory
+	 * @param name directory name
+	 * @throws IOException if create failed (see the throw out message)
+	 */
+	public static void createDirectory(FileModel parentFile, String name) throws IOException {
+		if (name.length() > 3) {
+			throw new IOException(name+": invalid directory name (too long)");
+		} else {
+			FileService.create(parentFile, FileModel.DIRECTORY, name, ' ');
+		}
+	}
+	
+	// public static void createFile(FileModel file, FileModel parentFile,String filename) throws IOException {
+	// 	System.out.println("parents sub nums: "+file.getParentFile().getSubFiles().size());
+	// 	if (!checkSubFileValid(file.getParentFile())) {
+	// 		throw new IOException(parentFile+": at most 8 files in this directory");
+	// 	}
+	// 	System.out.println("input the file name");
+
+		
+	// 	if(filename.length()>3) {
+	// 		System.out.println("the file name should not over 3 chars");
+	// 	}
+	// 	file.setParentFile(parentFile);
+	// 	file.setName(filename);
+	// 	if(addFile(file,AttrForFS.getDisk(),AttrForFS.getFat())) {
+	// 		updateDirectorySub(file.getParentFile(),file);
+	// 		AttrForFS.getCurrentFilesAndDirs().add(file);
+	// 		if(file.getAttribute()==FileModel.FILE) {
+	// 			AttrForFS.getCurrentFiles().add(file);
+	// 		}
+	// 		else {
+	// 			AttrForFS.getCurrentDirs().add(file);
+	// 		}
+	// 	}
+	// }
+	
+	// public static boolean addFile(FileModel file,DiskModel disk,FATModel fat) {
+	// 	int start_index = filesystem.service.FATService.addressOfFreeBlock(fat);
+	// 	if(start_index == -1) {
+	// 		System.out.println("Disk is full!!");
+	// 		return false;
+	// 	}
+	// 	else {
+	// 		file.setStartIndex(start_index);
+	// 		filesystem.service.FATService.applyForBlock(start_index, 255, fat);
+	// 		file.setSize(1);
+	// 		if(file==null||file.getName().trim().equals("")) {
+	// 			System.out.println("The names'length can not be blank");
+	// 			return false;
+	// 		}
+
+	// 		else if(checkDuplicationOfName(file)) {
+				
+	// 			System.out.println("Duplication of name!!");
+	// 			return false;
+	// 		}
+	// 		else {
+	// 			DiskService.saveFile(file, disk);
+	// 		}
+	// 	}
+	// 	return true;
+	// }
+
+	/**
+	 * get a new name for new file create according to the file existed.
+	 * @param parentFile the directory where you like to store the new file
+	 * @param fileAttribute new file or new directory?
+	 * @return a unique name
+	 */
 	public static String getNewName(FileModel parentFile, int fileAttribute) {
 		String prefix;
 		if (fileAttribute == 1) {
@@ -27,7 +185,7 @@ public class FileService {
 		int index = 0;
 		boolean flag = false;
 		List<Object> subFiles = FileService.getSubFiles(parentFile);
-		for (; index < 10 && flag == false; ++index) {	// there is only 8 files for maximum in a directory, i think this is ok
+		for (; index < 10 && flag == false; ++index) {	// there is only 8 files for maximum in a directory, i think this 10 is ok
 			flag = true;
 			for (Object f: subFiles) {
 				if (f instanceof FileModel) {
@@ -41,121 +199,7 @@ public class FileService {
 		}
 		return prefix+(index-1);
 	}
-	
-	//create file in the disk, need to point out the parent file
-	public static boolean createFile(FileModel file,FileModel parentFile,String filename) {
-		System.out.println("parents sub nums: "+file.getParentFile().getSubFiles().size());
-		if(!addSubFileValid(file.getParentFile())) {
-			
-			System.out.println("at most 8 files in one directory!!");
-			return false;
-		}
-		System.out.println("input the file name");
 
-		
-		if(filename.length()>3) {
-			System.out.println("the file name should not over 3 chars");
-			return false;
-		}
-		file.setParentFile(parentFile);
-		file.setName(filename);
-		if(addFile(file,AttrForFS.getDisk(),AttrForFS.getFat())) {
-			updateDirectorySub(file.getParentFile(),file);
-			AttrForFS.getCurrentFilesAndDirs().add(file);
-			if(file.getAttribute()==FileModel.FILE) {
-				AttrForFS.getCurrentFiles().add(file);
-			}
-			else {
-				AttrForFS.getCurrentDirs().add(file);
-			}
-			return true;
-		}
-		
-		return false;
-	}
-	public static boolean createFile(FileModel parentFile, int fileAttribute) {
-		return FileService.createFile(parentFile, fileAttribute, FileService.getNewName(parentFile, fileAttribute), 'x');
-	}
-
-	public static boolean createFile(FileModel parentFile, int fileAttribute, String fileName, char fileType) {
-		if(parentFile.getSubFiles().size()>=8) {
-			System.out.println("at most 8 files in one directory!!");
-			return false;
-		}
-		if (fileName.length() > 3) {
-			System.out.println("wjmcdbndy3");
-		}
-		FileModel file = new FileModel();
-		file.setAttribute(fileAttribute);
-		file.setName(fileName);
-		if (fileAttribute == 1 && fileType != 0) {
-			file.setType(fileType);
-		}
-		file.setParentFile(parentFile);
-		file.setReadOnly(false);
-		if(addFile(file,AttrForFS.getDisk(),AttrForFS.getFat())) {
-			updateDirectorySub(parentFile,file);
-			AttrForFS.getCurrentFilesAndDirs().add(file);
-			if(file.getAttribute()==FileModel.FILE) {
-				AttrForFS.getCurrentFiles().add(file);
-			}
-			else {
-				AttrForFS.getCurrentDirs().add(file);
-			}
-			return true;
-		}
-		return false;
-	}
-
-	public static boolean createFileWithExtension(FileModel parentFile, String rawFileName) throws IOException {
-		int dot = rawFileName.lastIndexOf(".");
-		if (dot == -1) {
-			if (rawFileName.length()>3) {
-				throw new IOException(rawFileName+": invalid file name (too long)");
-			} else {
-				return FileService.createFile(parentFile, 1, rawFileName, ' ');
-			}
-		} else {
-			if (dot == rawFileName.length()-2) {
-				String realFileName = rawFileName.substring(0, dot);
-				char extension = rawFileName.charAt(rawFileName.length()-1);
-				if (realFileName.length()>3) {
-					throw new IOException(rawFileName+": invalid file name (too long)");
-				} else {
-					return FileService.createFile(parentFile, 1, realFileName, extension);
-				}
-			} else {
-				throw new IOException(rawFileName+": invalid file name (extension too long)");
-			}
-		}
-	}	
-	
-	public static boolean addFile(FileModel file,DiskModel disk,FATModel fat) {
-		int start_index = filesystem.service.FATService.addressOfFreeBlock(fat);
-		if(start_index == -1) {
-			System.out.println("Disk is full!!");
-			return false;
-		}
-		else {
-			file.setStartIndex(start_index);
-			filesystem.service.FATService.applyForBlock(start_index, 255, fat);
-			file.setSize(1);
-			if(file==null||file.getName().trim().equals("")) {
-				System.out.println("The names'length can not be blank");
-				return false;
-			}
-
-			else if(checkDuplicationOfName(file)) {
-				
-				System.out.println("Duplication of name!!");
-				return false;
-			}
-			else {
-				DiskService.saveFile(file, disk);
-			}
-		}
-		return true;
-	}
 	public static FileModel getFileTraversal(String path) throws IOException {
 		return FileService.getFileTraversal(AttrForFS.getRoot(), path);
 	}
@@ -211,9 +255,9 @@ public class FileService {
 		DiskService.deleteObject(AttrForFS.getDisk(), file.getStartIndex());
 	}
 	
-	public static void removeDir(FileModel directory) {
+	public static void removeDir(FileModel directory) throws IOException {
 		if(FileService.getSubFiles(directory).size()!=0) {
-			System.out.println("The directory is not empty!");
+			throw new IOException(directory.getName()+": directory is not empty");
 		}
 		else {
 			removeFile(directory);
@@ -306,7 +350,7 @@ public class FileService {
 	
 	//update the directory's sub files
 	public static boolean updateDirectorySub(FileModel directory,FileModel sub) {
-		if(addSubFileValid(directory)) {
+		if(checkSubFileValid(directory)) {
 			directory.getSubFiles().add(sub);
 			directory.setSubDirNums(directory.getSubDirNums()+1);
 			return true;
@@ -338,21 +382,50 @@ public class FileService {
 		return true;
 	}
 	
-	public static boolean copyFile(FileModel file,FileModel parentFile,String filename) {
+	public static void copyFile(FileModel file, FileModel destination, String filename) throws IOException {
 		try {
-			FileModel coloneFile = (FileModel)file.clone();
-			if(createFile(coloneFile,parentFile,filename)) {
-				System.out.println("clone sussess!");
-				return true;
+			FileModel colonedFile = (FileModel)file.clone();
+			// createFile(coloneFile, destination, filename);
+			if (!checkSubFileValid(file.getParentFile())) {
+				throw new IOException(destination+": at most 8 files in this directory");
+			}
+			if (filename.length() > 3) {
+				throw new IOException(filename+": invalid file name (too long)");
+			}
+			colonedFile.setParentFile(destination);
+			colonedFile.setName(filename);
+			
+			// configure the disk and fat
+			int start_index = FATService.addressOfFreeBlock(AttrForFS.getFat());
+			if(start_index == -1) {
+				throw new IOException("Disk is full.");
+			}
+			else {
+				colonedFile.setStartIndex(start_index);
+				FATService.applyForBlock(start_index, 255, AttrForFS.getFat());
+				if (checkDuplicationOfName(file)) {
+					throw new IOException("Duplication of name.");
+				} else {
+					DiskService.saveFile(file, AttrForFS.getDisk());
+				}
+			}
+			// update current files
+			updateDirectorySub(destination, colonedFile);
+			AttrForFS.getCurrentFilesAndDirs().add(colonedFile);
+			if(file.getAttribute() == FileModel.FILE) {
+				AttrForFS.getCurrentFiles().add(colonedFile);
+			}
+			else {
+				AttrForFS.getCurrentDirs().add(colonedFile);
 			}
 		} catch (CloneNotSupportedException e) {
 			e.printStackTrace();
 		}
-		return false;
 	}
 	
 	
-/*	public static boolean copydir(FileModel directory) throws CloneNotSupportedException {
+	/*	
+	public static boolean copydir(FileModel directory) throws CloneNotSupportedException {
 		FileModel coloneDir = (FileModel)directory.clone();
 		if(createFile(coloneDir)) {
 			for(FileModel f:coloneDir.getSubFiles()) {
@@ -368,14 +441,11 @@ public class FileService {
 			e.printStackTrace();
 		}
 		return true;
-	}*/
+	}
+	*/
 
-	public static boolean addSubFileValid(FileModel parentFile){
-		if(getSubFiles(parentFile).size()>=FileModel.MAX_SUB_NUMS){
-			System.out.println("It's subs nums over 8!");
-			return false;
-		}
-		return true;
+	public static boolean checkSubFileValid(FileModel parentFile) {
+		return getSubFiles(parentFile).size() < FileModel.MAX_SUB_NUMS;
 	}
 
 	public static boolean validInputName(String fileName){
@@ -393,21 +463,21 @@ public class FileService {
 		}
 		return true;
 	}
-	public static void main(String[] args) throws CloneNotSupportedException {
+// 	public static void main(String[] args) throws CloneNotSupportedException {
 
-		AttrForFS.init();
-		createFile((FileModel)AttrForFS.getDisk().getDiskTable().get(2),1,"abc",'c');
-		System.out.println(AttrForFS.getCurrentFiles());
+// 		AttrForFS.init();
+// 		createFile((FileModel)AttrForFS.getDisk().getDiskTable().get(2),1,"abc",'c');
+// 		System.out.println(AttrForFS.getCurrentFiles());
 //		System.out.println(AttrForFS.getFat().getTable());
-		copyFile((FileModel)AttrForFS.getDisk().getDiskTable().get(3),(FileModel)AttrForFS.getDisk().getDiskTable().get(2),"ab");
-		for(int i=0;i<AttrForFS.getFat().getTable().length;i++){
-			System.out.println(AttrForFS.getFat().getTable()[i]);
-		}
-		System.out.println(AttrForFS.getCurrentFiles());
-		editFileContent((FileModel)AttrForFS.getDisk().getDiskTable().get(3),"hello,world");
-		for(int i=0;i<AttrForFS.getFat().getTable().length;i++){
-			System.out.println(AttrForFS.getFat().getTable()[i]);
-		}
-		System.out.println((String) AttrForFS.getDisk().getDiskTable().get(5));
-	}
+// 		copyFile((FileModel)AttrForFS.getDisk().getDiskTable().get(3),(FileModel)AttrForFS.getDisk().getDiskTable().get(2),"ab");
+// 		for(int i=0;i<AttrForFS.getFat().getTable().length;i++){
+// 			System.out.println(AttrForFS.getFat().getTable()[i]);
+// 		}
+// 		System.out.println(AttrForFS.getCurrentFiles());
+// 		editFileContent((FileModel)AttrForFS.getDisk().getDiskTable().get(3),"hello,world");
+// 		for(int i=0;i<AttrForFS.getFat().getTable().length;i++){
+// 			System.out.println(AttrForFS.getFat().getTable()[i]);
+// 		}
+// 		System.out.println((String) AttrForFS.getDisk().getDiskTable().get(5));
+// 	}
 }

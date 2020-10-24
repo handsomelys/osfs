@@ -8,12 +8,14 @@ import javafx.scene.Scene;
 
 import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
+import ui.Editor;
 import ui.Terminal;
 
 import java.io.IOException;
 
 import controller.AttrForFS;
 import filesystem.service.DiskService;
+import filesystem.service.FileService;
 
 
 public class Main extends Application {
@@ -22,26 +24,28 @@ public class Main extends Application {
 
     @Override
     public void start(Stage primaryStage) {
-        try {
-            Parent explorer = FXMLLoader.load(getClass().getResource("/src/ui/explorer.fxml"));
-            primaryStage.setScene(new Scene(explorer, 900, 600));
-            primaryStage.show();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        // try {
+        //     Parent explorer = FXMLLoader.load(getClass().getResource("/src/ui/explorer.fxml"));
+        //     primaryStage.setScene(new Scene(explorer, 900, 600));
+        //     primaryStage.show();
+        // } catch (IOException e) {
+        //     e.printStackTrace();
+        // }
 
-        try {
-            Parent editer = FXMLLoader.load(getClass().getResource("/src/ui/editor.fxml"));
-            Scene scene = new Scene(editer,500,522);
-            Stage editorStage = new Stage();
-            editorStage.setScene(scene);
-            editorStage.setResizable(true);
-            editorStage.setTitle("editor");
-            editorStage.show();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        // try {
+        //     Parent editer = FXMLLoader.load(getClass().getResource("/ui/editor.fxml"));
+        //     Scene scene = new Scene(editer,500,522);
+        //     Stage editorStage = new Stage();
+        //     editorStage.setScene(scene);
+        //     editorStage.setResizable(true);
+        //     editorStage.setTitle("editor");
+        //     editorStage.show();
+        // } catch (IOException e) {
+        //     e.printStackTrace();
+        // }
+        
         (new Terminal()).start(new Stage());
+        (new Editor(FileService.getFile(AttrForFS.getRoot(), "a"))).start(new Stage());
         
         primaryStage.setOnCloseRequest(new EventHandler<WindowEvent>() {
             @Override

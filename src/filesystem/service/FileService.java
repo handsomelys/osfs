@@ -287,7 +287,7 @@ public class FileService {
 		String result = "";
 		int start_index = file.getStartIndex();
 		int[] fatTable = AttrForFS.getFat().getTable();
-		while(fatTable[start_index]!=255){	//until the end of file
+		while(fatTable[start_index]!=255&&fatTable[start_index]!=-1){	//until the end of file
 			result = result.concat(AttrForFS.getDisk().getDiskTable().get(fatTable[start_index]).toString());
 			start_index = fatTable[start_index];	//point to the next index
 		}
@@ -403,10 +403,10 @@ public class FileService {
 			else {
 				colonedFile.setStartIndex(start_index);
 				FATService.applyForBlock(start_index, 255, AttrForFS.getFat());
-				if (checkDuplicationOfName(file)) {
+				if (checkDuplicationOfName(colonedFile)) {
 					throw new IOException("Duplication of name.");
 				} else {
-					DiskService.saveFile(file, AttrForFS.getDisk());
+					DiskService.saveFile(colonedFile, AttrForFS.getDisk());
 				}
 			}
 			// update current files

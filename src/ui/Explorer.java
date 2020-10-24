@@ -11,14 +11,18 @@ import java.util.List;
 import java.util.Map;
 import java.util.ResourceBundle;
 
+import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.scene.Node;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.MapValueFactory;
 import javafx.scene.image.Image;
@@ -27,9 +31,10 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.TilePane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
+import javafx.stage.WindowEvent;
 import javafx.util.Callback;
 
-public class Explorer implements Initializable {
+public class Explorer extends Application implements Initializable {
 
     public static final Node DIRECTORY_ICON = new ImageView(new Image("resource/directory.png"));
 
@@ -116,6 +121,21 @@ public class Explorer implements Initializable {
     @FXML
     private TreeView<FileModel> treeView;
 
+    @FXML
+    private ContextMenu treeViewPopupMenu;
+
+    @FXML
+    private MenuItem treeViewPopupMenuCreateFile;
+
+    @FXML
+    private MenuItem treeViewPopupMenuCreateDirectory;
+
+    @FXML
+    private ScrollPane fileViewScrollPane;
+
+    @FXML
+    private TableView<Map<String, String>> fileView;
+
     @SuppressWarnings("all")
     @FXML
     private TableColumn<Map, String> fileViewColumnName;
@@ -135,21 +155,6 @@ public class Explorer implements Initializable {
     @SuppressWarnings("all")
     @FXML
     private TableColumn<Map, String> fileViewColumnStartindex;
-
-    @FXML
-    private ContextMenu treeViewPopupMenu;
-
-    @FXML
-    private MenuItem treeViewPopupMenuCreateFile;
-
-    @FXML
-    private MenuItem treeViewPopupMenuCreateDirectory;
-
-    @FXML
-    private ScrollPane fileViewScrollPane;
-
-    @FXML
-    private TableView<Map<String, String>> fileView;
 
     @FXML
     private ContextMenu fileViewPopupMenu;
@@ -380,4 +385,23 @@ public class Explorer implements Initializable {
         });
     }
 
+    @Override
+    public void start(Stage primaryStage) throws Exception {
+        try {
+            Parent editor = FXMLLoader.load(getClass().getResource("/ui/explorer.fxml"));
+            Scene scene = new Scene(editor);
+            primaryStage.setScene(scene);
+            primaryStage.setResizable(true);
+            primaryStage.setTitle("explore");
+			primaryStage.show();
+        } catch (IOException e) {
+            e.printStackTrace();
+		}
+
+    }
+
+    public static void main(String[] args) {
+        AttrForFS.init();
+        launch(args);
+    }
 }

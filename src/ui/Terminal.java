@@ -88,13 +88,12 @@ public class Terminal extends Application {
             @Override
             public void handle(KeyEvent e) {
                 if (e.getCode() == KeyCode.ENTER) {
-                    String raw = Terminal.this.input.getText();
-                    String command = raw.substring(Terminal.this.getPrompt().length());
-                    Terminal.this.history.add(command);
+                    String raw = Terminal.this.input.getText();		//the command that haven't proposal
+                    String command = raw.substring(Terminal.this.getPrompt().length());		//get the raw's substring
+                    Terminal.this.history.add(command);	//the keyboard ↑ to get the historic command
                     Terminal.this.historyPointer = Terminal.this.history.size()-1;
-                    Terminal.this.putLine(Terminal.this.history.get(Terminal.this.historyPointer));
                     Terminal.this.putLine(raw);
-                    Terminal.this.parseCommand(command);
+                    Terminal.this.parseCommand(command);	//parse the command by the blank
                     Terminal.this.clearInput();
                 } else if (e.getCode() == KeyCode.UP) {
                     Terminal.this.input.selectEnd();
@@ -318,6 +317,7 @@ public class Terminal extends Application {
                 }
                 break;
             }
+            case "chdir":
             case "cd": {
                 if (commands.length>1) {
                     if (commands[1].startsWith("/")) {
@@ -377,6 +377,26 @@ public class Terminal extends Application {
                     (new Editor(FileService.getFile(this.current, name))).start(new Stage());
                 }
                 break;
+            }
+//            case "deldir": 
+//            	//delete the directory include its sub files
+//            	{
+//            	 if (commands.length>1) {
+//                     try {
+//                         if (commands[1].startsWith("/")) {
+//                             // absolute path
+//                             FileService.removeDir(FileService.getFileTraversal(commands[1].substring(1)));
+//                         } else {
+//                             // relative path
+//                             FileService.removeDir(FileService.getFileTraversal(this.current, commands[1]));
+//                         }
+//                     } catch (IOException e) {
+//                         this.putLine(e.getMessage());
+//                     }
+//                 } else {
+//                     this.putLine("deldir: no file specified");
+//                 }
+//                 break;
             }
             case "format": {
                 AttrForFS.format();

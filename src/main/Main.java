@@ -18,7 +18,7 @@ import javafx.scene.layout.BackgroundSize;
 import javafx.scene.layout.FlowPane;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
-
+import util.UIError;
 import controller.AttrForFS;
 
 public class Main extends Application {
@@ -143,6 +143,7 @@ public class Main extends Application {
 		Scene scene = new Scene(lauchPane, PANEL_WIDTH, PANEL_HEIGHT);
 		primaryStage.setScene(scene);
 		primaryStage.setResizable(false);
+		UIError.alertInformation("hello", "world", primaryStage);
 		primaryStage.show();
 		/*
 		 * try { Parent explorer =

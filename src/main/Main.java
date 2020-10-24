@@ -1,16 +1,10 @@
 package main;
 
 import javafx.application.Application;
-import javafx.event.Event;
 import javafx.event.EventHandler;
-import javafx.fxml.FXMLLoader;
 import javafx.geometry.Insets;
-import javafx.geometry.Orientation;
-import javafx.geometry.Pos;
-import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Label;
-import javafx.scene.effect.Effect;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseDragEvent;
@@ -21,24 +15,11 @@ import javafx.scene.layout.BackgroundImage;
 import javafx.scene.layout.BackgroundPosition;
 import javafx.scene.layout.BackgroundRepeat;
 import javafx.scene.layout.BackgroundSize;
-import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.FlowPane;
-import javafx.scene.layout.GridPane;
-import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
-import javafx.scene.text.TextAlignment;
 import javafx.stage.Stage;
-import javafx.stage.WindowEvent;
-import ui.Terminal;
 import util.UIError;
-
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-
 import controller.AttrForFS;
-import filesystem.service.DiskService;
 
 public class Main extends Application {
 
@@ -86,7 +67,6 @@ public class Main extends Application {
 		fsm.addEventFilter(MouseDragEvent.MOUSE_ENTERED, new EventHandler<MouseEvent>() {
 			@Override
 			public void handle(MouseEvent event) {
-				// TODO Auto-generated method stub
 				fsm.setBackground(new Background(new BackgroundFill(Color.LIGHTSKYBLUE,null,null)));
 			}			
 		});
@@ -95,7 +75,6 @@ public class Main extends Application {
 
 			@Override
 			public void handle(MouseEvent event) {
-				// TODO Auto-generated method stub
 				fsm.setBackground(new Background(new BackgroundFill(null,null,null)));
 			}
 		});
@@ -103,7 +82,6 @@ public class Main extends Application {
 		fsm.addEventFilter(MouseEvent.MOUSE_CLICKED, new EventHandler<MouseEvent>() {
 			@Override
 			public void handle(MouseEvent event) {
-				// TODO Auto-generated method stub
 				if(event.getClickCount()==2) {
 					System.out.println("enter the file system manager");
 				}
@@ -113,7 +91,6 @@ public class Main extends Application {
 		dm.addEventFilter(MouseDragEvent.MOUSE_ENTERED, new EventHandler<MouseEvent>() {
 			@Override
 			public void handle(MouseEvent event) {
-				// TODO Auto-generated method stub
 				dm.setBackground(new Background(new BackgroundFill(Color.LIGHTSKYBLUE,null,null)));
 			}			
 		});
@@ -122,7 +99,6 @@ public class Main extends Application {
 
 			@Override
 			public void handle(MouseEvent event) {
-				// TODO Auto-generated method stub
 				dm.setBackground(new Background(new BackgroundFill(null,null,null)));
 			}
 		});
@@ -130,7 +106,6 @@ public class Main extends Application {
 		dm.addEventFilter(MouseEvent.MOUSE_CLICKED, new EventHandler<MouseEvent>() {
 			@Override
 			public void handle(MouseEvent event) {
-				// TODO Auto-generated method stub
 				if(event.getClickCount()==2) {
 					System.out.println("enter the disk manager");
 				}
@@ -140,7 +115,6 @@ public class Main extends Application {
 		pm.addEventFilter(MouseDragEvent.MOUSE_ENTERED, new EventHandler<MouseEvent>() {
 			@Override
 			public void handle(MouseEvent event) {
-				// TODO Auto-generated method stub
 				pm.setBackground(new Background(new BackgroundFill(Color.LIGHTSKYBLUE,null,null)));
 			}			
 		});
@@ -149,7 +123,6 @@ public class Main extends Application {
 
 			@Override
 			public void handle(MouseEvent event) {
-				// TODO Auto-generated method stub
 				pm.setBackground(new Background(new BackgroundFill(null,null,null)));
 			}
 		});
@@ -157,7 +130,6 @@ public class Main extends Application {
 		pm.addEventFilter(MouseEvent.MOUSE_CLICKED, new EventHandler<MouseEvent>() {
 			@Override
 			public void handle(MouseEvent event) {
-				// TODO Auto-generated method stub
 				if(event.getClickCount()==2) {
 					System.out.println("enter the process manager");
 				}

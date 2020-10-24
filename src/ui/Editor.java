@@ -9,102 +9,103 @@ import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
-import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.control.Menu;
+import javafx.scene.control.MenuBar;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.TextArea;
-
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
 
-
-
 public class Editor extends Application {
 
-	@FXML
-	private VBox vbox;
-	@FXML
-	private TextArea textArea;
-	@FXML
-	private MenuItem save;
-	@FXML
-	private MenuItem close;
+    @FXML
+    private VBox vbox;
 
-	private FileModel file;
-	
-	private static Stage stage;
+    @FXML
+    private MenuBar menubar;
 
-	public Editor(FileModel f) {
-		this.file = f;
+    @FXML
+    private Menu menubarFile;
 
-		String text = FileService.getFileContent(file);
-		this.textArea.setText(text);
+    @FXML
+    private MenuItem menubarFileSave;
 
-		this.save.setOnAction((ActionEvent t) -> {
-            FileService.editFileContent(file,textArea.getText());
-        });
-	}
+    @FXML
+    private MenuItem menubarFileSaveAndClose;
 
-	@Override
-	public void start(Stage primaryStage) throws Exception {
+    @FXML
+    private MenuItem menubarFileClose;
+
+    @FXML
+    private Menu menubarEdit;
+
+    @FXML
+    private MenuItem menubarMenuEditSelectAll;
+
+    @FXML
+    private MenuItem menubarMenuEditClear;
+
+    @FXML
+    private TextArea text;
+
+    @FXML
+    void handleClear(ActionEvent event) {
+        this.text.setText("");
+    }
+
+    @FXML
+    void handleSave(ActionEvent event) {
+        FileService.editFileContent(Editor.this.current, this.text.getText());
+    }
+
+    @FXML
+    void handleSelectAll(ActionEvent event) {
+        this.text.selectAll();
+    }
+
+    private FileModel current;
+
+    public Editor(FileModel f) {
+        this.current = f;
+    }
+
+    @Override
+    public void start(Stage primaryStage) {
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("/ui/editor.fxml"));
+        loader.setController(this);
         try {
-            Parent editor = FXMLLoader.load(getClass().getResource("/src/ui/editor.fxml"));
-            Scene scene = new Scene(editor, 400, 300);
-            primaryStage.setScene(scene);
-            primaryStage.setResizable(true);
-            primaryStage.setTitle(this.file.getNormalName()+" - editor");
-			primaryStage.show();
-			
-			//如果按了x 默认保留文本内容
-			primaryStage.setOnCloseRequest(new EventHandler<WindowEvent>() {
-				public void handle(WindowEvent windowEvent) {
-					windowEvent.consume();
-					String content = textArea.getText();
-					FileService.editFileContent(file, content);//更新文件内容
-					stage.close();
-				}
-			});
+            loader.load();
         } catch (IOException e) {
             e.printStackTrace();
-		}
-	}
+        }
+        Scene scene = new Scene(this.vbox, 400, 300);
+        primaryStage.setScene(scene);
+        primaryStage.setResizable(true);
+        primaryStage.setTitle(this.current.getNormalName() + " - editor");
+        primaryStage.show();
 
-	public void save(ActionEvent t) {
-		System.out.println("保存成功");
-	}
-	
-	//edit the file content
-	public void editFileContent(FileModel file) {
-		
-		save.setOnAction((ActionEvent t) -> {
-            FileService.editFileContent(file,textArea.getText());
-        });
-		
-		String text = FileService.getFileContent(file);
-		textArea.setText(text);
-		//click the 'X' to close the window
-		stage.setOnCloseRequest(new EventHandler<WindowEvent>() {
+        primaryStage.setOnCloseRequest(new EventHandler<WindowEvent>() {
             public void handle(WindowEvent windowEvent) {
-                windowEvent.consume();
-                String content = textArea.getText();
-                   FileService.editFileContent(file, content);
-                   stage.close();
+                primaryStage.close();
+            }
+        }); // do not save file content if clicking the close button
+
+        this.menubarFileSaveAndClose.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent event) {
+                Editor.this.handleSave(event);
+                primaryStage.close();
             }
         });
-        stage.show();
-	}
-
-	//show the file content
-	public void showFileContent(FileModel file) {
-		String content = FileService.getFileContent(file);
-		textArea.setText(content);
-		stage.setOnCloseRequest(new EventHandler<WindowEvent>() {
-            public void handle(WindowEvent windowEvent) {
-                windowEvent.consume();
-                stage.close();
+        this.menubarFileClose.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent event) {
+                primaryStage.close();
             }
         });
-        stage.show();
-	}
+
+        this.text.setText(FileService.getFileContent(this.current));
+    }
 }

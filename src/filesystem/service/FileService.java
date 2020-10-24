@@ -1,6 +1,7 @@
 package filesystem.service;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.io.IOException;
 
@@ -10,7 +11,7 @@ import filesystem.model.*;
 public class FileService {
 
 	/**
-	 * this is the universial method to create something on disk.
+	 * this is the universal method to create something on disk.
 	 * <p>assure all your parameters is correct if you want to use this method</p>
 	 * @param parentFile the parent file to store the newly created thing
 	 * @param fileAttribute file or directory
@@ -41,12 +42,13 @@ public class FileService {
 			throw new IOException("Disk is full.");
 		}
 		else {
-			file.setStartIndex(start_index);
-			FATService.applyForBlock(start_index, 255, AttrForFS.getFat());
-			file.setSize(1);
+			
 			if (checkDuplicationOfName(file)) {
 				throw new IOException("Duplication of name.");
 			} else {
+				file.setStartIndex(start_index);
+				FATService.applyForBlock(start_index, 255, AttrForFS.getFat());
+				file.setSize(1);
 				DiskService.saveFile(file, AttrForFS.getDisk());
 			}
 		}
@@ -287,7 +289,7 @@ public class FileService {
 		String result = "";
 		int start_index = file.getStartIndex();
 		int[] fatTable = AttrForFS.getFat().getTable();
-		while(fatTable[start_index]!=255){	//until the end of file
+		while(fatTable[start_index]!=255&&fatTable[start_index]!=-1){	//until the end of file
 			result = result.concat(AttrForFS.getDisk().getDiskTable().get(fatTable[start_index]).toString());
 			start_index = fatTable[start_index];	//point to the next index
 		}
@@ -401,12 +403,13 @@ public class FileService {
 				throw new IOException("Disk is full.");
 			}
 			else {
-				colonedFile.setStartIndex(start_index);
-				FATService.applyForBlock(start_index, 255, AttrForFS.getFat());
-				if (checkDuplicationOfName(file)) {
+				
+				if (checkDuplicationOfName(colonedFile)) {
 					throw new IOException("Duplication of name.");
 				} else {
-					DiskService.saveFile(file, AttrForFS.getDisk());
+					colonedFile.setStartIndex(start_index);
+					FATService.applyForBlock(start_index, 255, AttrForFS.getFat());
+					DiskService.saveFile(colonedFile, AttrForFS.getDisk());
 				}
 			}
 			// update current files
@@ -463,21 +466,59 @@ public class FileService {
 		}
 		return true;
 	}
-// 	public static void main(String[] args) throws CloneNotSupportedException {
+	
+	public static boolean rename(FileModel file,String newName) throws CloneNotSupportedException
+	{
 
-// 		AttrForFS.init();
-// 		createFile((FileModel)AttrForFS.getDisk().getDiskTable().get(2),1,"abc",'c');
-// 		System.out.println(AttrForFS.getCurrentFiles());
-//		System.out.println(AttrForFS.getFat().getTable());
-// 		copyFile((FileModel)AttrForFS.getDisk().getDiskTable().get(3),(FileModel)AttrForFS.getDisk().getDiskTable().get(2),"ab");
+		FileModel tmp = (FileModel) file.clone();
+		tmp.setName(newName);
+		if(validInputName(newName)) {
+			if(checkDuplicationOfName(tmp)) {
+				System.out.println("Duplicated name!");
+				return false;
+			}
+			else {
+				System.out.println("Rename Success!");
+				file.setName(newName);
+				return true;
+			}
+		}	
+		return false;		
+	}
+ 	public static void main(String[] args) throws CloneNotSupportedException, IOException {
+
+ 		AttrForFS.init();
+ 		create((FileModel)AttrForFS.getDisk().getDiskTable().get(2),FileModel.DIRECTORY,"abc",' ');
+ 		System.out.println(AttrForFS.getCurrentFiles());
+		System.out.println(AttrForFS.getFat().getTable());
+ 		copyFile((FileModel)AttrForFS.getDisk().getDiskTable().get(3),(FileModel)AttrForFS.getDisk().getDiskTable().get(2),"ah");
 // 		for(int i=0;i<AttrForFS.getFat().getTable().length;i++){
 // 			System.out.println(AttrForFS.getFat().getTable()[i]);
 // 		}
-// 		System.out.println(AttrForFS.getCurrentFiles());
-// 		editFileContent((FileModel)AttrForFS.getDisk().getDiskTable().get(3),"hello,world");
+ 		for(Object f:AttrForFS.getCurrentFilesAndDirs()) {
+ 			System.out.println((FileModel) f);
+ 		}
+ 		editFileContent((FileModel)AttrForFS.getDisk().getDiskTable().get(3),"hello,world");
 // 		for(int i=0;i<AttrForFS.getFat().getTable().length;i++){
 // 			System.out.println(AttrForFS.getFat().getTable()[i]);
 // 		}
-// 		System.out.println((String) AttrForFS.getDisk().getDiskTable().get(5));
-// 	}
+ 		
+ 		create((FileModel)AttrForFS.getDisk().getDiskTable().get(2),FileModel.FILE,"ef",'c');
+ 		for(Object f:AttrForFS.getCurrentFilesAndDirs()) {
+ 			System.out.println((FileModel) f);
+ 		}
+ 		deleteDirectory((FileModel)AttrForFS.getDisk().getDiskTable().get(6));
+ 		for(Object f:AttrForFS.getCurrentFilesAndDirs()) {
+ 			System.out.println((FileModel) f);
+ 		}
+ 		create((FileModel)AttrForFS.getDisk().getDiskTable().get(2),FileModel.DIRECTORY,"abc",' ');
+ 		for(Object f:AttrForFS.getCurrentFilesAndDirs()) {
+ 			System.out.println((FileModel) f);
+ 		}
+ 		
+ 		rename((FileModel)AttrForFS.getDisk().getDiskTable().get(3),"g");
+ 		for(Object f:AttrForFS.getCurrentFilesAndDirs()) {
+ 			System.out.println((FileModel) f);
+ 		}
+ 	}
 }

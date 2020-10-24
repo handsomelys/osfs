@@ -13,6 +13,8 @@ import java.util.ResourceBundle;
 
 import javafx.application.Application;
 import javafx.application.Platform;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
@@ -27,16 +29,18 @@ import javafx.scene.control.*;
 import javafx.scene.control.cell.MapValueFactory;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.TilePane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
-import javafx.stage.WindowEvent;
 import javafx.util.Callback;
 
 public class Explorer extends Application implements Initializable {
 
-    public static final Node DIRECTORY_ICON = new ImageView(new Image("resource/directory.png"));
+    public static final Image FILE_ICON = new Image("resource/file.png");
+    public static final Image DIRECTORY_ICON = new Image("resource/directory.png");
 
     public static Stage getStage() {
         return stage;
@@ -263,6 +267,7 @@ public class Explorer extends Application implements Initializable {
         if (f != null && (f.getAttribute() == 2 || f.getAttribute() == 3)) {
             this.current = f;
             this.toolBarCurrent.setText(f.getName());
+            this.updateFileView();
         }
     }
     void updateTreeView() {
@@ -271,7 +276,7 @@ public class Explorer extends Application implements Initializable {
     
     void updateFileView() {
         ObservableList<Map<String, String>> oo = generateFile(this.current);
-        System.out.println(oo);
+        // System.out.println(oo);
         this.fileView.setItems(oo);
     }
     
@@ -282,7 +287,7 @@ public class Explorer extends Application implements Initializable {
                 FileModel ff = (FileModel) o;
                 Map<String, String> m = new HashMap<String, String>();
                 if (ff.getAttribute() == 1) {
-                    m.put(ui.FileModelListCell.COLUMN_1_MAP_KEY, ff.getName()+"."+ff.getType());
+                    m.put(ui.FileModelListCell.COLUMN_1_MAP_KEY, ff.getNormalName());
                     m.put(ui.FileModelListCell.COLUMN_2_MAP_KEY, "文件");
                 } else if (ff.getAttribute() == 2 || ff.getAttribute() == 3) {
                     m.put(ui.FileModelListCell.COLUMN_1_MAP_KEY, ff.getName());
@@ -291,8 +296,8 @@ public class Explorer extends Application implements Initializable {
                 m.put(ui.FileModelListCell.COLUMN_3_MAP_KEY, String.valueOf(ff.getSize()));
                 m.put(ui.FileModelListCell.COLUMN_4_MAP_KEY, ff.isReadOnly()?"√":"×");
                 m.put(ui.FileModelListCell.COLUMN_5_MAP_KEY, String.valueOf(ff.getStartIndex()));
-                System.out.println(ff);
-                System.out.println(m);
+                // System.out.println(ff);
+                // System.out.println(m);
                 all.add(m);
             }
         }
@@ -320,13 +325,11 @@ public class Explorer extends Application implements Initializable {
                 if (isFirstTimeLeaf) {
                     isFirstTimeLeaf = false;
                     FileModel file = (FileModel) this.getValue();
-                    if (file.getAttribute() == 1) {
-                        this.isLeaf = true;
-                    } else if (file.getAttribute() == 2 || file.getAttribute() == 3) {
+                    if (file.isDirectory()) {
                         List<Object> files = FileService.getSubFiles(file);
                         this.isLeaf = files.isEmpty();
                     } else {
-                        this.isLeaf = false;
+                        this.isLeaf = true;
                     }
                 }
                 return this.isLeaf;
@@ -336,13 +339,13 @@ public class Explorer extends Application implements Initializable {
                 FileModel file = i.getValue();
                 if (file == null) {
                     return FXCollections.emptyObservableList();
-                } else if (file.getAttribute() == 2 || file.getAttribute() == 3) {
+                } else if (file.isDirectory()) {
                     List<Object> files = FileService.getSubFiles(file);
                     if (!files.isEmpty()) {
                         ObservableList<TreeItem<FileModel>> children = FXCollections.observableArrayList();
                         for (Object childFile : files) {
                             FileModel c = (FileModel) childFile;
-                            if (c.getAttribute() == 2 || c.getAttribute() == 3) {
+                            if (c.isDirectory()) {
                                 children.add(createNode(c));
                             }
                         }
@@ -355,6 +358,7 @@ public class Explorer extends Application implements Initializable {
             }
         };
         treeItem.setExpanded(true);
+        treeItem.setGraphic(new ImageView(Explorer.DIRECTORY_ICON));
         return treeItem;
     }
 
@@ -362,18 +366,76 @@ public class Explorer extends Application implements Initializable {
     public void initialize(URL location, ResourceBundle resources) {
         switchDirectory(AttrForFS.getRoot());
         this.updateTreeView();
-
-        this.fileViewColumnName.setCellValueFactory(new MapValueFactory<String>(ui.FileModelListCell.COLUMN_1_MAP_KEY));
-        this.fileViewColumnType.setCellValueFactory(new MapValueFactory<String>(ui.FileModelListCell.COLUMN_2_MAP_KEY));
-        this.fileViewColumnSize.setCellValueFactory(new MapValueFactory<String>(ui.FileModelListCell.COLUMN_3_MAP_KEY));
-        this.fileViewColumnReadonly.setCellValueFactory(new MapValueFactory<String>(ui.FileModelListCell.COLUMN_4_MAP_KEY));
-        this.fileViewColumnStartindex.setCellValueFactory(new MapValueFactory<String>(ui.FileModelListCell.COLUMN_5_MAP_KEY));
-        this.updateFileView();
-
         this.treeView.setCellFactory(new Callback<TreeView<FileModel>, TreeCell<FileModel>>() {
             @Override
             public TreeCell<FileModel> call(TreeView<FileModel> param) {
-                ui.FileModelTreeCell c = new ui.FileModelTreeCell();
+                TreeCell<FileModel> c = new TreeCell<FileModel>() {
+
+                    private TextField tf;
+
+                    @Override
+                    public void startEdit() {
+                        super.startEdit();
+                        if (this.tf == null) {
+                            createTextField();
+                        }
+                        this.setText(null);
+                        this.setGraphic(this.tf);
+                        this.tf.setText(this.getTreeItem().getValue().getNormalName());
+                        this.tf.selectAll();
+                        this.tf.requestFocus();
+                    }
+
+                    @Override
+                    public void cancelEdit() {
+                        System.out.println("cancel edit");
+                        super.cancelEdit();
+                        this.setText(this.getTreeItem().getValue().getName());
+                        this.setGraphic(this.getTreeItem().getGraphic());
+                    }
+
+                    @Override
+                    protected void updateItem(FileModel f, boolean empty) {
+                        super.updateItem(f, empty);
+                        if (empty) {
+                            this.setText(null);
+                            this.setGraphic(null);
+                        } else {
+                            if (isEditing()) {
+                                if (this.tf != null) {
+                                    this.tf.setText(this.getTreeItem().getValue().getName());
+                                }
+                            } else {
+                                this.setText(this.getTreeItem().getValue().getName());
+                                this.setGraphic(this.getTreeItem().getGraphic());
+                            }
+                        }
+                    }
+
+                    public void createTextField() {
+                        this.tf = new TextField(this.getTreeItem().getValue().getName());
+                        this.tf.setOnKeyReleased(new EventHandler<KeyEvent>() {
+                            @Override
+                            public void handle(KeyEvent event) {
+                                if (event.getCode() == KeyCode.ENTER) {
+                                    System.out.println("rename to: "+tf.getText());
+                                    commitEdit(getTreeItem().getValue());
+                                } else if (event.getCode() == KeyCode.ESCAPE) {
+                                    cancelEdit();
+                                }
+                            }
+
+                        });
+                        this.tf.focusedProperty().addListener(new ChangeListener<Boolean>() {
+                            @Override
+                            public void changed(ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue) {
+                                if ((oldValue && (!newValue))) {
+                                    // cancelEdit();
+                                }
+                            }
+                        });
+                    }
+                };
                 c.setOnMouseClicked(new EventHandler<MouseEvent>() {
                     @Override
                     public void handle(MouseEvent event) {
@@ -383,6 +445,15 @@ public class Explorer extends Application implements Initializable {
                 return c;
             }
         });
+
+        this.fileViewColumnName.setCellValueFactory(new MapValueFactory<String>(ui.FileModelListCell.COLUMN_1_MAP_KEY));
+        this.fileViewColumnType.setCellValueFactory(new MapValueFactory<String>(ui.FileModelListCell.COLUMN_2_MAP_KEY));
+        this.fileViewColumnSize.setCellValueFactory(new MapValueFactory<String>(ui.FileModelListCell.COLUMN_3_MAP_KEY));
+        this.fileViewColumnReadonly.setCellValueFactory(new MapValueFactory<String>(ui.FileModelListCell.COLUMN_4_MAP_KEY));
+        this.fileViewColumnStartindex.setCellValueFactory(new MapValueFactory<String>(ui.FileModelListCell.COLUMN_5_MAP_KEY));
+        this.fileView.setPlaceholder(new Label("当前目录无文件"));
+        this.updateFileView();
+
     }
 
     @Override

@@ -169,6 +169,13 @@ public class FileModel implements Cloneable, Serializable {
 			}
 			return this.name;
 		}
+
+		public boolean isFile() {
+			return this.attribute == FileModel.FILE;
+		}
+		public boolean isDirectory() {
+			return this.attribute == FileModel.DIRECTORY || this.attribute == FileModel.ROOT;
+		}
 	
 	//**********************
 

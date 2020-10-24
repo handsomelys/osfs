@@ -13,9 +13,6 @@ import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 
 public class FileModelTreeCell extends TreeCell<FileModel> {
-
-    public static final Node FILE_ICON = new ImageView(new Image("resource/file.png"));
-    public static final Node DIRECTORY_ICON = new ImageView(new Image("resource/directory.png"));
     
     private TextField tf;
 

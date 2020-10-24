@@ -30,6 +30,7 @@ import javafx.scene.text.TextAlignment;
 import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
 import ui.Terminal;
+import util.UIError;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -170,6 +171,7 @@ public class Main extends Application {
 		Scene scene = new Scene(lauchPane, PANEL_WIDTH, PANEL_HEIGHT);
 		primaryStage.setScene(scene);
 		primaryStage.setResizable(false);
+		UIError.alertInformation("hello", "world", primaryStage);
 		primaryStage.show();
 		/*
 		 * try { Parent explorer =

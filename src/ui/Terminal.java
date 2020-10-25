@@ -48,6 +48,7 @@ public class Terminal extends Application {
     "|  format |         format        | get a new disk and clear all content currently on the disk    |\n"+
     "+---------+-----------------------+---------------------------------------------------------------+";
 
+
     public VBox root;
 
     protected TextArea display;
@@ -384,26 +385,26 @@ public class Terminal extends Application {
                 }
                 break;
             }
-//            case "deldir": 
-//            	//delete the directory include its sub files
-//            	{
-//            	 if (commands.length>1) {
-//                     try {
-//                         if (commands[1].startsWith("/")) {
-//                             // absolute path
-//                             FileService.removeDir(FileService.getFileTraversal(commands[1].substring(1)));
-//                         } else {
-//                             // relative path
-//                             FileService.removeDir(FileService.getFileTraversal(this.current, commands[1]));
-//                         }
-//                     } catch (IOException e) {
-//                         this.putLine(e.getMessage());
-//                     }
-//                 } else {
-//                     this.putLine("deldir: no file specified");
-//                 }
-//                 break;
-//          }
+            case "deldir": 
+            	//delete the directory include its sub files
+            	{
+            	 if (commands.length>1) {
+                     try {
+                         if (commands[1].startsWith("/")) {
+                             // absolute path
+                             FileService.deleteDirectory((FileService.getFileTraversal(commands[1].substring(1))));
+                         } else {
+                             // relative path
+                             FileService.deleteDirectory((FileService.getFileTraversal(this.current, commands[1])));
+                         }
+                     } catch (IOException e) {
+                         this.putLine(e.getMessage());
+                     }
+                 } else {
+                     this.putLine("deldir: no file specified");
+                 }
+                 break;
+            }
             case "format": {
                 AttrForFS.format();
                 break;

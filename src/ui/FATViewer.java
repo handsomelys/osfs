@@ -14,13 +14,17 @@ import javafx.stage.Stage;
 
 import java.util.*;
 
-public class FATViewer extends Application {
+import controller.AttrForFS;
 
+public class FATViewer extends Application {
+	private TableView<FATItem> tv;
     public static void main(String[] args) {
         launch(args);
     }
 
-    public FATViewer(FATModel fat,TableView tv,TableColumn<FATItem,Number> tcFATIndex,TableColumn<FATItem,Number> tcFATValue,Stage stage){
+    public FATViewer(TableView<FATItem> tv,TableColumn<FATItem,Number> tcFATIndex,TableColumn<FATItem,Number> tcFATValue){
+    	this.tv = tv;
+    	FATModel fat = AttrForFS.getFat();
         List<Integer> fat_list = new ArrayList<>(fat.getTable().length);
         for(int i:fat.getTable()){
             fat_list.add(i);
@@ -29,82 +33,75 @@ public class FATViewer extends Application {
         ObservableList<FATItem> list = FXCollections.observableArrayList();
         //System.out.println(list);
 
-        AnchorPane ap = new AnchorPane();
+
         /*TableColumn<FATItem,Number> tcFATIndex = new TableColumn<>("Index");
         TableColumn<FATItem,Number> tcFATValue = new TableColumn<>("Value");*/
 
-        tv.getColumns().add(tcFATIndex);
-        tv.getColumns().add(tcFATValue);
+        this.tv.getColumns().add(tcFATIndex);
+        this.tv.getColumns().add(tcFATValue);
 
 
         for(int i=0;i<fat.getTable().length;i++){
             list.add(new FATItem(i,fat.getTable()[i]));
         }
 
-        tcFATIndex.setCellValueFactory(new PropertyValueFactory<>("Index"));
-        tcFATValue.setCellValueFactory(new PropertyValueFactory<>("Value"));
+        tcFATIndex.setCellValueFactory(new PropertyValueFactory<>("index"));
+        tcFATValue.setCellValueFactory(new PropertyValueFactory<>("value"));
         tcFATIndex.prefWidthProperty().bind(tv.prefWidthProperty().multiply(0.5));
         tcFATValue.prefWidthProperty().bind(tv.prefWidthProperty().multiply(0.5));
         System.out.println(list);
         tv.setItems(list);
-        ap.getChildren().addAll(tv);
-        tv.prefWidthProperty().bind(ap.widthProperty());
-        tv.prefHeightProperty().bind(ap.heightProperty());
 
-        Scene scene = new Scene(ap);
-        stage.setScene(scene);
-        stage.show();
     }
 
-    public void update(FATModel fat,TableView tv){
+    public void update(){
+    	FATModel fat = AttrForFS.getFat();
         ObservableList<FATItem> list = FXCollections.observableArrayList();
         for(int i=0;i<fat.getTable().length;i++){
             list.add(new FATItem(i,fat.getTable()[i]));
         }
-        tv.setItems(list);
+        this.tv.setItems(list);
     }
 
     @Override
     public void start(Stage primaryStage) throws Exception{
-        FATModel fat = new FATModel();
-        List<Integer> fat_list = new ArrayList<>(fat.getTable().length);
-        for(int i:fat.getTable()){
-            fat_list.add(i);
-        }
-        System.out.println(fat_list);
-        ObservableList<FATItem> list = FXCollections.observableArrayList();
-        //System.out.println(list);
-
-        AnchorPane ap = new AnchorPane();
-        TableView tv = new TableView<>();
-        TableColumn<FATItem,Number> tcFATIndex = new TableColumn<>("Index");
-        TableColumn<FATItem,Number> tcFATValue = new TableColumn<>("Value");
-
-
-
-        tv.getColumns().add(tcFATIndex);
-        tv.getColumns().add(tcFATValue);
-
-
-
-        for(int i=0;i<fat.getTable().length;i++){
-            list.add(new FATItem(i,fat.getTable()[i]));
-        }
-
-        tcFATIndex.setCellValueFactory(new PropertyValueFactory<>("Index"));
-        tcFATValue.setCellValueFactory(new PropertyValueFactory<>("Value"));
-        tcFATIndex.prefWidthProperty().bind(tv.prefWidthProperty().multiply(0.5));
-        tcFATValue.prefWidthProperty().bind(tv.prefWidthProperty().multiply(0.5));
-        System.out.println(list);
-        tv.setItems(list);
-        ap.getChildren().addAll(tv);
-        tv.prefWidthProperty().bind(ap.widthProperty());
-        tv.prefHeightProperty().bind(ap.heightProperty());
-        Scene scene = new Scene(ap);
-        primaryStage.setScene(scene);
-        primaryStage.show();
+//        FATModel fat = new FATModel();
+//        List<Integer> fat_list = new ArrayList<>(fat.getTable().length);
+//        for(int i:fat.getTable()){
+//            fat_list.add(i);
+//        }
+//        System.out.println(fat_list);
+//        ObservableList<FATItem> list = FXCollections.observableArrayList();
+//        //System.out.println(list);
+//
+//        AnchorPane ap = new AnchorPane();
+//        TableView tv = new TableView<>();
+//        TableColumn<FATItem,Number> tcFATIndex = new TableColumn<>("Index");
+//        TableColumn<FATItem,Number> tcFATValue = new TableColumn<>("Value");
+//
+//
+//
+//        tv.getColumns().add(tcFATIndex);
+//        tv.getColumns().add(tcFATValue);
+//
+//
+//
+//        for(int i=0;i<fat.getTable().length;i++){
+//            list.add(new FATItem(i,fat.getTable()[i]));
+//        }
+//
+//        tcFATIndex.setCellValueFactory(new PropertyValueFactory<>("Index"));
+//        tcFATValue.setCellValueFactory(new PropertyValueFactory<>("Value"));
+//        tcFATIndex.prefWidthProperty().bind(tv.prefWidthProperty().multiply(0.5));
+//        tcFATValue.prefWidthProperty().bind(tv.prefWidthProperty().multiply(0.5));
+//        System.out.println(list);
+//        tv.setItems(list);
+//        ap.getChildren().addAll(tv);
+//        tv.prefWidthProperty().bind(ap.widthProperty());
+//        tv.prefHeightProperty().bind(ap.heightProperty());
+//        Scene scene = new Scene(ap);
+//        primaryStage.setScene(scene);
+//        primaryStage.show();
+//    }
     }
-
-
-
 }

@@ -45,12 +45,15 @@ public class Terminal extends Application {
     "+---------+-----------------------+---------------------------------------------------------------+\n"+
     "|    copy |  copy <source> <dest> | copy file to another location                                 |\n"+
     "+---------+-----------------------+---------------------------------------------------------------+\n"+
-    "|   mkdir |    mkdir <diretory>   | make a new directory on the disk                              |\n"+
+    "|   mkdir |    mkdir <directory>  | make a new directory on the disk                              |\n"+
     "+---------+-----------------------+---------------------------------------------------------------+\n"+
-    "|   rmdir |    rmdir <diretory>   | delete the directory specified on the disk                    |\n"+
+    "|   rmdir |    rmdir <directory>  | delete the directory specified on the disk                    |\n"+
     "+---------+-----------------------+---------------------------------------------------------------+\n"+
     "|  format |         format        | get a new disk and clear all content currently on the disk    |\n"+
+    "+---------+-----------------------+---------------------------------------------------------------+\n"+
+    "|  deldir |    deldir <directory> | delete the directory specified on the disk and its sub files  |\n"+
     "+---------+-----------------------+---------------------------------------------------------------+";
+
 
     public VBox root;
 
@@ -378,25 +381,25 @@ public class Terminal extends Application {
                 }
                 break;
             }
-//            case "deldir": 
-//            	//delete the directory include its sub files
-//            	{
-//            	 if (commands.length>1) {
-//                     try {
-//                         if (commands[1].startsWith("/")) {
-//                             // absolute path
-//                             FileService.removeDir(FileService.getFileTraversal(commands[1].substring(1)));
-//                         } else {
-//                             // relative path
-//                             FileService.removeDir(FileService.getFileTraversal(this.current, commands[1]));
-//                         }
-//                     } catch (IOException e) {
-//                         this.putLine(e.getMessage());
-//                     }
-//                 } else {
-//                     this.putLine("deldir: no file specified");
-//                 }
-//                 break;
+            case "deldir": 
+            	//delete the directory include its sub files
+            	{
+            	 if (commands.length>1) {
+                     try {
+                         if (commands[1].startsWith("/")) {
+                             // absolute path
+                             FileService.deleteDirectory((FileService.getFileTraversal(commands[1].substring(1))));
+                         } else {
+                             // relative path
+                             FileService.deleteDirectory((FileService.getFileTraversal(this.current, commands[1])));
+                         }
+                     } catch (IOException e) {
+                         this.putLine(e.getMessage());
+                     }
+                 } else {
+                     this.putLine("deldir: no file specified");
+                 }
+                 break;
             }
             case "format": {
                 AttrForFS.format();

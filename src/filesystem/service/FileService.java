@@ -467,23 +467,25 @@ public class FileService {
 		return true;
 	}
 	
-	public static boolean rename(FileModel file,String newName) throws CloneNotSupportedException
-	{
+	public static FileModel rename(FileModel file, String newName) throws IOException {
 
-		FileModel tmp = (FileModel) file.clone();
+		FileModel tmp = null;
+		try {
+			tmp = (FileModel) file.clone();
+		} catch (CloneNotSupportedException e) {
+			e.printStackTrace();
+		}
 		tmp.setName(newName);
 		if(validInputName(newName)) {
 			if(checkDuplicationOfName(tmp)) {
-				System.out.println("Duplicated name!");
-				return false;
+				throw new IOException("Duplication name");
 			}
 			else {
-				System.out.println("Rename Success!");
 				file.setName(newName);
-				return true;
+				return file;
 			}
 		}	
-		return false;		
+		return null;		
 	}
  	public static void main(String[] args) throws CloneNotSupportedException, IOException {
 

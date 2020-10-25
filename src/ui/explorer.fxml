@@ -18,7 +18,7 @@
 <?import javafx.scene.control.TreeView?>
 <?import javafx.scene.layout.VBox?>
 
-<VBox fx:id="filesystemScene" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="600.0" prefWidth="900.0" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="ui.Explorer">
+<VBox fx:id="filesystemScene" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="600.0" prefWidth="900.0" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1">
    <children>
       <MenuBar fx:id="menuBar">
         <menus>
@@ -27,13 +27,12 @@
               <MenuItem fx:id="menuBarDirectoryCreateFile" mnemonicParsing="false" onAction="#createFile" text="新建文件" />
               <MenuItem fx:id="menuBarDirectoryCreateDirectory" mnemonicParsing="false" onAction="#createDirectory" text="新建文件夹" />
               <MenuItem fx:id="menuBarDirectoryProperty" mnemonicParsing="false" onAction="#launchDirectoryProperty" text="属性" />
-              <MenuItem fx:id="menuBarDirectoryExit" mnemonicParsing="false" onAction="#exit" text="退出" />
+              <MenuItem fx:id="menuBarDirectoryExit" mnemonicParsing="false" onAction="#exit" text="关闭" />
             </items>
           </Menu>
           <Menu fx:id="menuBarEdit" mnemonicParsing="false" text="编辑">
             <items>
               <MenuItem fx:id="menuBarEditOpen" mnemonicParsing="false" onAction="#openSelected" text="打开" />
-              <MenuItem fx:id="menuBarEditRename" mnemonicParsing="false" onAction="#renameSelected" text="重命名" />
               <MenuItem fx:id="menuBarEditRemove" mnemonicParsing="false" onAction="#removeSelected" text="删除" />
             </items>
           </Menu>
@@ -48,11 +47,15 @@
       </MenuBar>
       <ToolBar fx:id="toolBar" prefHeight="60.0" prefWidth="900.0">
         <items>
-            <Label fx:id="toolBarCurrent" text="当前目录" />
+            <Label fx:id="toolBarCurrent" alignment="CENTER" minWidth="50.0" text="当前目录" />
             <Separator orientation="VERTICAL" />
-          <Button fx:id="toolBarButtonOpen" mnemonicParsing="false" onAction="#openSelected" text="打开" />
-          <Button fx:id="toolBarButtonSelectAll" mnemonicParsing="false" onAction="#selectAll" text="选择全部" />
-          <Button fx:id="toolBarButtonProperty" mnemonicParsing="false" onAction="#launchSelectedProperty" text="属性" />
+            <Button fx:id="toolBarButtonUp" mnemonicParsing="false" onAction="#switchToParent" text="上级目录" />
+            <Button fx:id="toolBarButtonTerminal" mnemonicParsing="false" onAction="#launchTerminal" text="在此处打开命令行" />
+            <Separator orientation="VERTICAL" />
+            <Button fx:id="toolBarButtonOpen" mnemonicParsing="false" onAction="#openSelected" text="打开" />
+            <Button fx:id="toolBarButtonRemove" mnemonicParsing="false" onAction="#removeSelected" text="删除" />
+            <Button fx:id="toolBarButtonRefresh" mnemonicParsing="false" onAction="#refresh" text="刷新" />
+            <Button fx:id="toolBarButtonProperty" mnemonicParsing="false" onAction="#launchSelectedProperty" text="属性" />
         </items>
       </ToolBar>
       <SplitPane fx:id="mainPane" dividerPositions="0.25, 0.75" nodeOrientation="LEFT_TO_RIGHT" VBox.vgrow="ALWAYS">
@@ -74,6 +77,7 @@
                <content>
                   <TableView fx:id="fileView" editable="true" minWidth="400.0">
                      <columns>
+                        <TableColumn fx:id="fileViewColumnIcon" editable="false" minWidth="20.0" prefWidth="20.0" text="" />
                         <TableColumn fx:id="fileViewColumnName" editable="false" prefWidth="75.0" text="名称" />
                         <TableColumn fx:id="fileViewColumnType" editable="false" prefWidth="75.0" text="类型" />
                         <TableColumn fx:id="fileViewColumnSize" editable="false" prefWidth="75.0" text="大小（块）" />
@@ -84,6 +88,8 @@
                <contextMenu>
                   <ContextMenu fx:id="fileViewPopupMenu">
                     <items>
+                      <MenuItem fx:id="fileViewPopupMenuOpenSelected" mnemonicParsing="false" onAction="#openSelected" text="打开" />
+                      <SeparatorMenuItem mnemonicParsing="false" />
                       <MenuItem fx:id="fileViewPopupMenuCreateFile" mnemonicParsing="false" onAction="#createFile" text="新建文件" />
                       <MenuItem fx:id="fileViewPopupMenuCreateDirectory" mnemonicParsing="false" onAction="#createDirectory" text="新建文件夹" />
                     </items>

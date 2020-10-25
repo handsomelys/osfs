@@ -1,18 +1,6 @@
 package ui;
 
-import controller.AttrForFS;
-import filesystem.model.FileModel;
-import filesystem.service.FileService;
-
-import java.io.IOException;
-import java.net.URL;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.ResourceBundle;
-
 import javafx.application.Application;
-import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
@@ -22,52 +10,51 @@ import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
-import javafx.scene.Node;
-import javafx.scene.Parent;
-import javafx.scene.Scene;
 import javafx.scene.control.*;
-import javafx.scene.control.cell.MapValueFactory;
+import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
+import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
-import javafx.scene.layout.TilePane;
 import javafx.scene.layout.VBox;
+import javafx.scene.Node;
+import javafx.scene.Scene;
 import javafx.stage.Stage;
+import javafx.stage.WindowEvent;
 import javafx.util.Callback;
+
+import java.io.IOException;
+import java.net.URL;
+import java.util.List;
+import java.util.ResourceBundle;
+
+import controller.AttrForFS;
+import filesystem.model.FileModel;
+import filesystem.service.DiskService;
+import filesystem.service.FileService;
+import util.UIError;
 
 public class Explorer extends Application implements Initializable {
 
     public static final Image FILE_ICON = new Image("resource/file.png");
     public static final Image DIRECTORY_ICON = new Image("resource/directory.png");
 
-    public static Stage getStage() {
-        return stage;
-    }
-
-    public static void setStage(Stage stage) {
-        Explorer.stage = stage;
-    }
-
-    public static TilePane getShowPane() {
-        return showPane;
-    }
-
-    public static void setShowPane(TilePane showPane) {
-        Explorer.showPane = showPane;
-    }
-
-    private static Stage stage;
-    private static TilePane showPane;
-    public FileModel current;
+    public static final String COLUMN_1_MAP_KEY = "name";
+    public static final String COLUMN_2_MAP_KEY = "type";
+    public static final String COLUMN_3_MAP_KEY = "size";
+    public static final String COLUMN_4_MAP_KEY = "readonly";
+    public static final String COLUMN_5_MAP_KEY = "startindex";
 
     @FXML
     private VBox filesystemScene;
 
+    // menu bar
     @FXML
     private MenuBar menuBar;
 
+        // menu bar directory
     @FXML
     private Menu menuBarDirectory;
 
@@ -83,6 +70,7 @@ public class Explorer extends Application implements Initializable {
     @FXML
     private MenuItem menuBarDirectoryExit;
 
+        // menu bar edit
     @FXML
     private Menu menuBarEdit;
 
@@ -95,12 +83,14 @@ public class Explorer extends Application implements Initializable {
     @FXML
     private MenuItem menuBarEditRemove;
 
+        //menu bar help
     @FXML
     private Menu menuBarHelp;
 
     @FXML
     private MenuItem menuBarHelpAbout;
 
+    // tool bar
     @FXML
     private ToolBar toolBar;
 
@@ -108,23 +98,35 @@ public class Explorer extends Application implements Initializable {
     private Label toolBarCurrent;
 
     @FXML
+    private Button toolBarButtonUp;
+
+    @FXML
     private Button toolBarButtonOpen;
 
     @FXML
-    private Button toolBarButtonSelectAll;
+    private Button toolBarButtonRemove;
+
+    @FXML
+    private Button toolBarButtonRefresh;
+
+    @FXML
+    private Button toolBarButtonTerminal;
 
     @FXML
     private Button toolBarButtonProperty;
 
+    // main pane
     @FXML
     private SplitPane mainPane;
 
     @FXML
     private ScrollPane treeViewScrollPane;
 
+        // tree view
     @FXML
     private TreeView<FileModel> treeView;
 
+            // tree view popup menu
     @FXML
     private ContextMenu treeViewPopupMenu;
 
@@ -134,34 +136,37 @@ public class Explorer extends Application implements Initializable {
     @FXML
     private MenuItem treeViewPopupMenuCreateDirectory;
 
+        // file view
     @FXML
     private ScrollPane fileViewScrollPane;
 
     @FXML
-    private TableView<Map<String, String>> fileView;
+    private TableView<FileModelTableItem> fileView;
 
-    @SuppressWarnings("all")
     @FXML
-    private TableColumn<Map, String> fileViewColumnName;
+    private TableColumn<FileModelTableItem, Node> fileViewColumnIcon;
 
-    @SuppressWarnings("all")
     @FXML
-    private TableColumn<Map, String> fileViewColumnType;
+    private TableColumn<FileModelTableItem, String> fileViewColumnName;
 
-    @SuppressWarnings("all")
     @FXML
-    private TableColumn<Map, String> fileViewColumnSize;
+    private TableColumn<FileModelTableItem, String> fileViewColumnType;
 
-    @SuppressWarnings("all")
     @FXML
-    private TableColumn<Map, String> fileViewColumnReadonly;
+    private TableColumn<FileModelTableItem, Integer> fileViewColumnSize;
 
-    @SuppressWarnings("all")
     @FXML
-    private TableColumn<Map, String> fileViewColumnStartindex;
+    private TableColumn<FileModelTableItem, String> fileViewColumnReadonly;
 
+    @FXML
+    private TableColumn<FileModelTableItem, Integer> fileViewColumnStartindex;
+
+            // file view popup menu
     @FXML
     private ContextMenu fileViewPopupMenu;
+
+    @FXML
+    private MenuItem fileViewPopupMenuOpenSelected;
 
     @FXML
     private MenuItem fileViewPopupMenuCreateFile;
@@ -169,6 +174,7 @@ public class Explorer extends Application implements Initializable {
     @FXML
     private MenuItem fileViewPopupMenuCreateDirectory;
 
+    // imformation view
     @FXML
     private Accordion infomationStack;
 
@@ -181,16 +187,19 @@ public class Explorer extends Application implements Initializable {
     @FXML
     private TitledPane diskContent;
 
+    // variable
+    private Stage primaryStage;
+    public FileModel current;
+    public FileModel selected;
+
     @FXML
     void createDirectory(ActionEvent event) {
         try {
             FileService.createNew(this.current, FileModel.DIRECTORY);
         } catch (IOException e) {
-            e.printStackTrace();
-            // TODO: 整点弹窗
+            UIError.alertInformation("Create Failed", e.getMessage(), Explorer.this.primaryStage);
         }
-        this.updateTreeView();
-        this.updateFileView();
+        this.updateAll();
     }
 
     @FXML
@@ -198,18 +207,14 @@ public class Explorer extends Application implements Initializable {
         try {
             FileService.createNew(this.current, FileModel.FILE);
         } catch (IOException e) {
-            e.printStackTrace();
-            // TODO: 整点弹窗
+            UIError.alertInformation("Create Failed", e.getMessage(), Explorer.this.primaryStage);
         }
-
-        ui.ShowFilePane.show((FileModel) AttrForFS.getDisk().getDiskTable().get(2),FileModel.FILE,stage,showPane);
-        this.updateTreeView();
-        this.updateFileView();
+        this.updateAll();
     }
 
     @FXML
     void exit(ActionEvent event) {
-        Platform.exit();
+        this.primaryStage.close();
     }
 
     @FXML
@@ -223,8 +228,20 @@ public class Explorer extends Application implements Initializable {
     }
 
     @FXML
+    void refresh(ActionEvent event) {
+        this.updateAll();
+    }
+
+    @FXML
     void launchDirectoryProperty(ActionEvent event) {
 
+    }
+
+    @FXML
+    void launchTerminal(ActionEvent event) {
+        Terminal t = new Terminal(this.current);
+        t.start(new Stage());
+        t.getHelp();
     }
 
     @FXML
@@ -234,77 +251,77 @@ public class Explorer extends Application implements Initializable {
 
     @FXML
     void openSelected(ActionEvent event) {
-        for (Object o : FileService.getSubFiles(this.current)) {
-            System.out.println(o);
-            // for (Object oo: FileService.getSubFiles((FileModel) o)) {
-            // System.out.println("2");
-            // System.out.println(oo);
-            // }
-        }
+        open(this.selected);
     }
 
     @FXML
     void removeSelected(ActionEvent event) {
-
+        try {
+            if (this.selected.isFile()) {
+                FileService.removeFile(this.selected);
+            } else if (this.selected.isDirectory()) {
+                FileService.removeDir(this.selected);
+            }
+        } catch (IOException e) {
+            UIError.alertInformation("Delete Failed", e.getMessage(), Explorer.this.primaryStage);
+        }
+        this.updateAll();
     }
 
     @FXML
-    void renameSelected(ActionEvent event) {
-
+    void switchToParent(ActionEvent event) {
+        this.switchDirectory(this.current.getParentFile());
     }
 
-    @FXML
-    void selectAll(ActionEvent event) {
-        this.updateTreeView();
-        this.updateFileView();
-    }
-
-    void configureTreeView() {
-
-    }
-
-    void switchDirectory(FileModel f) {
-        if (f != null && (f.getAttribute() == 2 || f.getAttribute() == 3)) {
+    public void switchDirectory(FileModel f) {
+        if (f != null && f.isDirectory()) {
             this.current = f;
             this.toolBarCurrent.setText(f.getName());
             this.updateFileView();
         }
-    }
-    void updateTreeView() {
-        this.treeView.setRoot(Explorer.createNode(AttrForFS.getRoot()));
-    }
-    
-    void updateFileView() {
-        ObservableList<Map<String, String>> oo = generateFile(this.current);
-        // System.out.println(oo);
-        this.fileView.setItems(oo);
-    }
-    
-    ObservableList<Map<String, String>> generateFile(FileModel f) {
-        ObservableList<Map<String, String>> all = FXCollections.observableArrayList();
-        for (Object o: FileService.getSubFiles(f)) {
-            if (o instanceof FileModel) {
-                FileModel ff = (FileModel) o;
-                Map<String, String> m = new HashMap<String, String>();
-                if (ff.getAttribute() == 1) {
-                    m.put(ui.FileModelListCell.COLUMN_1_MAP_KEY, ff.getNormalName());
-                    m.put(ui.FileModelListCell.COLUMN_2_MAP_KEY, "文件");
-                } else if (ff.getAttribute() == 2 || ff.getAttribute() == 3) {
-                    m.put(ui.FileModelListCell.COLUMN_1_MAP_KEY, ff.getName());
-                    m.put(ui.FileModelListCell.COLUMN_2_MAP_KEY, "目录");
-                }
-                m.put(ui.FileModelListCell.COLUMN_3_MAP_KEY, String.valueOf(ff.getSize()));
-                m.put(ui.FileModelListCell.COLUMN_4_MAP_KEY, ff.isReadOnly()?"√":"×");
-                m.put(ui.FileModelListCell.COLUMN_5_MAP_KEY, String.valueOf(ff.getStartIndex()));
-                // System.out.println(ff);
-                // System.out.println(m);
-                all.add(m);
-            }
-        }
-        return all;
+        this.updateButtonStatus();
+        this.primaryStage.setTitle(this.current.getNormalName()+" - Explorer");
     }
 
-    public static TreeItem<FileModel> createNode(final FileModel f) {
+    public void open(FileModel f) {
+        if (f.isFile()) {
+            (new Editor(f)).start(new Stage());
+        } else if (f.isDirectory()) {
+            this.switchDirectory(f);
+        }
+    }
+
+    public void updateAll() {
+        this.updateTreeView();
+        this.updateFileView();
+        this.updateButtonStatus();
+    }
+
+    public void updateButtonStatus() {
+        if (this.current.getParentFile() == null) {
+            this.toolBarButtonUp.setDisable(true);
+        } else {
+            this.toolBarButtonUp.setDisable(false);
+        }
+
+        if (this.selected == null) {
+            this.toolBarButtonOpen.setDisable(true);
+            this.fileViewPopupMenuOpenSelected.setDisable(true);
+        } else {
+            this.toolBarButtonOpen.setDisable(false);
+            this.fileViewPopupMenuOpenSelected.setDisable(false);
+        }
+    }
+
+    public void updateTreeView() {
+        this.treeView.setRoot(generateTreeItem(AttrForFS.getRoot()));
+    }
+    
+    public void updateFileView() {
+        this.fileView.setItems(generateTableItem(this.current));
+    }
+
+    private TreeItem<FileModel> generateTreeItem(final FileModel f) {
         TreeItem<FileModel> treeItem = new TreeItem<FileModel>(f) {
 
             private boolean isLeaf = false;
@@ -346,7 +363,7 @@ public class Explorer extends Application implements Initializable {
                         for (Object childFile : files) {
                             FileModel c = (FileModel) childFile;
                             if (c.isDirectory()) {
-                                children.add(createNode(c));
+                                children.add(generateTreeItem(c));
                             }
                         }
                         return children;
@@ -361,11 +378,51 @@ public class Explorer extends Application implements Initializable {
         treeItem.setGraphic(new ImageView(Explorer.DIRECTORY_ICON));
         return treeItem;
     }
+    
+    private ObservableList<FileModelTableItem> generateTableItem(FileModel file) {
+        ObservableList<FileModelTableItem> all = FXCollections.observableArrayList();
+        for (Object o: FileService.getSubFiles(file)) {
+            if (o instanceof FileModel) {
+                FileModel f = (FileModel) o;
+                all.add(new FileModelTableItem(f));
+            }
+        }
+        return all;
+    }
+
+    public class FileModelTableItem {
+        public FileModel file;
+        public Node icon;
+        public FileModelTableItem(FileModel file) {
+            this.file = file;
+            if (this.file.isFile()) {
+                this.icon = new ImageView(Explorer.FILE_ICON);
+            } else if (this.file.isDirectory()) {
+                this.icon = new ImageView(Explorer.DIRECTORY_ICON);
+            }
+        }
+        public FileModel getFile() {return this.file;}
+        public Node getIcon() {return this.icon;}
+        public String getName() {return this.file.getNormalName();}
+        public String getType() {
+            if (this.file.isFile()) {
+                return "文件";
+            } else if (this.file.isDirectory()) {
+                return "目录";
+            } else {
+                return "?";
+            }
+        }
+        public Integer getSize() {return this.file.getSize();}
+        public String getReadOnly() {return this.file.isReadOnly()?"√":"×";}
+        public Integer getStartIndex() {return this.file.getStartIndex();}
+        public String toString() {return this.file.toString();}
+    }
+
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
-        switchDirectory(AttrForFS.getRoot());
-        this.updateTreeView();
+        // configuring tree view style
         this.treeView.setCellFactory(new Callback<TreeView<FileModel>, TreeCell<FileModel>>() {
             @Override
             public TreeCell<FileModel> call(TreeView<FileModel> param) {
@@ -414,23 +471,34 @@ public class Explorer extends Application implements Initializable {
 
                     public void createTextField() {
                         this.tf = new TextField(this.getTreeItem().getValue().getName());
+                        final FileModel file = this.getItem();
                         this.tf.setOnKeyReleased(new EventHandler<KeyEvent>() {
                             @Override
                             public void handle(KeyEvent event) {
                                 if (event.getCode() == KeyCode.ENTER) {
-                                    System.out.println("rename to: "+tf.getText());
-                                    commitEdit(getTreeItem().getValue());
+                                    FileModel n = file;
+                                    try {
+                                        n = FileService.rename(file, tf.getText());
+                                    } catch (IOException e) {
+                                        UIError.alertInformation("Rename Failed", e.getMessage(), Explorer.this.primaryStage);
+                                    }
+                                    commitEdit(n);
                                 } else if (event.getCode() == KeyCode.ESCAPE) {
                                     cancelEdit();
                                 }
                             }
-
                         });
                         this.tf.focusedProperty().addListener(new ChangeListener<Boolean>() {
                             @Override
                             public void changed(ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue) {
-                                if ((oldValue && (!newValue))) {
-                                    // cancelEdit();
+                                if (oldValue && (!newValue)) {
+                                    FileModel n = file;
+                                    try {
+                                        n = FileService.rename(file, tf.getText());
+                                    } catch (IOException e) {
+                                        UIError.alertInformation("Rename Failed", e.getMessage(), Explorer.this.primaryStage);
+                                    }
+                                    commitEdit(n);
                                 }
                             }
                         });
@@ -445,30 +513,76 @@ public class Explorer extends Application implements Initializable {
                 return c;
             }
         });
-
-        this.fileViewColumnName.setCellValueFactory(new MapValueFactory<String>(ui.FileModelListCell.COLUMN_1_MAP_KEY));
-        this.fileViewColumnType.setCellValueFactory(new MapValueFactory<String>(ui.FileModelListCell.COLUMN_2_MAP_KEY));
-        this.fileViewColumnSize.setCellValueFactory(new MapValueFactory<String>(ui.FileModelListCell.COLUMN_3_MAP_KEY));
-        this.fileViewColumnReadonly.setCellValueFactory(new MapValueFactory<String>(ui.FileModelListCell.COLUMN_4_MAP_KEY));
-        this.fileViewColumnStartindex.setCellValueFactory(new MapValueFactory<String>(ui.FileModelListCell.COLUMN_5_MAP_KEY));
+        // configuring file view style
         this.fileView.setPlaceholder(new Label("当前目录无文件"));
-        this.updateFileView();
+        this.fileViewColumnIcon.setCellValueFactory(new PropertyValueFactory<FileModelTableItem, Node>("icon"));
+        this.fileViewColumnIcon.setStyle("-fx-alignment: CENTER;");
+        this.fileViewColumnName.setCellValueFactory(new PropertyValueFactory<FileModelTableItem, String>("name"));
+        this.fileViewColumnName.setStyle("-fx-alignment: CENTER-RIGHT;");
+        this.fileViewColumnType.setCellValueFactory(new PropertyValueFactory<FileModelTableItem, String>("type"));
+        this.fileViewColumnType.setStyle("-fx-alignment: CENTER;");
+        this.fileViewColumnSize.setCellValueFactory(new PropertyValueFactory<FileModelTableItem, Integer>("size"));
+        this.fileViewColumnSize.setStyle("-fx-alignment: CENTER;");
+        this.fileViewColumnReadonly.setCellValueFactory(new PropertyValueFactory<FileModelTableItem, String>("readOnly"));
+        this.fileViewColumnReadonly.setStyle("-fx-alignment: CENTER;");
+        this.fileViewColumnStartindex.setCellValueFactory(new PropertyValueFactory<FileModelTableItem, Integer>("startIndex"));
+        this.fileViewColumnStartindex.setStyle("-fx-alignment: CENTER;");
 
+        // select file item
+        this.fileView.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<FileModelTableItem>() {
+            @Override
+            public void changed(ObservableValue<? extends FileModelTableItem> observable, FileModelTableItem oldValue,
+                    FileModelTableItem newValue) {
+                if (newValue != null) {
+                    Explorer.this.selected = newValue.getFile();
+                    Explorer.this.updateButtonStatus();
+                }
+            }
+
+        });
+        // double click to switch directory
+        this.fileView.setOnMouseClicked(new EventHandler<MouseEvent>() {
+			@Override
+			public void handle(MouseEvent event) {
+                if (event.getButton().equals(MouseButton.PRIMARY) && event.getClickCount() == 2){
+                    FileModel f = Explorer.this.fileView.getSelectionModel().getSelectedItem().getFile();
+                    if (f != null) {
+                        if (f.isFile()) {
+                            (new Editor(f)).start(new Stage());
+                        } else if (f.isDirectory()) {
+                            Explorer.this.switchDirectory(f);
+                        }
+                    }
+                }
+			}
+        });
+        // initializing all components
+        switchDirectory(AttrForFS.getRoot());
+        this.updateTreeView();
+        this.updateButtonStatus();
     }
 
     @Override
     public void start(Stage primaryStage) throws Exception {
+        this.primaryStage = primaryStage;
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("/ui/explorer.fxml"));
+        loader.setController(this);
         try {
-            Parent editor = FXMLLoader.load(getClass().getResource("/ui/explorer.fxml"));
-            Scene scene = new Scene(editor);
-            primaryStage.setScene(scene);
-            primaryStage.setResizable(true);
-            primaryStage.setTitle("explore");
-			primaryStage.show();
+            loader.load();
         } catch (IOException e) {
             e.printStackTrace();
 		}
+        Scene scene = new Scene(this.filesystemScene);
+        primaryStage.setScene(scene);
+        primaryStage.setResizable(true);
+        primaryStage.show();
 
+        primaryStage.setOnCloseRequest(new EventHandler<WindowEvent>() {
+            public void handle(WindowEvent windowEvent) {
+                DiskService.save2Disk(AttrForFS.getDisk(), main.Main.DISK, AttrForFS.getFat());
+                primaryStage.close();
+            }
+        }); // do not save file content if clicking the close button
     }
 
     public static void main(String[] args) {

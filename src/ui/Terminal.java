@@ -30,7 +30,7 @@ public class Terminal extends Application {
 
     public static final String USER_NAME = "user";
 
-    public static final String Help = 
+    public static final String HELP = 
     "+-------------------------------------------------------------------------------------------------+\n"+
     "|                                       WELCOME TO TERMINAL !                                     |\n"+
     "| Here is some tips for termianl!                                      --relative path supported! |\n"+
@@ -38,17 +38,13 @@ public class Terminal extends Application {
     "| command |     command format    | command description                                           |\n"+
     "+---------+-----------------------+---------------------------------------------------------------+\n"+
     "|  create |     create <file>     | create a new file on the disk                                 |\n"+
-    "+---------+-----------------------+---------------------------------------------------------------+\n"+
     "|  delete |     delete <file>     | delete the file specified on the disk                         |\n"+
-    "+---------+-----------------------+---------------------------------------------------------------+\n"+
     "|    type |       type <file>     | display file content in the terminal                          |\n"+
-    "+---------+-----------------------+---------------------------------------------------------------+\n"+
     "|    copy |  copy <source> <dest> | copy file to another location                                 |\n"+
-    "+---------+-----------------------+---------------------------------------------------------------+\n"+
-    "|   mkdir |    mkdir <diretory>   | make a new directory on the disk                              |\n"+
-    "+---------+-----------------------+---------------------------------------------------------------+\n"+
-    "|   rmdir |    rmdir <diretory>   | delete the directory specified on the disk                    |\n"+
-    "+---------+-----------------------+---------------------------------------------------------------+\n"+
+    "|   mkdir |   mkdir <directory>   | make a new directory on the disk                              |\n"+
+    "|   rmdir |   rmdir <directory>   | delete the directory specified on the disk                    |\n"+
+    "|   chdir |   chdir <directory>   | change directory to another                                   |\n"+
+    "|  deldir |  deldir <direvtory>   | delete the directory and it all childrens on the disk         |\n"+
     "|  format |         format        | get a new disk and clear all content currently on the disk    |\n"+
     "+---------+-----------------------+---------------------------------------------------------------+";
 
@@ -64,9 +60,18 @@ public class Terminal extends Application {
 
     /**
      * start a new terminal interface on {@code root} directory.
-     * <p>use <pre>{@code (new Terminal()).start(new Stage())}</pre> to get a terminal!</p>
+     * <p>use these code <pre>{@code (new Terminal()).start(new Stage());}</pre> to get a terminal!</p>
      */
     public Terminal() {
+        this(AttrForFS.getRoot());
+    }
+
+    /**
+     * start a new terminal interface on a directory.
+     * <p>use these code <pre>{@code (new Terminal(someFileModel)).start(new Stage());}</pre> to get a terminal!</p>
+     * @param f the directory you start terminal on
+     */
+    public Terminal(FileModel f) {
         this.root = new VBox();
 
         this.display = new TextArea();
@@ -81,7 +86,6 @@ public class Terminal extends Application {
         this.display.setEditable(false);
         this.display.setWrapText(true);
         this.display.setFont(Font.font("Consolas", 14));
-        this.display.setText(Terminal.Help);
 
         this.input.setFont(Font.font("Consolas", 14));
         this.input.addEventHandler(KeyEvent.KEY_RELEASED, new EventHandler<KeyEvent>() {
@@ -131,6 +135,8 @@ public class Terminal extends Application {
 
         this.root.getChildren().add(this.display);
         this.root.getChildren().add(this.input);
+
+        this.current = f;
     }
 
     /**
@@ -397,7 +403,7 @@ public class Terminal extends Application {
 //                     this.putLine("deldir: no file specified");
 //                 }
 //                 break;
-            }
+//          }
             case "format": {
                 AttrForFS.format();
                 break;
@@ -446,6 +452,10 @@ public class Terminal extends Application {
 
     }
 
+    public void getHelp() {
+        this.display.appendText(Terminal.HELP);
+    }
+
     @Override
     public void start(Stage primaryStage) {
         primaryStage.setScene(new Scene(this.root, 800, 480));
@@ -457,18 +467,17 @@ public class Terminal extends Application {
                 Terminal.this.clearInput();
             }
         });
-
-        AttrForFS.init();
-        this.current = AttrForFS.getRoot();
-        this.input.setText(this.getPrompt());
         primaryStage.setOnCloseRequest(new EventHandler<WindowEvent>() {
             @Override
             public void handle(WindowEvent event) {
                 DiskService.save2Disk(AttrForFS.getDisk(), main.Main.DISK, AttrForFS.getFat());
             }
         });
+
+        this.input.setText(this.getPrompt());
     }
     public static void main(String args[]) {
+        AttrForFS.init();
         launch(args);
     }
 }

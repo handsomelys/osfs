@@ -296,8 +296,13 @@ public class FileService {
 	}
 	
 	//edit the file's content
-	public static void editFileContent(FileModel file,String content) {
-		int requireBlocks = DiskService.calculateNeedBlock(content);
+	public static void editFileContent(FileModel file,String content){
+		if(file.isReadOnly()) {
+				System.out.println("read only");
+				return ;
+		}
+		else {
+			int requireBlocks = DiskService.calculateNeedBlock(content);
 		int remainBlocks = DiskService.getDiskFreeCnt();
 		if(requireBlocks>remainBlocks) {
 			System.out.println("Error!Do not have the enough blocks");
@@ -320,6 +325,7 @@ public class FileService {
 			file.setSize(file.getSize()+1);
 		}
 		FATService.SetBlockValue(255, AttrForFS.getFat(), index);
+		}
 	}
 	
 	// check if there has the duplicated name in the same directory,if true, reject to create
@@ -446,6 +452,10 @@ public class FileService {
 	}
 	*/
 
+	public static void changeTheAttribute(FileModel file,boolean readOnly) {
+		file.setReadOnly(readOnly);
+	}
+	
 	public static boolean checkSubFileValid(FileModel parentFile) {
 		return getSubFiles(parentFile).size() < FileModel.MAX_SUB_NUMS;
 	}

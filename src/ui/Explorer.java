@@ -86,17 +86,7 @@ public class Explorer extends Application implements Initializable {
     private MenuItem menuBarEditOpen;
 
     @FXML
-    private MenuItem menuBarEditRename;
-
-    @FXML
     private MenuItem menuBarEditRemove;
-
-        //menu bar help
-    @FXML
-    private Menu menuBarHelp;
-
-    @FXML
-    private MenuItem menuBarHelpAbout;
 
     // tool bar
     @FXML
@@ -220,35 +210,14 @@ public class Explorer extends Application implements Initializable {
     }
 
     @FXML
-    void help(ActionEvent event) {
-
-    }
-
-    @FXML
-    void infomation(ActionEvent event) {
-
-    }
-
-    @FXML
     void refresh(ActionEvent event) {
         this.updateAll();
-    }
-
-    @FXML
-    void launchDirectoryProperty(ActionEvent event) {
-
     }
 
     @FXML
     void launchTerminal(ActionEvent event) {
         Terminal t = new Terminal(this.current);
         t.start(new Stage());
-        t.getHelp();
-    }
-
-    @FXML
-    void launchSelectedProperty(ActionEvent event) {
-
     }
 
     @FXML
@@ -309,10 +278,16 @@ public class Explorer extends Application implements Initializable {
         }
 
         if (this.selected == null) {
+            this.menuBarEdit.setDisable(true);
+            this.menuBarEditOpen.setDisable(true);
+            this.menuBarEditRemove.setDisable(true);
             this.toolBarButtonOpen.setDisable(true);
             this.toolBarButtonRemove.setDisable(true);
             this.fileViewPopupMenuOpenSelected.setDisable(true);
         } else {
+            this.menuBarEdit.setDisable(false);
+            this.menuBarEditOpen.setDisable(false);
+            this.menuBarEditRemove.setDisable(false);
             this.toolBarButtonOpen.setDisable(false);
             this.toolBarButtonRemove.setDisable(false);
             this.fileViewPopupMenuOpenSelected.setDisable(false);
@@ -583,7 +558,7 @@ public class Explorer extends Application implements Initializable {
     }
 
     @Override
-    public void start(Stage primaryStage) throws Exception {
+    public void start(Stage primaryStage) {
         this.primaryStage = primaryStage;
         FXMLLoader loader = new FXMLLoader(getClass().getResource("/ui/explorer.fxml"));
         loader.setController(this);

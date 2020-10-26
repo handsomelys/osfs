@@ -26,7 +26,6 @@
             <items>
               <MenuItem fx:id="menuBarDirectoryCreateFile" mnemonicParsing="false" onAction="#createFile" text="新建文件" />
               <MenuItem fx:id="menuBarDirectoryCreateDirectory" mnemonicParsing="false" onAction="#createDirectory" text="新建文件夹" />
-              <MenuItem fx:id="menuBarDirectoryProperty" mnemonicParsing="false" onAction="#launchDirectoryProperty" text="属性" />
               <MenuItem fx:id="menuBarDirectoryExit" mnemonicParsing="false" onAction="#exit" text="关闭" />
             </items>
           </Menu>
@@ -34,13 +33,6 @@
             <items>
               <MenuItem fx:id="menuBarEditOpen" mnemonicParsing="false" onAction="#openSelected" text="打开" />
               <MenuItem fx:id="menuBarEditRemove" mnemonicParsing="false" onAction="#removeSelected" text="删除" />
-            </items>
-          </Menu>
-          <Menu fx:id="menuBarHelp" mnemonicParsing="false" text="帮助">
-            <items>
-              <MenuItem fx:id="menuBarHelpAbout" mnemonicParsing="false" onAction="#help" text="使用说明" />
-                  <SeparatorMenuItem mnemonicParsing="false" />
-              <MenuItem fx:id="menuBarHelpAbout" mnemonicParsing="false" onAction="#infomation" text="关于" />
             </items>
           </Menu>
         </menus>
@@ -55,7 +47,6 @@
             <Button fx:id="toolBarButtonOpen" mnemonicParsing="false" onAction="#openSelected" text="打开" />
             <Button fx:id="toolBarButtonRemove" mnemonicParsing="false" onAction="#removeSelected" text="删除" />
             <Button fx:id="toolBarButtonRefresh" mnemonicParsing="false" onAction="#refresh" text="刷新" />
-            <Button fx:id="toolBarButtonProperty" mnemonicParsing="false" onAction="#launchSelectedProperty" text="属性" />
         </items>
       </ToolBar>
       <SplitPane fx:id="mainPane" dividerPositions="0.25, 0.75" nodeOrientation="LEFT_TO_RIGHT" VBox.vgrow="ALWAYS">

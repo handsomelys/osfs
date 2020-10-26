@@ -385,6 +385,11 @@ public class Terminal extends Application {
                 }
                 break;
             }
+            case "help":
+            {
+            	getHelp();
+            	break;
+            }
             case "deldir": 
             	//delete the directory include its sub files
             	{

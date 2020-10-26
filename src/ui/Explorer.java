@@ -11,7 +11,9 @@ import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.scene.control.*;
+import javafx.scene.control.TableColumn.CellEditEvent;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.control.cell.TextFieldTableCell;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyCode;
@@ -38,6 +40,8 @@ import util.UIError;
 
 public class Explorer extends Application implements Initializable {
 
+    public static final String NAME = "Explorer";
+
     public static final Image FILE_ICON = new Image("resource/file.png");
     public static final Image DIRECTORY_ICON = new Image("resource/directory.png");
 
@@ -46,6 +50,10 @@ public class Explorer extends Application implements Initializable {
     public static final String COLUMN_3_MAP_KEY = "size";
     public static final String COLUMN_4_MAP_KEY = "readonly";
     public static final String COLUMN_5_MAP_KEY = "startindex";
+
+    public static final String RENAME_FAILED = "重命名失败";
+    public static final String CREATE_FAILED = "创建失败";
+    public static final String DELETE_FAILED = "删除失败";
 
     @FXML
     private VBox filesystemScene;
@@ -156,9 +164,6 @@ public class Explorer extends Application implements Initializable {
     private TableColumn<FileModelTableItem, Integer> fileViewColumnSize;
 
     @FXML
-    private TableColumn<FileModelTableItem, String> fileViewColumnReadonly;
-
-    @FXML
     private TableColumn<FileModelTableItem, Integer> fileViewColumnStartindex;
 
             // file view popup menu
@@ -184,9 +189,6 @@ public class Explorer extends Application implements Initializable {
     @FXML
     private TitledPane FATTable;
 
-    @FXML
-    private TitledPane diskContent;
-
     // variable
     private Stage primaryStage;
     public FileModel current;
@@ -197,7 +199,7 @@ public class Explorer extends Application implements Initializable {
         try {
             FileService.createNew(this.current, FileModel.DIRECTORY);
         } catch (IOException e) {
-            UIError.alertInformation("Create Failed", e.getMessage(), Explorer.this.primaryStage);
+            UIError.alertInformation(Explorer.CREATE_FAILED, e.getMessage(), Explorer.this.primaryStage);
         }
         this.updateAll();
     }
@@ -207,7 +209,7 @@ public class Explorer extends Application implements Initializable {
         try {
             FileService.createNew(this.current, FileModel.FILE);
         } catch (IOException e) {
-            UIError.alertInformation("Create Failed", e.getMessage(), Explorer.this.primaryStage);
+            UIError.alertInformation(Explorer.CREATE_FAILED, e.getMessage(), Explorer.this.primaryStage);
         }
         this.updateAll();
     }
@@ -263,7 +265,7 @@ public class Explorer extends Application implements Initializable {
                 FileService.removeDir(this.selected);
             }
         } catch (IOException e) {
-            UIError.alertInformation("Delete Failed", e.getMessage(), Explorer.this.primaryStage);
+            UIError.alertInformation(Explorer.DELETE_FAILED, e.getMessage(), Explorer.this.primaryStage);
         }
         this.updateAll();
     }
@@ -280,7 +282,7 @@ public class Explorer extends Application implements Initializable {
             this.updateFileView();
         }
         this.updateButtonStatus();
-        this.primaryStage.setTitle(this.current.getNormalName()+" - Explorer");
+        this.primaryStage.setTitle(this.current.getNormalName()+" - "+Explorer.NAME);
     }
 
     public void open(FileModel f) {
@@ -294,6 +296,8 @@ public class Explorer extends Application implements Initializable {
     public void updateAll() {
         this.updateTreeView();
         this.updateFileView();
+        ((DiskViewer) this.diskChart.getContent()).update();
+        ((FATViewer) this.FATTable.getContent()).update();
         this.updateButtonStatus();
     }
 
@@ -306,9 +310,11 @@ public class Explorer extends Application implements Initializable {
 
         if (this.selected == null) {
             this.toolBarButtonOpen.setDisable(true);
+            this.toolBarButtonRemove.setDisable(true);
             this.fileViewPopupMenuOpenSelected.setDisable(true);
         } else {
             this.toolBarButtonOpen.setDisable(false);
+            this.toolBarButtonRemove.setDisable(false);
             this.fileViewPopupMenuOpenSelected.setDisable(false);
         }
     }
@@ -414,7 +420,6 @@ public class Explorer extends Application implements Initializable {
             }
         }
         public Integer getSize() {return this.file.getSize();}
-        public String getReadOnly() {return this.file.isReadOnly()?"√":"×";}
         public Integer getStartIndex() {return this.file.getStartIndex();}
         public String toString() {return this.file.toString();}
     }
@@ -480,7 +485,7 @@ public class Explorer extends Application implements Initializable {
                                     try {
                                         n = FileService.rename(file, tf.getText());
                                     } catch (IOException e) {
-                                        UIError.alertInformation("Rename Failed", e.getMessage(), Explorer.this.primaryStage);
+                                        UIError.alertInformation(Explorer.RENAME_FAILED, e.getMessage(), Explorer.this.primaryStage);
                                     }
                                     commitEdit(n);
                                 } else if (event.getCode() == KeyCode.ESCAPE) {
@@ -496,7 +501,7 @@ public class Explorer extends Application implements Initializable {
                                     try {
                                         n = FileService.rename(file, tf.getText());
                                     } catch (IOException e) {
-                                        UIError.alertInformation("Rename Failed", e.getMessage(), Explorer.this.primaryStage);
+                                        UIError.alertInformation(Explorer.RENAME_FAILED, e.getMessage(), Explorer.this.primaryStage);
                                     }
                                     commitEdit(n);
                                 }
@@ -523,11 +528,8 @@ public class Explorer extends Application implements Initializable {
         this.fileViewColumnType.setStyle("-fx-alignment: CENTER;");
         this.fileViewColumnSize.setCellValueFactory(new PropertyValueFactory<FileModelTableItem, Integer>("size"));
         this.fileViewColumnSize.setStyle("-fx-alignment: CENTER;");
-        this.fileViewColumnReadonly.setCellValueFactory(new PropertyValueFactory<FileModelTableItem, String>("readOnly"));
-        this.fileViewColumnReadonly.setStyle("-fx-alignment: CENTER;");
         this.fileViewColumnStartindex.setCellValueFactory(new PropertyValueFactory<FileModelTableItem, Integer>("startIndex"));
         this.fileViewColumnStartindex.setStyle("-fx-alignment: CENTER;");
-
         // select file item
         this.fileView.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<FileModelTableItem>() {
             @Override
@@ -538,12 +540,26 @@ public class Explorer extends Application implements Initializable {
                     Explorer.this.updateButtonStatus();
                 }
             }
-
         });
-        // double click to switch directory
+        // file item rename
+        this.fileViewColumnName.setCellFactory(TextFieldTableCell.<FileModelTableItem>forTableColumn());
+        this.fileViewColumnName.setOnEditCommit(new EventHandler<CellEditEvent<FileModelTableItem, String>>() {
+            @Override
+            public void handle(CellEditEvent<FileModelTableItem, String> event) {
+                FileModel f = event.getTableView().getItems().get(event.getTablePosition().getRow()).getFile();
+                try {
+                    FileService.rename(f, event.getNewValue());
+                } catch (IOException e) {
+                    UIError.alertInformation(Explorer.RENAME_FAILED, e.getMessage(), Explorer.this.primaryStage);
+                }
+                Explorer.this.updateAll();
+            }
+        });
+
+        // double click to open and switch directory
         this.fileView.setOnMouseClicked(new EventHandler<MouseEvent>() {
-			@Override
-			public void handle(MouseEvent event) {
+        	@Override
+        	public void handle(MouseEvent event) {
                 if (event.getButton().equals(MouseButton.PRIMARY) && event.getClickCount() == 2){
                     FileModel f = Explorer.this.fileView.getSelectionModel().getSelectedItem().getFile();
                     if (f != null) {
@@ -554,8 +570,12 @@ public class Explorer extends Application implements Initializable {
                         }
                     }
                 }
-			}
+            }
         });
+        // initializing imformation view
+        this.diskChart.setContent(new DiskViewer(AttrForFS.getDisk()));
+        this.FATTable.setContent(new FATViewer(AttrForFS.getFat()));
+        this.diskChart.setExpanded(true);
         // initializing all components
         switchDirectory(AttrForFS.getRoot());
         this.updateTreeView();
@@ -571,7 +591,7 @@ public class Explorer extends Application implements Initializable {
             loader.load();
         } catch (IOException e) {
             e.printStackTrace();
-		}
+        }
         Scene scene = new Scene(this.filesystemScene);
         primaryStage.setScene(scene);
         primaryStage.setResizable(true);
@@ -582,7 +602,7 @@ public class Explorer extends Application implements Initializable {
                 DiskService.save2Disk(AttrForFS.getDisk(), main.Main.DISK, AttrForFS.getFat());
                 primaryStage.close();
             }
-        }); // do not save file content if clicking the close button
+        }); // save file system if clicking the close button
     }
 
     public static void main(String[] args) {

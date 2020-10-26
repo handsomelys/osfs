@@ -1,7 +1,6 @@
 package filesystem.service;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.io.IOException;
 
@@ -316,11 +315,11 @@ public class FileService {
 				buffer[j] = txt[cur];
 			}
 			DiskService.saveContent(String.valueOf(buffer), AttrForFS.getDisk(), index);
-			filesystem.service.FATService.applyForBlock(pre, index, AttrForFS.getFat());
+			FATService.applyForBlock(pre, index, AttrForFS.getFat());
 			buffer = new char[110];
 			file.setSize(file.getSize()+1);
 		}
-		filesystem.service.FATService.SetBlockValue(255, AttrForFS.getFat(), index);
+		FATService.SetBlockValue(255, AttrForFS.getFat(), index);
 	}
 	
 	// check if there has the duplicated name in the same directory,if true, reject to create

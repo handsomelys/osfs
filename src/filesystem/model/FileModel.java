@@ -65,6 +65,7 @@ public class FileModel implements Cloneable, Serializable {
 	//**********************
 	//methods
 
+	/* reserved codes
 	public byte[] itemToBytes() {
 		byte[] item = new byte[8];
 		System.arraycopy(this.name.getBytes(), 0, item, 0, 3);	// [0]~[2] file name
@@ -74,15 +75,27 @@ public class FileModel implements Cloneable, Serializable {
 		System.arraycopy(TypeTransfrom.intToByteArray(this.size), 0, item, 6, 2);	// [6]~[7] length of file
 		return item;
 	}
-	public byte[] contentToByte() {
-		byte[] content = new byte[filesystem.model.DiskModel.BLOCK_SIZE];
+	public byte[] contentToBytes() {
+		byte[] content = new byte[DiskModel.BLOCK_SIZE];
 		if (this.fileContent != null) {
 			byte[] b = this.fileContent.getBytes();
-			System.arraycopy(b, 0, content, 0, b.length);
+			System.arraycopy(b, 0, content, 0, DiskModel.BLOCK_SIZE);
 		}
 		return content;
 	}
+	public byte[] toBytes() {
+		if (this.isFile()) {
+			return this.contentToBytes();
+		} else if (this.isDirectory()) {
+			return this.itemToBytes();
+		} else {
+			return new byte[DiskModel.BLOCK_SIZE];
+		}
+	}
+	public void formBytes(byte[] bytes) {
 
+	}
+	*/
 	@Override
 	public Object clone() throws CloneNotSupportedException{
 		Object obj = super.clone();

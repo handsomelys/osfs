@@ -29,7 +29,7 @@ public class DiskService {
 	//save content into the disk
 	//content's type is object, it can be file model or string or others
 	public static void saveContent(Object content,DiskModel disk,int index) {
-		filesystem.service.FATService.SetBlockValue(255, AttrForFS.getFat(), index);
+		FATService.SetBlockValue(255, AttrForFS.getFat(), index);
 		disk.getDiskTable().set(index, content);
 	}
 	

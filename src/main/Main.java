@@ -33,7 +33,6 @@ import util.UIError;
 import java.io.IOException;
 
 import controller.AttrForFS;
-import filesystem.model.FATItem;
 import filesystem.service.DiskService;
 
 public class Main extends Application {
@@ -205,8 +204,8 @@ public class Main extends Application {
 //		primaryStage.show();
 		//-----------------DISKVIWER-----------------------------
 
-		DiskViewer diskviewer = new DiskViewer();
-		diskviewer.show();	//directory use disk viewer that its private stage will show, or you might want to change the show method
+		// DiskViewer diskviewer = new DiskViewer();
+		// diskviewer.show();	//directory use disk viewer that its private stage will show, or you might want to change the show method
 		
 //		Scene scene = new Scene(diskpane);
 //		primaryStage.setScene(scene);
@@ -216,7 +215,7 @@ public class Main extends Application {
 
 	public static void main(String[] args) throws CloneNotSupportedException {
 		AttrForFS.init();
-
+		// AttrForFS.getDisk().saveToFile("test.dat");
 		launch(args);
 	}
 

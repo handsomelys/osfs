@@ -78,11 +78,10 @@
                   <TableView fx:id="fileView" editable="true" minWidth="400.0">
                      <columns>
                         <TableColumn fx:id="fileViewColumnIcon" editable="false" minWidth="20.0" prefWidth="20.0" text="" />
-                        <TableColumn fx:id="fileViewColumnName" editable="false" prefWidth="75.0" text="名称" />
-                        <TableColumn fx:id="fileViewColumnType" editable="false" prefWidth="75.0" text="类型" />
-                        <TableColumn fx:id="fileViewColumnSize" editable="false" prefWidth="75.0" text="大小（块）" />
-                        <TableColumn fx:id="fileViewColumnReadonly" editable="false" prefWidth="75.0" text="只读" />
-                        <TableColumn fx:id="fileViewColumnStartindex" editable="false" prefWidth="75.0" text="起始盘块" />
+                        <TableColumn fx:id="fileViewColumnName" editable="true" prefWidth="50.0" text="名称" />
+                        <TableColumn fx:id="fileViewColumnType" editable="false" prefWidth="100.0" text="类型" />
+                        <TableColumn fx:id="fileViewColumnSize" editable="false" prefWidth="100.0" text="大小（块）" />
+                        <TableColumn fx:id="fileViewColumnStartindex" editable="false" prefWidth="100.0" text="起始盘块" />
                      </columns></TableView>
                </content>
                <contextMenu>
@@ -100,7 +99,6 @@
               <panes>
                 <TitledPane fx:id="diskChart" text="磁盘使用情况" />
                 <TitledPane fx:id="FATTable" text="文件分配表" />
-                  <TitledPane fx:id="diskContent" text="盘块内容" />
               </panes>
             </Accordion>
          </items>

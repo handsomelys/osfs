@@ -1,4 +1,4 @@
-package filesystem.model;
+package ui;
 
 import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.SimpleIntegerProperty;

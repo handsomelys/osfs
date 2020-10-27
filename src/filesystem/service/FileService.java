@@ -305,10 +305,14 @@ public class FileService {
 	}
 
 	// edit the file's content
-	public static void editFileContent(FileModel file, String content) {
+	public static void editFileContent(FileModel file, String content) throws IOException{
+		if (file.getAttribute()==FileModel.DIRECTORY) {
+			throw new IOException(file.getName() + ": Directory can not be edited");
+		}
 		if (file.isReadOnly()) {
 			System.out.println("read only");
-			return;
+			throw new IOException(file.getName() + ": File is read only");
+		
 		} else {
 			int requireBlocks = DiskService.calculateNeedBlock(content);
 			int remainBlocks = DiskService.getDiskFreeCnt();

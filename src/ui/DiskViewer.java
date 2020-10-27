@@ -44,7 +44,7 @@ public class DiskViewer extends GridPane {
                 }
             });
             display.add(i, stackPane);
-            this.add(stackPane, i % 8, i / 8);
+            this.add(stackPane, i % 7, i / 7);
         }
         this.update();
     }

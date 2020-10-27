@@ -402,6 +402,16 @@ public class FileService {
 		return true;
 	}
 
+	public static String getAbsolutePath(FileModel file) {
+		if(file.getParentFile()==null) {
+			return file.getName();
+		}
+		else {
+			String tmp = getAbsolutePath(file.getParentFile())+"/"+file.getName();
+			return tmp;
+		}
+	}
+	
 	public static void copyFile(FileModel file, FileModel destination, String filename) throws IOException {
 		try {
 			FileModel colonedFile = (FileModel) file.clone();
@@ -499,37 +509,17 @@ public class FileService {
 
 		AttrForFS.init();
 		create((FileModel) AttrForFS.getDisk().getDiskTable().get(2), FileModel.DIRECTORY, "abc", ' ');
-		System.out.println(AttrForFS.getCurrentFiles());
-		System.out.println(AttrForFS.getFat().getTable());
-		copyFile((FileModel) AttrForFS.getDisk().getDiskTable().get(3),
-				(FileModel) AttrForFS.getDisk().getDiskTable().get(2), "ah");
 // 		for(int i=0;i<AttrForFS.getFat().getTable().length;i++){
 // 			System.out.println(AttrForFS.getFat().getTable()[i]);
 // 		}
 		for (Object f : AttrForFS.getCurrentFilesAndDirs()) {
 			System.out.println((FileModel) f);
 		}
-		editFileContent((FileModel) AttrForFS.getDisk().getDiskTable().get(3), "hello,world");
-// 		for(int i=0;i<AttrForFS.getFat().getTable().length;i++){
-// 			System.out.println(AttrForFS.getFat().getTable()[i]);
-// 		}
 
-		create((FileModel) AttrForFS.getDisk().getDiskTable().get(2), FileModel.FILE, "ef", 'c');
+		create((FileModel) AttrForFS.getDisk().getDiskTable().get(3), FileModel.FILE, "a", ' ');
 		for (Object f : AttrForFS.getCurrentFilesAndDirs()) {
 			System.out.println((FileModel) f);
 		}
-		deleteDirectory((FileModel) AttrForFS.getDisk().getDiskTable().get(6));
-		for (Object f : AttrForFS.getCurrentFilesAndDirs()) {
-			System.out.println((FileModel) f);
-		}
-		create((FileModel) AttrForFS.getDisk().getDiskTable().get(2), FileModel.DIRECTORY, "abc", ' ');
-		for (Object f : AttrForFS.getCurrentFilesAndDirs()) {
-			System.out.println((FileModel) f);
-		}
-
-		rename((FileModel) AttrForFS.getDisk().getDiskTable().get(3), "g");
-		for (Object f : AttrForFS.getCurrentFilesAndDirs()) {
-			System.out.println((FileModel) f);
-		}
+		System.out.println(getAbsolutePath((FileModel) AttrForFS.getDisk().getDiskTable().get(4)));
 	}
 }

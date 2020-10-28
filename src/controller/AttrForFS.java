@@ -16,6 +16,8 @@ public class AttrForFS {
 	private static List<Object> currentFilesAndDirs;
 	public static FATModel fat;
 	
+	private static List<FileModel> exeFiles;
+	
 	private static List<FileModel> currentOpenFile = new ArrayList<>();
 
 	public static FileModel getRoot() {
@@ -81,6 +83,7 @@ public class AttrForFS {
 		AttrForFS.setCurrentFiles((List<Object>)hash.get("files"));
 		AttrForFS.setCurrentDirs((List<Object>)hash.get("dirs"));
 		AttrForFS.setCurrentFilesAndDirs((List<Object>)hash.get("allFiles"));
+		AttrForFS.setExeFiles((List<FileModel>)hash.get("exeFiles"));
 	}
 
 	@SuppressWarnings("unchecked")
@@ -92,5 +95,13 @@ public class AttrForFS {
 		AttrForFS.setCurrentFiles((List<Object>)hash.get("files"));
 		AttrForFS.setCurrentDirs((List<Object>)hash.get("dirs"));
 		AttrForFS.setCurrentFilesAndDirs((List<Object>)hash.get("allFiles"));
+	}
+
+	public static List<FileModel> getExeFiles() {
+		return exeFiles;
+	}
+
+	public static void setExeFiles(List<FileModel> exeFiles) {
+		AttrForFS.exeFiles = exeFiles;
 	}
 }

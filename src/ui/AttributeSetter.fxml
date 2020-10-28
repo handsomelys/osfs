@@ -8,8 +8,7 @@
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.layout.AnchorPane?>
 
-
-<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1">
+<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="ui/AttributeController">
    <children>
       <Label layoutX="219.0" prefHeight="44.0" prefWidth="109.0" text=" 文件属性表" AnchorPane.leftAnchor="250.0" AnchorPane.rightAnchor="250.0">
          <font>
@@ -23,8 +22,8 @@
                   <Insets />
                </VBox.margin>
             </Label>
-            <RadioButton mnemonicParsing="false" text="读写" />
-            <RadioButton mnemonicParsing="false" text="只读">
+            <RadioButton fx:id="readWrite" mnemonicParsing="false" text="读写" />
+            <RadioButton fx:id="readOnly" mnemonicParsing="false" text="只读">
                <VBox.margin>
                   <Insets bottom="10.0" />
                </VBox.margin>
@@ -55,9 +54,9 @@
       </VBox>
       <VBox layoutX="226.0" layoutY="99.0" prefHeight="109.0" prefWidth="344.0" spacing="10.0">
          <children>
-            <TextField />
-            <TextField />
-            <TextField />
+            <TextField fx:id="type" />
+            <TextField fx:id="size" />
+            <TextField fx:id="startIndex" />
          </children>
       </VBox>
       <Separator layoutY="62.0" prefHeight="3.0" prefWidth="600.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="62.0" />

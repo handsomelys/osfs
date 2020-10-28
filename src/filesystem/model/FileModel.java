@@ -14,6 +14,9 @@ public class FileModel implements Cloneable, Serializable {
 	public static final int DIRECTORY = 2;
 	public static final int ROOT = 3;
 	public static final int MAX_SUB_NUMS = 8;
+	
+	public static final char EXE = 'e';
+	public static final char NORMAL = 'n';
 	// **********************
 	//members
 	private String name;	//filenames or directory names

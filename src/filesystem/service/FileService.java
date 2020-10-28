@@ -2,6 +2,7 @@ package filesystem.service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 import java.io.IOException;
 
 import controller.AttrForFS;
@@ -60,6 +61,9 @@ public class FileService {
 		AttrForFS.getCurrentFilesAndDirs().add(file);
 		if (file.getAttribute() == FileModel.FILE) {
 			AttrForFS.getCurrentFiles().add(file);
+			if(file.getType() == FileModel.EXE) {
+				AttrForFS.getExeFiles().add(file);
+			}
 		} else {
 			AttrForFS.getCurrentDirs().add(file);
 		}
@@ -261,6 +265,12 @@ public class FileService {
 		removeFileContent(file);
 		AttrForFS.getCurrentFiles().remove(file);
 		AttrForFS.getCurrentFilesAndDirs().remove(file);
+		if(file.getAttribute()==FileModel.DIRECTORY) {
+			AttrForFS.getCurrentDirs().remove(file);
+		}
+		if(file.getType()==FileModel.EXE) {
+			AttrForFS.getExeFiles().remove(file);
+		}
 		DiskService.deleteObject(AttrForFS.getDisk(), file.getStartIndex());
 	}
 
@@ -504,7 +514,13 @@ public class FileService {
 		}
 		return null;
 	}
-
+	
+	public static String getRandomExeFiles() {
+		int size = AttrForFS.getExeFiles().size();
+		int randNumber = ((new Random()).nextInt(size));
+		return AttrForFS.getExeFiles().get(randNumber).getFileContent();
+	}
+	
 	public static void main(String[] args) throws CloneNotSupportedException, IOException {
 
 		AttrForFS.init();
@@ -522,4 +538,6 @@ public class FileService {
 		}
 		System.out.println(getAbsolutePath((FileModel) AttrForFS.getDisk().getDiskTable().get(4)));
 	}
+	
+	
 }

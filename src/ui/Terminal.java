@@ -393,37 +393,67 @@ public class Terminal extends Application {
                 }
                 break;
             }
-            case "help":
-            {
-            	getHelp();
-            	break;
-            }
-            case "deldir": 
-            	//delete the directory include its sub files
-            	{
-            	 if (commands.length>1) {
-                     try {
-                         if (commands[1].startsWith("/")) {
-                             // absolute path
-                             FileService.deleteDirectory((FileService.getFileTraversal(commands[1].substring(1))));
-                         } else {
-                             // relative path
-                             FileService.deleteDirectory((FileService.getFileTraversal(this.current, commands[1])));
-                         }
-                     } catch (IOException e) {
-                         this.putLine(e.getMessage());
-                     }
-                 } else {
-                     this.putLine("deldir: no file specified");
-                 }
-                 break;
+            case "deldir": {
+                //delete the directory include its sub files
+                if (commands.length>1) {
+                    try {
+                        if (commands[1].startsWith("/")) {
+                            // absolute path
+                            FileService.deleteDirectory((FileService.getFileTraversal(commands[1].substring(1))));
+                        } else {
+                            // relative path
+                            FileService.deleteDirectory((FileService.getFileTraversal(this.current, commands[1])));
+                        }
+                    } catch (IOException e) {
+                        this.putLine(e.getMessage());
+                    }
+                } else {
+                    this.putLine("deldir: no file specified");
+                }
+                break;
             }
             case "format": {
                 AttrForFS.format();
                 break;
             }
+            case "help":
+            {
+            	this.getHelp();
+            	break;
+            }
             case "clear": {
                 this.clearDisplay();
+                break;
+            }
+            case "cc": {
+                if (commands.length>1) {
+                    try {
+                        FileModel f = null;
+                        if (commands[1].startsWith("/")) {
+                        // absolute path
+                            f = FileService.getFileTraversal(commands[1].substring(1));
+                        } else {
+                        // relative path
+                            f = FileService.getFileTraversal(this.current, commands[1]);
+                        }
+                        
+                        if (f.isFile() && f.getType() == 'c') {
+                            // some code
+                        } else {
+                            this.putLine("cc: no file specified");
+                        }
+                    } catch (IOException e) {
+                        this.putLine(e.getMessage());
+                    }
+                } else {
+                    String name = FileService.getNewName(this.current, 1);
+                    try {
+                        FileService.createFile(this.current, name);
+                    } catch (IOException e) {
+                        this.putLine(e.getMessage());
+                    }
+                    (new Editor(FileService.getFile(this.current, name))).start(new Stage());
+                }
                 break;
             }
             case "exit": {

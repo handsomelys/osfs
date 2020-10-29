@@ -493,8 +493,9 @@ public class FileService {
 				file.setName(newName);
 				return file;
 			}
-		}	
-		return null;		
+		} else {
+			throw new IOException("invalid name");
+		}
 	}
  	public static void main(String[] args) throws CloneNotSupportedException, IOException {
 

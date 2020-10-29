@@ -46,7 +46,7 @@ public class Terminal extends Application {
     "|   chdir |   chdir <directory>   | change directory to another                                   |\n"+
     "|  deldir |  deldir <direvtory>   | delete the directory and it all childrens on the disk         |\n"+
     "|  format |         format        | get a new disk and clear all content currently on the disk    |\n"+
-    "+---------+-----------------------+---------------------------------------------------------------+";
+    "+---------+-----------------------+---------------------------------------------------------------+\n";
 
 
     public VBox root;
@@ -96,28 +96,28 @@ public class Terminal extends Application {
                     String raw = Terminal.this.input.getText();		//the command that haven't proposal
                     String command = raw.substring(Terminal.this.getPrompt().length());		//get the raw's substring
                     Terminal.this.history.add(command);	//the keyboard ↑ to get the historic command
-                    Terminal.this.historyPointer = Terminal.this.history.size()-1;
+                    Terminal.this.historyPointer = Terminal.this.history.size();
                     Terminal.this.putLine(raw);
                     Terminal.this.parseCommand(command);	//parse the command by the blank
                     Terminal.this.clearInput();
                 } else if (e.getCode() == KeyCode.UP) {
-                    Terminal.this.input.selectEnd();
-                    Terminal.this.input.deselect();
-                    if (Terminal.this.historyPointer != -1) {
-                        Terminal.this.input.setText(Terminal.this.getPrompt()+history.get(historyPointer));
+                    if (Terminal.this.historyPointer > 0) {
                         --Terminal.this.historyPointer;
+                        Terminal.this.input.setText(Terminal.this.getPrompt()+history.get(historyPointer));
                     } else {
                         java.awt.Toolkit.getDefaultToolkit().beep(); // deng!
                     }
-                } else if (e.getCode() == KeyCode.DOWN) {
                     Terminal.this.input.selectEnd();
                     Terminal.this.input.deselect();
-                    if (Terminal.this.historyPointer != Terminal.this.history.size()-1) {
+                } else if (e.getCode() == KeyCode.DOWN) {
+                    if (Terminal.this.historyPointer < Terminal.this.history.size()-1) {
+                        Terminal.this.historyPointer-=-1;
                         Terminal.this.input.setText(Terminal.this.getPrompt()+history.get(historyPointer));
-                        ++Terminal.this.historyPointer;
                     } else {
                         java.awt.Toolkit.getDefaultToolkit().beep(); // deng!
                     }
+                    Terminal.this.input.selectEnd();
+                    Terminal.this.input.deselect();
                 }
             }
         });
@@ -303,6 +303,7 @@ public class Terminal extends Application {
             }
             case "type":
             case "cat": {
+                // display file content in the terminal
                 if (commands.length>1) {
                     if (commands[1].startsWith("/")) {
                         // absolute path
@@ -364,12 +365,19 @@ public class Terminal extends Application {
             case "open": {
                 if (commands.length>1) {
                     try {
+                        FileModel f = null;
                         if (commands[1].startsWith("/")) {
                         // absolute path
-                            (new Editor(FileService.getFileTraversal(commands[1].substring(1)))).start(new Stage());
+                            f = FileService.getFileTraversal(commands[1].substring(1));
                         } else {
                         // relative path
-                            (new Editor(FileService.getFileTraversal(this.current, commands[1]))).start(new Stage());
+                            f = FileService.getFileTraversal(this.current, commands[1]);
+                        }
+                        
+                        if (f.isFile()) {
+                            (new Editor(f)).start(new Stage());
+                        } else {
+                            this.putLine(f.getNormalName()+": is not a file");
                         }
                     } catch (IOException e) {
                         this.putLine(e.getMessage());

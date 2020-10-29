@@ -233,6 +233,7 @@ public class Explorer extends Application implements Initializable {
             } else if (this.selected.isDirectory()) {
                 FileService.removeDir(this.selected);
             }
+            this.selected = null;
         } catch (IOException e) {
             UIError.alertInformation(Explorer.DELETE_FAILED, e.getMessage(), Explorer.this.primaryStage);
         }
@@ -259,6 +260,18 @@ public class Explorer extends Application implements Initializable {
             (new Editor(f)).start(new Stage());
         } else if (f.isDirectory()) {
             this.switchDirectory(f);
+        }
+    }
+
+    public FileModel rename(FileModel file, String name) {
+        if (file.getAttribute() == FileModel.ROOT || file.getName().equals(name)) {
+            return file;
+        }
+        try {
+            return FileService.rename(file, name);
+        } catch (IOException e) {
+            UIError.alertInformation(Explorer.RENAME_FAILED, e.getMessage(), Explorer.this.primaryStage);
+            return file;
         }
     }
 
@@ -456,13 +469,7 @@ public class Explorer extends Application implements Initializable {
                             @Override
                             public void handle(KeyEvent event) {
                                 if (event.getCode() == KeyCode.ENTER) {
-                                    FileModel n = file;
-                                    try {
-                                        n = FileService.rename(file, tf.getText());
-                                    } catch (IOException e) {
-                                        UIError.alertInformation(Explorer.RENAME_FAILED, e.getMessage(), Explorer.this.primaryStage);
-                                    }
-                                    commitEdit(n);
+                                    commitEdit(rename(file, tf.getText()));
                                 } else if (event.getCode() == KeyCode.ESCAPE) {
                                     cancelEdit();
                                 }
@@ -472,13 +479,7 @@ public class Explorer extends Application implements Initializable {
                             @Override
                             public void changed(ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue) {
                                 if (oldValue && (!newValue)) {
-                                    FileModel n = file;
-                                    try {
-                                        n = FileService.rename(file, tf.getText());
-                                    } catch (IOException e) {
-                                        UIError.alertInformation(Explorer.RENAME_FAILED, e.getMessage(), Explorer.this.primaryStage);
-                                    }
-                                    commitEdit(n);
+                                    commitEdit(rename(file, tf.getText()));
                                 }
                             }
                         });
@@ -522,11 +523,7 @@ public class Explorer extends Application implements Initializable {
             @Override
             public void handle(CellEditEvent<FileModelTableItem, String> event) {
                 FileModel f = event.getTableView().getItems().get(event.getTablePosition().getRow()).getFile();
-                try {
-                    FileService.rename(f, event.getNewValue());
-                } catch (IOException e) {
-                    UIError.alertInformation(Explorer.RENAME_FAILED, e.getMessage(), Explorer.this.primaryStage);
-                }
+                rename(f, event.getNewValue());
                 Explorer.this.updateAll();
             }
         });

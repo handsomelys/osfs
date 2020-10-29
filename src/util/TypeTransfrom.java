@@ -21,7 +21,6 @@ public class TypeTransfrom {
     	return value;
     }
     
-    /*
     public static String byteToBinaryString(byte b) {
         String result = Integer.toBinaryString(b & 0xff);
         while (result.length() < 8) {
@@ -37,7 +36,6 @@ public class TypeTransfrom {
         }
         return result;
     }
-	*/
 	
 	//change string to byte[]
 	public static byte[] stringToByte(String s) {

@@ -51,6 +51,9 @@ public class FATModel implements Serializable {
 	 * @param index
 	 */
 	public void freeBlock(int index) {
+		if(index==0||index==1||index==2) {
+			return ;
+		}
 		this.table[index] = 0;
 		++this.freeCount;
 	}

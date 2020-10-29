@@ -31,22 +31,22 @@ public class Terminal extends Application {
     public static final String USER_NAME = "user";
 
     public static final String HELP = 
-    "+-------------------------------------------------------------------------------------------------+\n"+
-    "|                                       WELCOME TO TERMINAL !                                     |\n"+
-    "| Here is some tips for termianl!                                      --relative path supported! |\n"+
-    "+---------+-----------------------+---------------------------------------------------------------+\n"+
-    "| command |     command format    | command description                                           |\n"+
-    "+---------+-----------------------+---------------------------------------------------------------+\n"+
-    "|  create |     create <file>     | create a new file on the disk                                 |\n"+
-    "|  delete |     delete <file>     | delete the file specified on the disk                         |\n"+
-    "|    type |       type <file>     | display file content in the terminal                          |\n"+
-    "|    copy |  copy <source> <dest> | copy file to another location                                 |\n"+
-    "|   mkdir |   mkdir <directory>   | make a new directory on the disk                              |\n"+
-    "|   rmdir |   rmdir <directory>   | delete the directory specified on the disk                    |\n"+
-    "|   chdir |   chdir <directory>   | change directory to another                                   |\n"+
-    "|  deldir |  deldir <direvtory>   | delete the directory and it all childrens on the disk         |\n"+
-    "|  format |         format        | get a new disk and clear all content currently on the disk    |\n"+
-    "+---------+-----------------------+---------------------------------------------------------------+\n";
+    "+-----------------------------------------------------------------------------------------------+\n"+
+    "|                                       WELCOME TO TERMINAL !                                   |\n"+
+    "| Here is some tips for termianl!                                    --relative path supported! |\n"+
+    "+---------+-----------------------+-------------------------------------------------------------+\n"+
+    "| command |     command format    | command description                                         |\n"+
+    "+---------+-----------------------+-------------------------------------------------------------+\n"+
+    "|  create |     create <file>     | create a new file on the disk                               |\n"+
+    "|  delete |     delete <file>     | delete the file specified on the disk                       |\n"+
+    "|    type |       type <file>     | display file content in the terminal                        |\n"+
+    "|    copy |  copy <source> <dest> | copy file to another location                               |\n"+
+    "|   mkdir |   mkdir <directory>   | make a new directory on the disk                            |\n"+
+    "|   rmdir |   rmdir <directory>   | delete the directory specified on the disk                  |\n"+
+    "|   chdir |   chdir <directory>   | change directory to another                                 |\n"+
+    "|  deldir |  deldir <direvtory>   | delete the directory and it all childrens on the disk       |\n"+
+    "|  format |         format        | get a new disk and clear all content currently on the disk  |\n"+
+    "+---------+-----------------------+-------------------------------------------------------------+\n";
 
 
     public VBox root;
@@ -392,6 +392,11 @@ public class Terminal extends Application {
                     (new Editor(FileService.getFile(this.current, name))).start(new Stage());
                 }
                 break;
+            }
+            case "help":
+            {
+            	getHelp();
+            	break;
             }
             case "deldir": 
             	//delete the directory include its sub files

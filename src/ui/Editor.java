@@ -56,7 +56,7 @@ public class Editor extends Application {
     }
 
     @FXML
-    void handleSave(ActionEvent event) {
+    void handleSave(ActionEvent event) throws IOException {
         FileService.editFileContent(Editor.this.current, this.text.getText());
     }
 
@@ -95,7 +95,11 @@ public class Editor extends Application {
         this.menubarFileSaveAndClose.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent event) {
-                Editor.this.handleSave(event);
+                try {
+					Editor.this.handleSave(event);
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
                 primaryStage.close();
             }
         });

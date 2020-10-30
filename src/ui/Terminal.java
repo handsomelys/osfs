@@ -25,6 +25,8 @@ import filesystem.model.FileModel;
 import filesystem.service.DiskService;
 import filesystem.service.FileService;
 import controller.AttrForFS;
+import controller.Compiler;
+import controller.CompilerException;
 
 public class Terminal extends Application {
 
@@ -39,13 +41,20 @@ public class Terminal extends Application {
     "+---------+-----------------------+-------------------------------------------------------------+\n"+
     "|  create |     create <file>     | create a new file on the disk                               |\n"+
     "|  delete |     delete <file>     | delete the file specified on the disk                       |\n"+
-    "|    type |       type <file>     | display file content in the terminal                        |\n"+
+    "|    type |      type <file>      | display file content in the terminal                        |\n"+
     "|    copy |  copy <source> <dest> | copy file to another location                               |\n"+
     "|   mkdir |   mkdir <directory>   | make a new directory on the disk                            |\n"+
     "|   rmdir |   rmdir <directory>   | delete the directory specified on the disk                  |\n"+
+    "+---------+-----------------------+-------------------------------------------------------------+\n"+
     "|   chdir |   chdir <directory>   | change directory to another                                 |\n"+
     "|  deldir |  deldir <direvtory>   | delete the directory and it all childrens on the disk       |\n"+
     "|  format |         format        | get a new disk and clear all content currently on the disk  |\n"+
+    "+---------+-----------------------+-------------------------------------------------------------+\n"+
+    "|    help |          help         | display this tips                                           |\n"+
+    "|      ls |           ls          | list everything in this directory                           |\n"+
+    "|    open |      open <file>      | open the file with a editor                                 |\n"+
+    "|      cc |       cc <file>       | compile a program(with the type .c)                         |\n"+
+    "|   clear |         clear         | clear the terminal display                                  |\n"+
     "+---------+-----------------------+-------------------------------------------------------------+\n";
 
 
@@ -58,6 +67,8 @@ public class Terminal extends Application {
     protected int historyPointer;
 
     protected FileModel current;
+
+    private Stage primaryStage;
 
     /**
      * start a new terminal interface on {@code root} directory.
@@ -329,14 +340,24 @@ public class Terminal extends Application {
             case "cd": {
                 if (commands.length>1) {
                     if (commands[1].startsWith("/")) {
-                        this.current = FileService.getFile(AttrForFS.getRoot(), commands[1].substring(1));
+                        FileModel destination = FileService.getFile(AttrForFS.getRoot(), commands[1].substring(1));
+                        if (destination != null) {
+                            this.current = destination;
+                        } else {
+                            this.putLine(commands[1].substring(1)+": not existed");
+                        }
                     } else if(commands[1].equals("..")) {
                         this.current = this.current.getParentFile();
                     } else {
                         if (commands[1].contains("..")) {
                             this.putLine("Sorry! This function is difficult to complete! Please go back by step.");
                         } else {
-                            this.current = FileService.getFile(this.current, commands[1]);
+                            FileModel destination = FileService.getFile(this.current, commands[1]);
+                            if (destination != null) {
+                                this.current = destination;
+                            } else {
+                                this.putLine(commands[1].substring(1)+": not existed");
+                            }
                         }
                     }
                 }
@@ -426,6 +447,7 @@ public class Terminal extends Application {
                 break;
             }
             case "cc": {
+                // compiler compiler 
                 if (commands.length>1) {
                     try {
                         FileModel f = null;
@@ -438,27 +460,28 @@ public class Terminal extends Application {
                         }
                         
                         if (f.isFile() && f.getType() == 'c') {
-                            // some code
+                            FileService.createFile(f.getParentFile(), f.getName()+".e");
+                            FileModel cf = FileService.getFileTraversal(f.getParentFile(), f.getName()+".e");
+                            String content = FileService.getFileContent(f);
+                            // for (String s: util.TypeTransfrom.bytesToBinaryStrings(Compiler.compile(content)))
+                            //     FileService.editFileContent(cf, FileService.getFileContent(cf)+s+"\n");
+                            FileService.editFileContent(cf, util.TypeTransfrom.byteToString(Compiler.compile(content)));
                         } else {
-                            this.putLine("cc: no file specified");
+                            this.putLine("cc: not a program file");
                         }
                     } catch (IOException e) {
                         this.putLine(e.getMessage());
-                    }
-                } else {
-                    String name = FileService.getNewName(this.current, 1);
-                    try {
-                        FileService.createFile(this.current, name);
-                    } catch (IOException e) {
+                    } catch (CompilerException e) {
                         this.putLine(e.getMessage());
                     }
-                    (new Editor(FileService.getFile(this.current, name))).start(new Stage());
+                } else {
+                    this.putLine("cc: no file specified");
                 }
                 break;
             }
             case "exit": {
                 DiskService.save2Disk(AttrForFS.getDisk(), main.Main.DISK, AttrForFS.getFat());
-                Platform.exit();
+                this.primaryStage.close();
             }
             case "": {
                 break;
@@ -502,6 +525,7 @@ public class Terminal extends Application {
 
     @Override
     public void start(Stage primaryStage) {
+        this.primaryStage = primaryStage;
         primaryStage.setScene(new Scene(this.root, 800, 480));
         primaryStage.show();
         Platform.runLater(new Runnable() {

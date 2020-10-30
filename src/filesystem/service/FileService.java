@@ -310,7 +310,10 @@ public class FileService {
 		}
 	}
 
-	public static String getFileContent(FileModel file) {
+	public static String getFileContent(FileModel file) throws IOException {
+		if (file.getAttribute() == FileModel.DIRECTORY) {
+			throw new IOException(file.getName() + ": directory is not allowed to get content");
+		}
 		String result = "";
 		int start_index = file.getStartIndex();
 		int[] fatTable = AttrForFS.getFat().getTable();

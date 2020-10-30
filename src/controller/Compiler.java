@@ -87,7 +87,7 @@ public class Compiler                                                           
 
                 else if (c == 'c' || c == 'C')                                                                         {
                     // device C is "10"
-                    i = (byte)(i | 0b0100000)                                                                         ;}
+                    i = (byte)(i | 0b01000000)                                                                        ;}
 
                 else                                                                                                   {
                     throw new CompilerException(line, "invaild device")                                               ;}

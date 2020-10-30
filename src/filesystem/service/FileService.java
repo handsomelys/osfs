@@ -227,7 +227,7 @@ public class FileService {
 			FileModel next = null;
 			for (Object o : FileService.getSubFiles(result)) {
 				next = (FileModel) o;
-				if (next.getName().equals(way[index])) {
+				if (next.getNormalName().equals(way[index])) {
 					found = true;
 					break;
 				}
@@ -366,7 +366,7 @@ public class FileService {
 		List<Object> subFiles = FileService.getSubFiles(parentFile);
 		for (int i = 0; i < subFiles.size(); i++) {
 			FileModel tmpFile = (FileModel) subFiles.get(i);
-			if (file.getName().equals(tmpFile.getName()) && file.getAttribute() == tmpFile.getAttribute()) {
+			if (file.getName().equals(tmpFile.getName()) && file.getType() == tmpFile.getType()) {
 				ifDuplicated = true;
 			}
 		}
@@ -434,7 +434,7 @@ public class FileService {
 			FileModel colonedFile = (FileModel) file.clone();
 			// createFile(coloneFile, destination, filename);
 			if (!checkSubFileValid(file.getParentFile())) {
-				throw new IOException(destination + ": at most 8 files in this directory");
+				throw new IOException(destination.getNormalName() + ": at most 8 files in this directory");
 			}
 			if (filename.length() > 3) {
 				throw new IOException(filename + ": invalid file name (too long)");

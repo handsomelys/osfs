@@ -110,6 +110,10 @@ public class Editor extends Application {
             }
         });
 
-        this.text.setText(FileService.getFileContent(this.current));
+        try {
+			this.text.setText(FileService.getFileContent(this.current));
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
     }
 }

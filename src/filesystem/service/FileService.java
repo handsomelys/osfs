@@ -52,7 +52,7 @@ public class FileService {
 				file.setStartIndex(start_index);
 				FATService.applyForBlock(start_index, 255, AttrForFS.getFat());
 				file.setSize(1);
-				DiskService.saveFile(file, AttrForFS.getDisk());
+				//DiskService.saveFile(file, AttrForFS.getDisk());
 			}
 		}
 
@@ -311,14 +311,30 @@ public class FileService {
 	}
 
 	public static String getFileContent(FileModel file) throws IOException {
+		System.out.println(AttrForFS.getDisk().getDiskTable());
+		for(int i=0;i<AttrForFS.getFat().getTable().length;i++) {
+			System.out.print(AttrForFS.getFat().getTable()[i]);
+		}
 		if (file.getAttribute() == FileModel.DIRECTORY) {
 			throw new IOException(file.getName() + ": directory is not allowed to get content");
 		}
-		String result = "";
+		System.out.println();
 		int start_index = file.getStartIndex();
+		System.out.println(start_index);
+		String result = "";
 		int[] fatTable = AttrForFS.getFat().getTable();
+		if(fatTable[start_index] == 255 || fatTable[start_index] == -1) {
+			if(AttrForFS.getDisk().getDiskTable().get(start_index)==null) {
+				return null;
+			}
+			result = AttrForFS.getDisk().getDiskTable().get(start_index).toString();
+			System.out.println("1 " + result);
+		}
 		while (fatTable[start_index] != 255 && fatTable[start_index] != -1) { // until the end of file
-			result = result.concat(AttrForFS.getDisk().getDiskTable().get(fatTable[start_index]).toString());
+			System.out.println("2 "+result);
+			System.out.println(AttrForFS.getDisk().getDiskTable());
+			result = result.concat(AttrForFS.getDisk().getDiskTable().get(start_index).toString());
+			System.out.println("3 "+result);
 			start_index = fatTable[start_index]; // point to the next index
 		}
 		return result;
@@ -337,27 +353,38 @@ public class FileService {
 			int requireBlocks = DiskService.calculateNeedBlock(content);
 			int remainBlocks = DiskService.getDiskFreeCnt();
 			removeFileContent(file);
-			if (requireBlocks > remainBlocks) {
+			if (requireBlocks  > remainBlocks) {
 				System.out.println("Error!Do not have the enough blocks");
 				return;
 			}
-
+			
 			char[] buffer = new char[64];
 			char[] txt = content.toCharArray();
 			int index = file.getStartIndex();
 			int cur = 0;
-			for (int i = requireBlocks; i > 0; i--) {
-				int pre = index;
+			
+
+//			for (int j = 0; j < 64 && cur < txt.length; cur++, j++) {
+//				buffer[j] = txt[cur];
+//			}
+//			DiskService.saveContent(String.valueOf(buffer), AttrForFS.getDisk(), index);
+//			int tmp_index = DiskService.applyFreeBlock(AttrForFS.getFat());
+//			FATService.applyForBlock(index, tmp_index, AttrForFS.getFat());
+//			buffer = new char[64];
+//			
+			int pre = index;
+			for (int i = requireBlocks ; i > 0; i--) {
+				pre = index;
 				index = DiskService.applyFreeBlock(AttrForFS.getFat());
 				for (int j = 0; j < 64 && cur < txt.length; cur++, j++) {
 					buffer[j] = txt[cur];
 				}
-				DiskService.saveContent(String.valueOf(buffer), AttrForFS.getDisk(), index);
+				DiskService.saveContent(String.valueOf(buffer), AttrForFS.getDisk(), pre);
 				FATService.applyForBlock(pre, index, AttrForFS.getFat());
 				buffer = new char[64];
 			}
 			file.setSize(requireBlocks);
-			FATService.SetBlockValue(255, AttrForFS.getFat(), index);
+			FATService.SetBlockValue(-1, AttrForFS.getFat(), pre);
 		}
 	}
 

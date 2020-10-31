@@ -13,7 +13,7 @@ public class FATModel implements Serializable {
 
 	private int[] table;
 	private int freeCount = 125;
-	public static final int USED_BLOCK = 255;
+	public static final int USED_BLOCK = -1;
 	public static final int UNUSED_BLOCK = 0;
 	public static final int THE_FILE_END = -1;
 

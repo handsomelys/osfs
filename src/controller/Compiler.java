@@ -1,3 +1,4 @@
+
 package controller                                                                                                     ;
 
 import java.util.Arrays                                                                                                ;
@@ -126,6 +127,7 @@ public class Compiler                                                           
 
         return Arrays.copyOf(result, count)                                                                           ;}
     
+<<<<<<< HEAD
     /**
      * decompile the instruction
      * @param code instructions in byte array
@@ -179,3 +181,12 @@ public class Compiler                                                           
         }
     }
 }
+=======
+    public static void main(String[] args)                                                                             {
+        try                                                                                                            {
+            for (byte b: Compiler.compile("x=3\nx++\nx--\n!a4\n!b3\n!c9\nx=2\nend"))                                   {
+                System.out.println(util.TypeTransfrom.byteToBinaryString(b))                                         ;}}
+        catch (CompilerException e)                                                                                    {
+            System.out.println(e.getMessage())                                                                      ;}}}
+
+>>>>>>> 09b52bc36e30e1817c51266a63cd73d33e884c36

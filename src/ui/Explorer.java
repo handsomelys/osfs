@@ -203,7 +203,8 @@ public class Explorer extends Application implements Initializable {
 
     @FXML
     void property(ActionEvent event) {
-        // TODO: property
+        AttributeController a = new AttributeController(this.selected);
+        a.start(new Stage());
     }
 
     @FXML

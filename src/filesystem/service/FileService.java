@@ -6,6 +6,7 @@ import java.util.Random;
 import java.io.IOException;
 
 import controller.AttrForFS;
+import controller.Compiler;
 import filesystem.model.*;
 
 public class FileService {
@@ -311,16 +312,16 @@ public class FileService {
 	}
 
 	public static String getFileContent(FileModel file) throws IOException {
-		System.out.println(AttrForFS.getDisk().getDiskTable());
-		for(int i=0;i<AttrForFS.getFat().getTable().length;i++) {
-			System.out.print(AttrForFS.getFat().getTable()[i]);
-		}
+		// System.out.println(AttrForFS.getDisk().getDiskTable());
+		// for(int i=0;i<AttrForFS.getFat().getTable().length;i++) {
+		// 	System.out.print(AttrForFS.getFat().getTable()[i]);
+		// }
 		if (file.getAttribute() == FileModel.DIRECTORY) {
 			throw new IOException(file.getName() + ": directory is not allowed to get content");
 		}
-		System.out.println();
+		// System.out.println();
 		int start_index = file.getStartIndex();
-		System.out.println(start_index);
+		// System.out.println(start_index);
 		String result = "";
 		int[] fatTable = AttrForFS.getFat().getTable();
 		if(fatTable[start_index] == 255 || fatTable[start_index] == -1) {
@@ -328,13 +329,13 @@ public class FileService {
 				return null;
 			}
 			result = AttrForFS.getDisk().getDiskTable().get(start_index).toString();
-			System.out.println("1 " + result);
+			// System.out.println("1 " + result);
 		}
 		while (fatTable[start_index] != 255 && fatTable[start_index] != -1) { // until the end of file
-			System.out.println("2 "+result);
-			System.out.println(AttrForFS.getDisk().getDiskTable());
+			// System.out.println("2 "+result);
+			// System.out.println(AttrForFS.getDisk().getDiskTable());
 			result = result.concat(AttrForFS.getDisk().getDiskTable().get(start_index).toString());
-			System.out.println("3 "+result);
+			// System.out.println("3 "+result);
 			start_index = fatTable[start_index]; // point to the next index
 		}
 		return result;
@@ -569,10 +570,11 @@ public class FileService {
 
 	}
 
-	public static String getRandomExeFiles() {
+	public static String[] getRandomExeFile() {
 		int size = AttrForFS.getExeFiles().size();
 		int randNumber = ((new Random()).nextInt(size));
-		return AttrForFS.getExeFiles().get(randNumber).getFileContent();
+		FileModel f = AttrForFS.getExeFiles().get(randNumber);
+		return new String[]{f.getName(), Compiler.decompile(f.getFileContent().getBytes())};
 	}
 
 	public static void main(String[] args) throws CloneNotSupportedException, IOException {

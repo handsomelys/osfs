@@ -44,21 +44,26 @@ public class Compiler                                                           
                     pointer-=-1                                                                                        ;
                     // assignment is "000"
                     c = instructions.charAt(pointer)                                                                   ;
-                    int e = 0                                                                                          ;
-                    int n = 0                                                                                          ;
-                    while ('0' <= c && c <= '9')                                                                       {
-                        e-=-1                                                                                          ;
-                        c = instructions.charAt(pointer+e)                                                            ;}
+                    // int e = 0                                                                                       ;
+                    // int n = 0                                                                                       ;
+                    // while ('0' <= c && c <= '9')                                                                    {
+                    //     e-=-1                                                                                       ;
+                    //     c = instructions.charAt(pointer+e)                                                         ;}
 
-                    try                                                                                                {
-                        n = Integer.parseInt(instructions.substring(pointer, pointer+e))                              ;}
-                    catch (NumberFormatException nfe)                                                                  {
-                        throw new CompilerException(line, nfe.getMessage())                                           ;}
+                    // try                                                                                             {
+                    //     n = Integer.parseInt(instructions.substring(pointer, pointer+e))                           ;}
+                    // catch (NumberFormatException nfe)                                                               {
+                    //     throw new CompilerException(line, nfe.getMessage())                                        ;}
 
-                    if (n < 0 || n >= 32)                                                                              {
-                        throw new CompilerException(line, "variable must be in 0~32")                                 ;}
-                    i += (byte) n                                                                                      ;
-                    pointer-=-e                                                                                       ;}
+                    // if (n < 0 || n >= 32)                                                                           {
+                    //     throw new CompilerException(line, "variable must be in 0~31")                              ;}
+                    // i += (byte) n                                                                                   ;
+                    // pointer-=-e                                                                                     ;
+                    if ('0' <= c && c <= '9')                                                                          {
+                        i += (byte)(c-'0')                                                                            ;}
+                    else                                                                                               {
+                        throw new CompilerException(line, "variable must be in 0~9")                                  ;}
+                    pointer-=-1                                                                                       ;}
 
                 else if (c == '+' && instructions.charAt(pointer+1) == '+')                                            {
                     pointer-=-2                                                                                        ;
@@ -122,10 +127,56 @@ public class Compiler                                                           
 
         return Arrays.copyOf(result, count)                                                                           ;}
     
-    public static void main(String[] args)                                                                             {
-        try                                                                                                            {
-            for (byte b: Compiler.compile("x=3\nx++\nx--\n!a4\n!b3\n!c9\nx=2\nend"))                                   {
-                System.out.println(util.TypeTransfrom.byteToBinaryString(b))                                         ;}}
-        catch (CompilerException e)                                                                                    {
-            System.out.println(e.getMessage())                                                                      ;}}}
+    /**
+     * decompile the instruction
+     * @param code instructions in byte array
+     * @return instructions in string form
+     * @see #compile(String) encoding method
+     */
+    public static String decompile(byte[] code)                                                                        {
+        String result = ""                                                                                             ;
+        for (byte b: code)                                                                                             {
+            byte i = (byte)(b & 0b11100000)                                                                            ;
+            byte n = (byte)(b & 0b00001111)                                                                            ;
+            String si = ""                                                                                             ;
+            switch (i)                                                                                                 {
+                case 0b00000000:                                                                                       {
+                    si = "x=" + n                                                                                      ;
+                    break                                                                                             ;}
 
+                case 0b00100000:                                                                                       {
+                    si = "x++"                                                                                         ;
+                    break                                                                                             ;}
+
+                case 0b01000000:                                                                                       {
+                    si = "x--"                                                                                         ;
+                    break                                                                                             ;}
+
+                case (byte)(0b10000000):                                                                               {
+                    si = "!a" + n                                                                                      ;
+                    break                                                                                             ;}
+
+                case (byte)(0b10100000):                                                                               {
+                    si = "!b" + n                                                                                      ;
+                    break                                                                                             ;}
+
+                case (byte)(0b11000000):                                                                               {
+                    si = "!c" + n                                                                                      ;
+                    break                                                                                            ;}}
+            result = result + si                                                                                      ;}
+
+        return result                                                                                                 ;}
+
+    public static void main(String[] args) {
+        try {
+            byte[] bc = Compiler.compile("x=0\nx++\nx--\n!a4\n!b3\n!c9\nx=2\nend");
+            for (byte b: bc) {
+                System.out.println(util.TypeTransfrom.byteToBinaryString(b));
+            }
+            System.out.println(Compiler.decompile(bc));
+
+        } catch (CompilerException e) {
+            System.out.println(e.getMessage());
+        }
+    }
+}

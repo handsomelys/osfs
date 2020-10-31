@@ -449,8 +449,8 @@ public class Terminal extends Application {
             case "cc": {
                 // compiler compiler 
                 if (commands.length>1) {
+                    FileModel f = null;
                     try {
-                        FileModel f = null;
                         if (commands[1].startsWith("/")) {
                         // absolute path
                             f = FileService.getFileTraversal(commands[1].substring(1));
@@ -458,22 +458,32 @@ public class Terminal extends Application {
                         // relative path
                             f = FileService.getFileTraversal(this.current, commands[1]);
                         }
-                        
-                        if (f.isFile() && f.getType() == 'c') {
+                    } catch (IOException e) {
+                        this.putLine(e.getMessage());
+                    }
+                    if (f.isFile() && f.getType() == 'c') {
+                        try {
                             FileService.createFile(f.getParentFile(), f.getName()+".e");
+                        } catch (IOException e) {
+                            if (!e.getMessage().equals("Duplication of name.")) {
+                                this.putLine(e.getMessage());
+                            }
+                        }
+                        try {
                             FileModel cf = FileService.getFileTraversal(f.getParentFile(), f.getName()+".e");
                             String content = FileService.getFileContent(f);
                             // for (String s: util.TypeTransfrom.bytesToBinaryStrings(Compiler.compile(content)))
                             //     FileService.editFileContent(cf, FileService.getFileContent(cf)+s+"\n");
                             FileService.editFileContent(cf, util.TypeTransfrom.byteToString(Compiler.compile(content)));
-                        } else {
-                            this.putLine("cc: not a program file");
+                        } catch (IOException e) {
+                            this.putLine(e.getMessage());
+                        } catch (CompilerException e) {
+                            this.putLine(e.getMessage());
                         }
-                    } catch (IOException e) {
-                        this.putLine(e.getMessage());
-                    } catch (CompilerException e) {
-                        this.putLine(e.getMessage());
+                    } else {
+                        this.putLine("cc: not a program file (type must be c)");
                     }
+                    
                 } else {
                     this.putLine("cc: no file specified");
                 }

@@ -17,6 +17,7 @@ import javafx.scene.control.TextArea;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
+import util.UIError;
 
 public class Editor extends Application {
 
@@ -49,15 +50,20 @@ public class Editor extends Application {
 
     @FXML
     private TextArea text;
-
+    
+    private Stage primaryStage;
     @FXML
     void handleClear(ActionEvent event) {
         this.text.setText("");
     }
 
     @FXML
-    void handleSave(ActionEvent event) throws IOException {
-        FileService.editFileContent(Editor.this.current, this.text.getText());
+    void handleSave(ActionEvent event) {
+        try {
+			FileService.editFileContent(Editor.this.current, this.text.getText());
+		} catch (IOException e) {
+			UIError.alertInformation("Warning!", "该文件只读，不可编辑", this.primaryStage);
+		}
     }
 
     @FXML
@@ -80,6 +86,7 @@ public class Editor extends Application {
         } catch (IOException e) {
             e.printStackTrace();
         }
+        this.primaryStage = primaryStage;
         Scene scene = new Scene(this.vbox, 400, 300);
         primaryStage.setScene(scene);
         primaryStage.setResizable(true);
@@ -95,11 +102,7 @@ public class Editor extends Application {
         this.menubarFileSaveAndClose.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent event) {
-                try {
-					Editor.this.handleSave(event);
-				} catch (IOException e) {
-					e.printStackTrace();
-				}
+                Editor.this.handleSave(event);
                 primaryStage.close();
             }
         });

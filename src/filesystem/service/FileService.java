@@ -40,7 +40,7 @@ public class FileService {
 		}
 		file.setParentFile(parentFile);
 		file.setReadOnly(false);
-
+		//parentFile.getSubFiles().add(file);
 		// configure the disk and fat
 		int start_index = FATService.addressOfFreeBlock(AttrForFS.getFat());
 		if (start_index == -1) {
@@ -273,6 +273,7 @@ public class FileService {
 			AttrForFS.getExeFiles().remove(file);
 		}
 		DiskService.deleteObject(AttrForFS.getDisk(), file.getStartIndex());
+		file.getParentFile().getSubFiles().remove(file);
 	}
 
 	public static void removeDir(FileModel directory) throws IOException {

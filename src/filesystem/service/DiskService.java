@@ -15,53 +15,52 @@ import filesystem.model.FATModel;
 import filesystem.model.FileModel;
 
 public class DiskService {
-	
-	//save directory or file into the disk
+
+	// save directory or file into the disk
 	public static void saveFile(FileModel file, DiskModel disk) {
 		disk.getDiskTable().set(file.getStartIndex(), file);
 	}
-	
-	//archieve content from disk by index
-	public static Object getDiskContent(int index,DiskModel disk) {
+
+	// archieve content from disk by index
+	public static Object getDiskContent(int index, DiskModel disk) {
 		return disk.getDiskTable().get(index);
 	}
-	
-	//save content into the disk
-	//content's type is object, it can be file model or string or others
-	public static void saveContent(Object content,DiskModel disk,int index) {
+
+	// save content into the disk
+	// content's type is object, it can be file model or string or others
+	public static void saveContent(Object content, DiskModel disk, int index) {
 		FATService.SetBlockValue(255, AttrForFS.getFat(), index);
 		disk.getDiskTable().set(index, content);
 	}
-	
-	//apply free block, return the vacant index of disk, -1 stand for disk full
+
+	// apply free block, return the vacant index of disk, -1 stand for disk full
 	public static int applyFreeBlock(FATModel fat) {
-		for(int i=3;i<fat.getTable().length;i++) {
-			if(fat.getTable()[i]==0) {
+		for (int i = 3; i < fat.getTable().length; i++) {
+			if (fat.getTable()[i] == 0) {
 				return i;
 			}
 		}
 		return -1;
 	}
-	
-	//delete object from disk
-	public static void deleteObject(DiskModel disk,int index) {
+
+	// delete object from disk
+	public static void deleteObject(DiskModel disk, int index) {
 		filesystem.service.FATService.freeBlock(index, AttrForFS.getFat());
 		disk.getDiskTable().set(index, null);
 	}
-	
-	//check if the disk is valid
+
+	// check if the disk is valid
 	public static DiskModel checkDisk(DiskModel disk) {
-		if(disk==null) {
+		if (disk == null) {
 			return new DiskModel();
 		}
 		return disk;
 	}
-	
-	//get the free blocks counts
+
+	// get the free blocks counts
 	public static int getDiskFreeCnt() {
 		return AttrForFS.getFat().getFreeCount();
 	}
-	
 
 	public static HashMap<String, Object> getDirsAndFiles(DiskModel disk) {
 		HashMap<String, Object> hashmap = new HashMap<String, Object>();
@@ -70,71 +69,91 @@ public class DiskService {
 		List<Object> allFiles = new ArrayList<>();
 		List<Object> contents = disk.getDiskTable();
 		List<FileModel> exeFiles = new ArrayList<>();
-		for(int i=0;i<DiskModel.BLOCK_SIZE;i++) {
-			if(contents.get(i) instanceof FileModel) {
+//		for(int i=0;i<DiskModel.BLOCK_SIZE;i++) {
+//			if(contents.get(i) instanceof FileModel) {
+//				FileModel file = (FileModel) contents.get(i);
+//				allFiles.add(file);
+//				if(file.getAttribute()==2) {
+//					files.add(file);
+//					if(file.getType()==FileModel.EXE) {
+//						exeFiles.add(file);
+//					}
+//				}
+//				else {
+//					dirs.add(file);
+//				}
+//			}
+//			
+//		}
+
+		for (int i = 0; i < DiskModel.BLOCK_SIZE; i++) {
+			if (contents.get(i) instanceof FileModel) {
 				FileModel file = (FileModel) contents.get(i);
 				allFiles.add(file);
-				if(file.getAttribute()==2) {
-					files.add(file);
-					if(file.getType()==FileModel.EXE) {
-						exeFiles.add(file);
+				if (file.getAttribute() == FileModel.DIRECTORY || file.getAttribute() == FileModel.ROOT) {
+					dirs.add(file);
+					List<FileModel> subFiles = file.getSubFiles();
+					for (Object f : subFiles) {
+						if (((FileModel) f).getAttribute() == FileModel.FILE) {
+							if (((FileModel) f).getType() == FileModel.EXE) {
+								exeFiles.add((FileModel) f);
+							} else if (((FileModel) f).getType() == FileModel.NORMAL) {
+							}
+							allFiles.add(f);
+						}
+
 					}
 				}
-				else {
-					dirs.add(file);
-				}
 			}
-			
 		}
-		
+
 		hashmap.put("files", files);
 		hashmap.put("dirs", dirs);
 		hashmap.put("allFiles", allFiles);
-		hashmap.put("exeFiles",exeFiles);
+		hashmap.put("exeFiles", exeFiles);
 		return hashmap;
 	}
-	
+
 	public static int calculateNeedBlock(String Data) {
-        if (Data != null) {
-            double requireBlock = Data.length() * 1.0 / 64;
-            return (int) Math.ceil(requireBlock);
-        } else {
-            return 0;
-        }
-    }
-	
-	//save the virtual disk to the real disk
-	public static void save2Disk(DiskModel disk,String filename,FATModel fat) {
-		File file = new File(filename);
-		disk.setFat(fat);
-		try{
-	           FileOutputStream output=new FileOutputStream(file);
-	           ObjectOutputStream oos=new ObjectOutputStream(output);
-	           oos.writeObject(disk);
-	           oos.flush();
-	           oos.close();
-	           output.close();
-	       }catch (Exception e){
-	            e.printStackTrace();
-	       }
+		if (Data != null) {
+			double requireBlock = Data.length() * 1.0 / 64;
+			return (int) Math.ceil(requireBlock);
+		} else {
+			return 0;
+		}
 	}
 
+	// save the virtual disk to the real disk
+	public static void save2Disk(DiskModel disk, String filename, FATModel fat) {
+		File file = new File(filename);
+		disk.setFat(fat);
+		try {
+			FileOutputStream output = new FileOutputStream(file);
+			ObjectOutputStream oos = new ObjectOutputStream(output);
+			oos.writeObject(disk);
+			oos.flush();
+			oos.close();
+			output.close();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
 
-	//achieve the disk data from the real disk
+	// achieve the disk data from the real disk
 	public static Object achieve2Disk(String filename) {
-		File file=new File(filename);
-        try{
-            FileInputStream input=new FileInputStream(file);
-            ObjectInputStream ois=new ObjectInputStream(input);
-            Object object=ois.readObject();
-            ois.close();
-            input.close();
-            return object;
-        } catch (java.io.FileNotFoundException e) {
-            // do nothing
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-      return null;
+		File file = new File(filename);
+		try {
+			FileInputStream input = new FileInputStream(file);
+			ObjectInputStream ois = new ObjectInputStream(input);
+			Object object = ois.readObject();
+			ois.close();
+			input.close();
+			return object;
+		} catch (java.io.FileNotFoundException e) {
+			// do nothing
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return null;
 	}
 }

@@ -6,6 +6,7 @@ import java.util.Random;
 import java.io.IOException;
 
 import controller.AttrForFS;
+import controller.Compiler;
 import filesystem.model.*;
 
 public class FileService {
@@ -542,10 +543,11 @@ public class FileService {
 
 	}
 
-	public static String getRandomExeFiles() {
+	public static String[] getRandomExeFile() {
 		int size = AttrForFS.getExeFiles().size();
 		int randNumber = ((new Random()).nextInt(size));
-		return AttrForFS.getExeFiles().get(randNumber).getFileContent();
+		FileModel f = AttrForFS.getExeFiles().get(randNumber);
+		return new String[]{f.getName(), Compiler.decompile(f.getFileContent().getBytes())};
 	}
 
 	public static void main(String[] args) throws CloneNotSupportedException, IOException {

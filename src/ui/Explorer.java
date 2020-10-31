@@ -73,9 +73,6 @@ public class Explorer extends Application implements Initializable {
     private MenuItem menuBarDirectoryCreateDirectory;
 
     @FXML
-    private MenuItem menuBarDirectoryProperty;
-
-    @FXML
     private MenuItem menuBarDirectoryExit;
 
         // menu bar edit
@@ -202,6 +199,11 @@ public class Explorer extends Application implements Initializable {
             UIError.alertInformation(Explorer.CREATE_FAILED, e.getMessage(), Explorer.this.primaryStage);
         }
         this.updateAll();
+    }
+
+    @FXML
+    void property(ActionEvent event) {
+        // TODO: property
     }
 
     @FXML

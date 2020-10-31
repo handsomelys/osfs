@@ -18,7 +18,7 @@
 <?import javafx.scene.control.TreeView?>
 <?import javafx.scene.layout.VBox?>
 
-<VBox fx:id="filesystemScene" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="600.0" prefWidth="900.0" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1">
+<VBox fx:id="filesystemScene" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="600.0" prefWidth="900.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1">
    <children>
       <MenuBar fx:id="menuBar">
         <menus>
@@ -47,6 +47,7 @@
             <Button fx:id="toolBarButtonOpen" mnemonicParsing="false" onAction="#openSelected" text="打开" />
             <Button fx:id="toolBarButtonRemove" mnemonicParsing="false" onAction="#removeSelected" text="删除" />
             <Button fx:id="toolBarButtonRefresh" mnemonicParsing="false" onAction="#refresh" text="刷新" />
+            <Button fx:id="toolBarButtonProperty" mnemonicParsing="false" onAction="#property" text="属性" />
         </items>
       </ToolBar>
       <SplitPane fx:id="mainPane" dividerPositions="0.25, 0.75" nodeOrientation="LEFT_TO_RIGHT" VBox.vgrow="ALWAYS">

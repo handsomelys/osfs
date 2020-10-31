@@ -1,0 +1,238 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.*?>
+<?import javafx.scene.image.*?>
+<?import javafx.scene.text.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.shape.*?>
+<?import java.lang.*?>
+<?import javafx.scene.layout.*?>
+
+<StackPane fx:id="stackPane" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="724.0" prefWidth="1139.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="controller.ScheduiUIController">
+   <children>
+      <HBox alignment="CENTER" prefHeight="100.0" prefWidth="200.0" StackPane.alignment="CENTER">
+         <children>
+            <VBox alignment="CENTER" prefHeight="720.0" prefWidth="387.0" HBox.hgrow="ALWAYS">
+               <children>
+                  <VBox alignment="CENTER" prefHeight="200.0" prefWidth="100.0" style="-fx-background-color: #48D1CC;" VBox.vgrow="ALWAYS">
+                     <children>
+                        <ImageView fx:id="CPU1" fitHeight="141.0" fitWidth="203.0" pickOnBounds="true" preserveRatio="true" VBox.vgrow="ALWAYS">
+                           <VBox.margin>
+                              <Insets />
+                           </VBox.margin>
+                        </ImageView>
+                        <HBox alignment="CENTER" prefHeight="30.0" prefWidth="354.0" VBox.vgrow="ALWAYS">
+                           <children>
+                              <Label text="系统时间: " />
+                              <TextField fx:id="Runnningtime" editable="false" prefHeight="30.0" prefWidth="280.0" />
+                           </children>
+                        </HBox>
+                        <HBox alignment="CENTER" prefHeight="40.0" prefWidth="402.0" VBox.vgrow="ALWAYS">
+                           <children>
+                              <Label text="运行进程: " />
+                              <TextField fx:id="RunnningProcess" editable="false" prefHeight="30.0" prefWidth="280.0" />
+                           </children>
+                        </HBox>
+                        <HBox alignment="CENTER" prefHeight="37.0" prefWidth="402.0" VBox.vgrow="ALWAYS">
+                           <children>
+                              <Label text="运行指令: " />
+                              <TextField fx:id="RunningOrder" editable="false" prefHeight="30.0" prefWidth="280.0" />
+                           </children>
+                        </HBox>
+                        <HBox alignment="CENTER" prefHeight="38.0" prefWidth="402.0" VBox.vgrow="ALWAYS">
+                           <children>
+                              <Label text="中间结果: " />
+                              <TextField fx:id="TemporaryResults" editable="false" prefHeight="25.0" prefWidth="280.0" />
+                           </children>
+                        </HBox>
+                        <HBox alignment="CENTER" prefHeight="25.0" prefWidth="402.0" VBox.vgrow="ALWAYS">
+                           <children>
+                              <Label text="剩余时间: " />
+                              <TextField fx:id="RemanTime" editable="false" prefHeight="30.0" prefWidth="280.0" />
+                           </children>
+                        </HBox>
+                     </children>
+                  </VBox>
+                  <VBox alignment="CENTER" prefHeight="187.0" prefWidth="388.0" VBox.vgrow="ALWAYS">
+                     <children>
+                        <TableView fx:id="DeviceTable" prefHeight="163.0" prefWidth="388.0" style="-fx-border-width: 2; -fx-border-color: #48D1CC;" VBox.vgrow="ALWAYS">
+                           <columnResizePolicy>
+                              <TableView fx:constant="CONSTRAINED_RESIZE_POLICY" />
+                           </columnResizePolicy>
+                           <columns>
+                              <TableColumn fx:id="devicename" prefWidth="75.0" text="设备" />
+                              <TableColumn fx:id="DevicePName" prefWidth="75.0" text="占用进程" />
+                              <TableColumn fx:id="DeviceRT" prefWidth="75.0" text="剩余占用时间" />
+                           </columns>
+                        </TableView>
+                     </children>
+                  </VBox>
+                  <Label prefHeight="22.0" prefWidth="59.0" style="-fx-font-weight: 100;" text="控制台" textFill="MEDIUMTURQUOISE" VBox.vgrow="ALWAYS">
+                     <font>
+                        <Font size="16.0" />
+                     </font>
+                  </Label>
+                  <VBox prefHeight="147.0" prefWidth="402.0" style="-fx-border-color: #48D1CC; -fx-border-radius: 10; -fx-border-style: dashed; -fx-border-width: 2;" VBox.vgrow="ALWAYS">
+                     <children>
+                        <HBox alignment="CENTER" prefHeight="61.0" prefWidth="388.0" VBox.vgrow="ALWAYS">
+                           <children>
+                              <Label text="内存: ">
+                                 <font>
+                                    <Font size="19.0" />
+                                 </font>
+                              </Label>
+                              <TextField fx:id="MemoryUsage" prefHeight="30.0" prefWidth="270.0" />
+                           </children>
+                        </HBox>
+                        <HBox alignment="CENTER" prefHeight="55.0" prefWidth="388.0" VBox.vgrow="ALWAYS">
+                           <children>
+                              <Label text="进程: ">
+                                 <font>
+                                    <Font size="19.0" />
+                                 </font>
+                              </Label>
+                              <TextField fx:id="ProcessUsage" prefHeight="32.0" prefWidth="270.0" />
+                           </children>
+                        </HBox>
+                        <HBox alignment="CENTER" prefHeight="72.0" prefWidth="388.0" VBox.vgrow="ALWAYS">
+                           <children>
+                              <Label text="设备: ">
+                                 <font>
+                                    <Font size="19.0" />
+                                 </font>
+                              </Label>
+                              <TextField fx:id="DeviceUsage" prefHeight="30.0" prefWidth="268.0" />
+                           </children>
+                        </HBox>
+                        <HBox alignment="CENTER" prefHeight="69.0" prefWidth="388.0" spacing="20.0" VBox.vgrow="ALWAYS">
+                           <children>
+                              <Button fx:id="playBTN" mnemonicParsing="false" onAction="#playorstop" text="开始运行" HBox.hgrow="ALWAYS" />
+                              <Button fx:id="createBTN" mnemonicParsing="false" onAction="#createprocess" text="创建进程" HBox.hgrow="ALWAYS" />
+                              <Button fx:id="jobScheduling" mnemonicParsing="false" onAction="#jobScheduling" text="作业调度" HBox.hgrow="ALWAYS" />
+                              <Button fx:id="integrateBTN" mnemonicParsing="false" onAction="#integrateMemory" text="内存整理" HBox.hgrow="ALWAYS" />
+                           </children>
+                        </HBox>
+                     </children>
+                  </VBox>
+               </children>
+            </VBox>
+            <VBox alignment="CENTER" prefHeight="724.0" prefWidth="132.0">
+               <children>
+                  <HBox alignment="CENTER_LEFT" prefHeight="85.0" prefWidth="132.0" VBox.vgrow="ALWAYS">
+                     <children>
+                        <Pane fx:id="panerunToEnd" prefHeight="225.0" prefWidth="132.0" HBox.hgrow="ALWAYS">
+                           <children>
+                              <Path fx:id="pathrunToEnd" fill="DODGERBLUE" layoutX="2.0" layoutY="87.0" stroke="MEDIUMTURQUOISE" strokeType="OUTSIDE" strokeWidth="2.0">
+                                 <elements>
+                                    <MoveTo />
+                                    <HLineTo x="128.0" />
+                                 </elements>
+                              </Path>
+                           </children>
+                        </Pane>
+                     </children>
+                  </HBox>
+                  <HBox prefHeight="0.0" prefWidth="132.0" VBox.vgrow="ALWAYS">
+                     <children>
+                        <Pane fx:id="panereadyToRun" prefHeight="79.0" prefWidth="132.0" HBox.hgrow="ALWAYS">
+                           <children>
+                              <Path fx:id="pathreadyToRun" fill="DODGERBLUE" layoutX="2.0" layoutY="14.0" stroke="MEDIUMTURQUOISE" strokeType="OUTSIDE" strokeWidth="2.0">
+                                 <elements>
+                                    <MoveTo x="128.0" />
+                                    <HLineTo />
+                                 </elements>
+                              </Path>
+                           </children>
+                        </Pane>
+                     </children>
+                  </HBox>
+                  <HBox prefHeight="72.0" prefWidth="132.0" VBox.vgrow="ALWAYS">
+                     <children>
+                        <Pane fx:id="panerunToReady" prefHeight="147.0" prefWidth="132.0" HBox.hgrow="ALWAYS">
+                           <children>
+                              <Path fx:id="pathrunToReady" fill="MEDIUMTURQUOISE" layoutX="2.0" stroke="MEDIUMTURQUOISE" strokeType="OUTSIDE" strokeWidth="2.0">
+                                 <elements>
+                                    <MoveTo />
+                                    <HLineTo x="128.0" />
+                                 </elements>
+                              </Path>
+                           </children>
+                        </Pane>
+                     </children>
+                  </HBox>
+                  <HBox prefHeight="167.0" prefWidth="132.0" VBox.vgrow="ALWAYS">
+                     <children>
+                        <Pane fx:id="paneblockTodevice" prefHeight="200.0" prefWidth="200.0" HBox.hgrow="ALWAYS">
+                           <children>
+                              <Path fx:id="pathblockTodevice" fill="DODGERBLUE" layoutX="2.0" stroke="MEDIUMTURQUOISE" strokeType="OUTSIDE" strokeWidth="2.0">
+                                 <elements>
+                                    <MoveTo x="128.0" />
+                                    <HLineTo />
+                                 </elements>
+                              </Path>
+                           </children>
+                        </Pane>
+                     </children>
+                  </HBox>
+               </children>
+            </VBox>
+            <VBox alignment="CENTER" prefHeight="720.0" prefWidth="590.0" style="-fx-background-color: #48D1CC;" HBox.hgrow="ALWAYS">
+               <children>
+                  <Label text="进程运行结果" VBox.vgrow="ALWAYS" />
+                  <TableView fx:id="EndedTable" prefHeight="150.0" prefWidth="590.0" style="-fx-border-color: #48D1CC; -fx-border-width: 2;" VBox.vgrow="ALWAYS">
+                     <columns>
+                        <TableColumn fx:id="endedName" prefWidth="127.0" text="进程名" />
+                        <TableColumn fx:id="endedRT" prefWidth="148.0" text="总运行时间" />
+                        <TableColumn fx:id="endedresult" prefWidth="314.0" text="变量结果" />
+                     </columns>
+                  </TableView>
+                  <Label prefHeight="22.0" prefWidth="64.0" text="就绪队列" VBox.vgrow="ALWAYS">
+                     <font>
+                        <Font size="16.0" />
+                     </font>
+                  </Label>
+                  <TableView fx:id="Ready" prefHeight="204.0" prefWidth="590.0" style="-fx-border-color: #48D1CC; -fx-border-width: 2;" VBox.vgrow="ALWAYS">
+                     <columnResizePolicy>
+                        <TableView fx:constant="CONSTRAINED_RESIZE_POLICY" />
+                     </columnResizePolicy>
+                     <columns>
+                        <TableColumn fx:id="Readyname" prefWidth="75.0" text="进程名" />
+                        <TableColumn fx:id="ReadyRT" prefWidth="75.0" text="总运行时间" />
+                        <TableColumn fx:id="ReadyRestTime" prefWidth="75.0" text="剩余运行时间" />
+                        <TableColumn fx:id="Readylength" prefWidth="75.0" text="进程指令数" />
+                        <TableColumn fx:id="processBar" prefWidth="75.0" text="进度条" />
+                     </columns>
+                  </TableView>
+                  <Label text="阻塞队列" VBox.vgrow="ALWAYS" />
+                  <TableView fx:id="BlockedProcess" prefHeight="213.0" prefWidth="590.0" style="-fx-border-width: 2; -fx-border-color: #48D1CC;" VBox.vgrow="ALWAYS">
+                     <columnResizePolicy>
+                        <TableView fx:constant="CONSTRAINED_RESIZE_POLICY" />
+                     </columnResizePolicy>
+                     <columns>
+                        <TableColumn fx:id="BlockedName" prefWidth="75.0" text="进程名" />
+                        <TableColumn fx:id="BlockedTRT" prefWidth="75.0" text="总运行时间" />
+                        <TableColumn fx:id="BlockedRRT" prefWidth="75.0" text="剩余运行时间" />
+                        <TableColumn fx:id="BlockeddeviceTime" prefWidth="75.0" text="使用设备时间" />
+                        <TableColumn fx:id="BlockedDeviceType" prefWidth="75.0" text="设备" />
+                     </columns>
+                  </TableView>
+                  <Label prefHeight="20.0" prefWidth="76.0" text="内存分布图" VBox.vgrow="ALWAYS" />
+                  <Pane fx:id="memorypane" prefHeight="200.0" prefWidth="200.0" style="-fx-border-width: 2; -fx-border-color: #008B8B;" VBox.vgrow="ALWAYS">
+                     <children>
+                        <VBox fx:id="OSbox" alignment="CENTER" prefHeight="169.0" prefWidth="60.0" style="-fx-background-color: #008080; -fx-background-radius: 5; -fx-border-radius: 5; -fx-border-width: 2;">
+                           <children>
+                              <Label alignment="CENTER" text="os">
+                                 <font>
+                                    <Font size="26.0" />
+                                 </font>
+                              </Label>
+                           </children>
+                        </VBox>
+                     </children>
+                  </Pane>
+               </children>
+            </VBox>
+         </children>
+      </HBox>
+   </children>
+</StackPane>

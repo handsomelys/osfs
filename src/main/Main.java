@@ -1,9 +1,12 @@
 package main;
 
+import controller.AttrForFS;
 import javafx.application.Application;
 import javafx.event.EventHandler;
+import javafx.fxml.FXMLLoader;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
+import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.ContentDisplay;
 import javafx.scene.control.Label;
@@ -15,9 +18,9 @@ import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.stage.Stage;
-import ui.*;
-
-import controller.AttrForFS;
+import process.ProcessDispatcher;
+import ui.Explorer;
+import ui.Terminal;
 
 public class Main extends Application {
 
@@ -135,7 +138,22 @@ public class Main extends Application {
 			@Override
 			public void handle(MouseEvent event) {
 				if(event.getClickCount()==2) {
-					System.out.println("enter the process manager");
+					try {
+						FXMLLoader loader = new FXMLLoader();
+						loader.setLocation(getClass().getResource("/view/ProcessSchedulUI.fxml"));
+						Parent root = (Parent) loader.load();
+						Scene scene = new Scene(root);
+						//scene.getStylesheets().add("view/UIcss.css");
+						Stage stage=new Stage();
+						stage.setScene(scene);
+						stage.setTitle("进程调度");
+						stage.getIcons().add(new Image("/steam.png"));
+						stage.centerOnScreen();
+						stage.show();
+						ProcessDispatcher.dispatchProcess();
+					}catch (Exception e){
+						e.printStackTrace();
+					}
 				}
 			}
 		});

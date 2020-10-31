@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.text.*?>
+<?import javafx.geometry.*?>
+<?import javafx.scene.control.*?>
+<?import java.lang.*?>
+<?import javafx.scene.layout.*?>
+
+<VBox maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="488.0" prefWidth="504.0" style="-fx-background-color: #48D1CC;" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="controller.createProcessController">
+   <children>
+      <HBox alignment="CENTER_LEFT" prefHeight="56.0" prefWidth="504.0" VBox.vgrow="ALWAYS">
+         <children>
+            <Label text="请输入进程的名字: " textFill="GREY">
+               <HBox.margin>
+                  <Insets left="20.0" />
+               </HBox.margin>
+            </Label>
+            <TextField fx:id="processNameText" prefHeight="30.0" prefWidth="261.0" promptText="不能创建同名进程" />
+         </children>
+      </HBox>
+      <Label prefHeight="45.0" prefWidth="184.0" text="请输入你的需要执行的指令:" textFill="GREY" VBox.vgrow="ALWAYS">
+         <VBox.margin>
+            <Insets left="20.0" />
+         </VBox.margin>
+      </Label>
+      <HBox prefHeight="326.0" prefWidth="504.0" style="-fx-background-color: #48D1CC;" VBox.vgrow="ALWAYS">
+         <children>
+            <TextArea fx:id="instructiontext" prefHeight="345.0" prefWidth="381.0">
+               <HBox.margin>
+                  <Insets left="20.0" />
+               </HBox.margin>
+            </TextArea>
+            <VBox prefHeight="431.0" prefWidth="114.0">
+               <children>
+                  <Label alignment="TOP_LEFT" prefHeight="9.0" prefWidth="93.0" text="指令示例:" />
+                  <Label text=" X=1;" />
+                  <Label text=" X++;" />
+                  <Label text=" X--;" />
+                  <Label text=" !A1;" />
+                  <Label text=" end;" />
+               </children>
+            </VBox>
+         </children>
+      </HBox>
+      <HBox alignment="CENTER" prefHeight="59.0" prefWidth="504.0" VBox.vgrow="ALWAYS">
+         <children>
+            <Button fx:id="createprocessBtn" mnemonicParsing="false" onAction="#createprocess" prefHeight="30.0" prefWidth="80.0" text="创建" />
+         </children>
+      </HBox>
+   </children>
+</VBox>

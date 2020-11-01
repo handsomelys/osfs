@@ -87,6 +87,7 @@ public class Editor extends Application {
             e.printStackTrace();
         }
         this.primaryStage = primaryStage;
+        this.text.setWrapText(true);
         Scene scene = new Scene(this.vbox, 400, 300);
         primaryStage.setScene(scene);
         primaryStage.setResizable(true);

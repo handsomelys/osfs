@@ -5,12 +5,12 @@ package filesystem.model;
 // import java.io.FileNotFoundException;
 // import java.io.FileOutputStream;
 // import java.io.IOException;
+import filesystem.service.FATService;
+
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-
-import filesystem.service.FATService;
 
 
 public class DiskModel implements Serializable {
@@ -114,62 +114,7 @@ public class DiskModel implements Serializable {
             return 0;
         }
     }
-    /**
-     * transform the disk model into byte stream, for saving to file
-     * @return disk model in byte array
-     */
-    /* reserved code
-    public byte[] toBytes() {
-        byte[] result = new byte[DiskModel.BLOCK_COUNT*DiskModel.BLOCK_SIZE];
-        byte[] fatInbyte = this.fat.toBytes();
-        // save the fat table to the head of disk
-        System.arraycopy(fatInbyte, 0, result, 0, fatInbyte.length);
-        // first value of i is the length of fat table
-        for (int i = DiskModel.BLOCK_COUNT/DiskModel.BLOCK_SIZE; i < DiskModel.BLOCK_COUNT; ++i) {
-            byte[] fileInbyte = new byte[DiskModel.BLOCK_SIZE];
-            Object o = this.diskTable.get(i);
-            if (o != null) {
-                if (o instanceof FileModel) {
-                    fileInbyte = ((FileModel) o).toBytes();
-                } else if (o instanceof String) {
-                    fileInbyte = ((String) o).getBytes();
-                }
-            }
-            System.arraycopy(fileInbyte, 0, result, i*DiskModel.BLOCK_SIZE, fileInbyte.length);
-        }
-        return result;
-    }
-    public void saveToFile(String path) throws FileNotFoundException, IOException {
-        File file = new File(path);
-        FileOutputStream fos = new FileOutputStream(file);
-        fos.write(this.toBytes());
-        fos.close();
-    }
-    public void extractFromFile(String path) throws FileNotFoundException, IOException {
-        File file = new File(path);
-        FileInputStream fis = new FileInputStream(file);
-        byte[] data;
-        data = fis.readAllBytes();
-        fis.close();
 
-        byte[] fat = new byte[DiskModel.BLOCK_COUNT/DiskModel.BLOCK_SIZE];
-        System.arraycopy(data, 0, fat, 0, DiskModel.BLOCK_COUNT/DiskModel.BLOCK_SIZE);
-        this.fat.formBytes(fat);
-        
-        for (int i = DiskModel.BLOCK_COUNT/DiskModel.BLOCK_SIZE; i < DiskModel.BLOCK_COUNT; ++i) {
-            byte[] fileInbyte = new byte[DiskModel.BLOCK_SIZE];
-            Object o = this.diskTable.get(i);
-            if (o != null) {
-                if (o instanceof FileModel) {
-                    fileInbyte = ((FileModel) o).toBytes();
-                } else if (o instanceof String) {
-                    fileInbyte = ((String) o).getBytes();
-                }
-            }
-            System.arraycopy(data, i*DiskModel.BLOCK_SIZE, fileInbyte, 0, fileInbyte.length);
-        }
-    }
-    */
     public filesystem.model.FATModel getFat() {
         return this.fat;
     }

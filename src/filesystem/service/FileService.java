@@ -1,13 +1,13 @@
 package filesystem.service;
 
+import controller.AttrForFS;
+import controller.Compiler;
+import filesystem.model.FileModel;
+
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
-import java.io.IOException;
-
-import controller.AttrForFS;
-import controller.Compiler;
-import filesystem.model.*;
 
 public class FileService {
 
@@ -126,58 +126,6 @@ public class FileService {
 		}
 	}
 
-	// public static void createFile(FileModel file, FileModel parentFile,String
-	// filename) throws IOException {
-	// System.out.println("parents sub nums:
-	// "+file.getParentFile().getSubFiles().size());
-	// if (!checkSubFileValid(file.getParentFile())) {
-	// throw new IOException(parentFile+": at most 8 files in this directory");
-	// }
-	// System.out.println("input the file name");
-
-	// if(filename.length()>3) {
-	// System.out.println("the file name should not over 3 chars");
-	// }
-	// file.setParentFile(parentFile);
-	// file.setName(filename);
-	// if(addFile(file,AttrForFS.getDisk(),AttrForFS.getFat())) {
-	// updateDirectorySub(file.getParentFile(),file);
-	// AttrForFS.getCurrentFilesAndDirs().add(file);
-	// if(file.getAttribute()==FileModel.FILE) {
-	// AttrForFS.getCurrentFiles().add(file);
-	// }
-	// else {
-	// AttrForFS.getCurrentDirs().add(file);
-	// }
-	// }
-	// }
-
-	// public static boolean addFile(FileModel file,DiskModel disk,FATModel fat) {
-	// int start_index = filesystem.service.FATService.addressOfFreeBlock(fat);
-	// if(start_index == -1) {
-	// System.out.println("Disk is full!!");
-	// return false;
-	// }
-	// else {
-	// file.setStartIndex(start_index);
-	// filesystem.service.FATService.applyForBlock(start_index, 255, fat);
-	// file.setSize(1);
-	// if(file==null||file.getName().trim().equals("")) {
-	// System.out.println("The names'length can not be blank");
-	// return false;
-	// }
-
-	// else if(checkDuplicationOfName(file)) {
-
-	// System.out.println("Duplication of name!!");
-	// return false;
-	// }
-	// else {
-	// DiskService.saveFile(file, disk);
-	// }
-	// }
-	// return true;
-	// }
 
 	/**
 	 * get a new name for new file create according to the file existed.
@@ -572,6 +520,7 @@ public class FileService {
 
 	public static String[] getRandomExeFile() {
 		int size = AttrForFS.getExeFiles().size();
+		System.out.println(size);
 		int randNumber = ((new Random()).nextInt(size));
 		FileModel f = AttrForFS.getExeFiles().get(randNumber);
 		return new String[]{f.getName(), Compiler.decompile(f.getFileContent().getBytes())};

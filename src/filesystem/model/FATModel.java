@@ -77,25 +77,7 @@ public class FATModel implements Serializable {
 		this.table[index] = (byte) value;
 	}
 
-	/**
-	 * for save to file
-	 * @return
-	 */
-	/* reserved code
-	public byte[] toBytes() {
-		byte[] result = new byte[DiskModel.BLOCK_COUNT];
-		for (int i = 0; i < DiskModel.BLOCK_COUNT; ++i) {
-			result[i] = (byte) table[i];
-		}
-		return result;
-	}
 
-	public void formBytes(byte[] bytes) {
-		for (int i = 0; i < DiskModel.BLOCK_COUNT; ++i) {
-			this.table[i] = bytes[i];
-		}
-	}
-	*/
 
 	public int getFreeCount() {
 		return freeCount;

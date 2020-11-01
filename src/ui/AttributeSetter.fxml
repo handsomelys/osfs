@@ -33,7 +33,7 @@
             <Insets left="10.0" right="10.0" top="10.0" />
          </padding>
       </VBox>
-      <VBox layoutX="42.0" layoutY="100.0" prefHeight="109.0" prefWidth="145.0" spacing="10.0">
+      <VBox layoutX="41.0" layoutY="78.0" prefHeight="150.0" prefWidth="145.0" spacing="15.0">
          <children>
             <Label text="文件类型：">
                <font>
@@ -50,13 +50,19 @@
                   <Font size="20.0" />
                </font>
             </Label>
+            <Label text="文件属性：">
+               <font>
+                  <Font size="20.0" />
+               </font>
+            </Label>
          </children>
       </VBox>
-      <VBox layoutX="226.0" layoutY="99.0" prefHeight="109.0" prefWidth="344.0" spacing="10.0">
+      <VBox layoutX="230.0" layoutY="80.0" prefHeight="109.0" prefWidth="344.0" spacing="10.0">
          <children>
             <TextField fx:id="type" />
             <TextField fx:id="size" />
             <TextField fx:id="startIndex" />
+            <TextField fx:id="attribute" />
          </children>
       </VBox>
       <Separator layoutY="62.0" prefHeight="3.0" prefWidth="600.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="62.0" />

@@ -3,6 +3,7 @@ package filesystem.service;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
+
 import java.io.IOException;
 
 import controller.AttrForFS;
@@ -40,7 +41,7 @@ public class FileService {
 		}
 		file.setParentFile(parentFile);
 		file.setReadOnly(false);
-		//parentFile.getSubFiles().add(file);
+		// parentFile.getSubFiles().add(file);
 		// configure the disk and fat
 		int start_index = FATService.addressOfFreeBlock(AttrForFS.getFat());
 		if (start_index == -1) {
@@ -53,7 +54,7 @@ public class FileService {
 				file.setStartIndex(start_index);
 				FATService.applyForBlock(start_index, 255, AttrForFS.getFat());
 				file.setSize(1);
-				//DiskService.saveFile(file, AttrForFS.getDisk());
+				// DiskService.saveFile(file, AttrForFS.getDisk());
 			}
 		}
 
@@ -288,6 +289,14 @@ public class FileService {
 		try {
 			int[] fat = AttrForFS.getFat().getTable();
 			int start_index = file.getStartIndex();
+			if (fat[start_index] == 255 || fat[start_index] == -1) {
+				if (AttrForFS.getDisk().getDiskTable() == null) {
+					return;
+				} else {
+					AttrForFS.getDisk().getDiskTable().set(start_index, null);
+					return;
+				}
+			}
 			while (fat[start_index] != 255 && fat[start_index] != -1) {
 				AttrForFS.getDisk().getDiskTable().set(fat[start_index], null); // remove the file block
 				int tmp = fat[start_index];
@@ -301,12 +310,7 @@ public class FileService {
 																									// value to 0,
 																									// stands for vacant
 			}
-			filesystem.service.FATService.SetBlockValue(255, AttrForFS.getFat(), file.getStartIndex()); // set the
-																										// current block
-																										// value to 255,
-																										// stands for
-																										// the file end
-
+			filesystem.service.FATService.SetBlockValue(-1, AttrForFS.getFat(), file.getStartIndex());
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -315,7 +319,7 @@ public class FileService {
 	public static String getFileContent(FileModel file) throws IOException {
 		// System.out.println(AttrForFS.getDisk().getDiskTable());
 		// for(int i=0;i<AttrForFS.getFat().getTable().length;i++) {
-		// 	System.out.print(AttrForFS.getFat().getTable()[i]);
+		// System.out.print(AttrForFS.getFat().getTable()[i]);
 		// }
 		if (file.getAttribute() == FileModel.DIRECTORY) {
 			throw new IOException(file.getName() + ": directory is not allowed to get content");
@@ -325,8 +329,8 @@ public class FileService {
 		// System.out.println(start_index);
 		String result = "";
 		int[] fatTable = AttrForFS.getFat().getTable();
-		if(fatTable[start_index] == 255 || fatTable[start_index] == -1) {
-			if(AttrForFS.getDisk().getDiskTable().get(start_index)==null) {
+		if (fatTable[start_index] == 255 || fatTable[start_index] == -1) {
+			if (AttrForFS.getDisk().getDiskTable().get(start_index) == null) {
 				return null;
 			}
 			result = AttrForFS.getDisk().getDiskTable().get(start_index).toString();
@@ -352,32 +356,30 @@ public class FileService {
 			throw new IOException(file.getName() + ": File is read only");
 
 		} else {
+
 			int requireBlocks = DiskService.calculateNeedBlock(content);
 			int remainBlocks = DiskService.getDiskFreeCnt();
-			removeFileContent(file);
-			if (requireBlocks  > remainBlocks) {
+
+			if (requireBlocks > remainBlocks) {
 				System.out.println("Error!Do not have the enough blocks");
 				return;
 			}
-			
+			removeFileContent(file);
 			char[] buffer = new char[64];
-			char[] txt = content.toCharArray();
+
+			char[] txt = (content == null ? null : content.toCharArray());
 			int index = file.getStartIndex();
 			int cur = 0;
-			
 
-//			for (int j = 0; j < 64 && cur < txt.length; cur++, j++) {
-//				buffer[j] = txt[cur];
-//			}
-//			DiskService.saveContent(String.valueOf(buffer), AttrForFS.getDisk(), index);
-//			int tmp_index = DiskService.applyFreeBlock(AttrForFS.getFat());
-//			FATService.applyForBlock(index, tmp_index, AttrForFS.getFat());
-//			buffer = new char[64];
-//			
 			int pre = index;
-			for (int i = requireBlocks ; i > 0; i--) {
+			System.out.println(requireBlocks);
+
+			for (int i = requireBlocks; i > 0; i--) {
+
 				pre = index;
+
 				index = DiskService.applyFreeBlock(AttrForFS.getFat());
+
 				for (int j = 0; j < 64 && cur < txt.length; cur++, j++) {
 					buffer[j] = txt[cur];
 				}
@@ -385,8 +387,17 @@ public class FileService {
 				FATService.applyForBlock(pre, index, AttrForFS.getFat());
 				buffer = new char[64];
 			}
-			file.setSize(requireBlocks);
+			if (requireBlocks == 0) {
+				file.setSize(1);
+			} else {
+				file.setSize(requireBlocks);
+			}
+
 			FATService.SetBlockValue(-1, AttrForFS.getFat(), pre);
+			for (int k = 0; k < AttrForFS.getFat().getTable().length; k++) {
+				System.out.println(AttrForFS.getFat().getTable()[k]);
+			}
+			System.out.println(AttrForFS.getDisk().getDiskTable());
 		}
 	}
 
@@ -496,21 +507,12 @@ public class FileService {
 			} else {
 				AttrForFS.getCurrentDirs().add(colonedFile);
 			}
+			editFileContent(colonedFile, getFileContent(file));
 		} catch (CloneNotSupportedException e) {
 			e.printStackTrace();
 		}
-	}
 
-	/*
-	 * public static boolean copydir(FileModel directory) throws
-	 * CloneNotSupportedException { FileModel coloneDir =
-	 * (FileModel)directory.clone(); if(createFile(coloneDir)) { for(FileModel
-	 * f:coloneDir.getSubFiles()) { if(createFile((FileModel)f.clone())) {
-	 * System.out.println("clone sucess!"); } for(FileModel
-	 * f:coloneDir.getSubFiles()) { if(f.getAttribute()==FileModel.DIRECTORY) {
-	 * if(!copydir((FileModel)f)) return false; } } } catch
-	 * (CloneNotSupportedException e) { e.printStackTrace(); } return true; }
-	 */
+	}
 
 	public static void changeTheAttribute(FileModel file, boolean readOnly) {
 		file.setReadOnly(readOnly);
@@ -520,17 +522,34 @@ public class FileService {
 		return getSubFiles(parentFile).size() < FileModel.MAX_SUB_NUMS;
 	}
 
-	public static boolean validInputName(String fileName) {
-		if (fileName == null || fileName.equals("")) {
-			System.out.println("null error");
-			return false;
-		} else if (fileName.toCharArray().length > 3) {
-			System.out.println("name over size error");
-			return false;
-		} else if (fileName.contains("$") || fileName.contains("/") || fileName.contains(".")) {
-			System.out.println("invalid chars error");
-			return false;
+	public static boolean validInputName(String rawFileName) throws IOException {
+		int dot = rawFileName.lastIndexOf(".");
+		if (dot == -1) {
+			if (rawFileName.length() > 3) {
+				throw new IOException(rawFileName + ": invalid file name (too long)");
+			}
+		} else {
+			if (dot == rawFileName.length() - 2) {
+				String realFileName = rawFileName.substring(0, dot);
+				char extension = rawFileName.charAt(rawFileName.length() - 1);
+				if (realFileName.length() > 3) {
+					throw new IOException(rawFileName + ": invalid file name (too long)");
+				}
+			} else {
+				throw new IOException(rawFileName + ": invalid file name (extension too long)");
+			}
 		}
+//		if (fileName == null || fileName.equals("")) {
+//			System.out.println("null error");
+//			return false;
+//		} else if (fileName.toCharArray().length > 3) {
+//			System.out.println("name over size error");
+//			return false;
+//		} else if (fileName.contains("$") || fileName.contains("/") || fileName.contains(".")) {
+//			System.out.println("invalid chars error");
+//			return false;
+//		}
+//		return true;
 		return true;
 	}
 
@@ -542,7 +561,7 @@ public class FileService {
 		} catch (CloneNotSupportedException e) {
 			e.printStackTrace();
 		}
-		if (file.getType() != FileModel.EXE || file.getAttribute()==FileModel.DIRECTORY) {
+		if (file.getType() != FileModel.EXE || file.getAttribute() == FileModel.DIRECTORY) {
 			tmp.setName(newName);
 			if (validInputName(newName)) {
 				if (checkDuplicationOfName(tmp)) {
@@ -554,10 +573,10 @@ public class FileService {
 			} else {
 				throw new IOException("invalid name");
 			}
-		} else if(file.getType() == FileModel.EXE){
+		} else if (file.getType() == FileModel.EXE) {
 			tmp.setName(newName);
-			if(validInputName(newName)) {
-				if(checkDuplicationOfName(tmp)) {
+			if (validInputName(newName)) {
+				if (checkDuplicationOfName(tmp)) {
 					throw new IOException("Duplication name");
 				} else {
 					file.setName(newName);
@@ -575,7 +594,7 @@ public class FileService {
 		int size = AttrForFS.getExeFiles().size();
 		int randNumber = ((new Random()).nextInt(size));
 		FileModel f = AttrForFS.getExeFiles().get(randNumber);
-		return new String[]{f.getName(), Compiler.decompile(f.getFileContent().getBytes())};
+		return new String[] { f.getName(), Compiler.decompile(f.getFileContent().getBytes()) };
 	}
 
 	public static void main(String[] args) throws CloneNotSupportedException, IOException {

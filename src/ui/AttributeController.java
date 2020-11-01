@@ -34,6 +34,8 @@ public class AttributeController extends Application {
 	@FXML
 	private TextField startIndex;
 	@FXML
+	private TextField attribute;
+	@FXML
 	private AnchorPane propertyScene;
 	
 	private ToggleGroup group;
@@ -82,6 +84,14 @@ public class AttributeController extends Application {
 		size.setEditable(false);
 		startIndex.setText(String.valueOf(file.getStartIndex()));
 		startIndex.setEditable(false);
+		
+		if(file.getType()==FileModel.EXE) {
+			attribute.setText("EXE");
+		}
+		else {
+			attribute.setText("NORMAL");
+		}
+		attribute.setEditable(false);
 		
 		group = new ToggleGroup();
 

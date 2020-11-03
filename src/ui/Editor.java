@@ -62,7 +62,8 @@ public class Editor extends Application {
         try {
 			FileService.editFileContent(Editor.this.current, this.text.getText());
 		} catch (IOException e) {
-			UIError.alertInformation("Warning!", "该文件只读，不可编辑", this.primaryStage);
+//			UIError.alertInformation("Warning!", "该文件只读，不可编辑", this.primaryStage);
+			e.printStackTrace();
 		}
     }
 
@@ -93,7 +94,9 @@ public class Editor extends Application {
         primaryStage.setResizable(true);
         primaryStage.setTitle(this.current.getNormalName() + " - editor");
         primaryStage.show();
-
+        if(((FileModel)this.current).isReadOnly()) {
+        	UIError.alertInformation("Warning!", "该文件只读，不可编辑", this.primaryStage);
+        }
         primaryStage.setOnCloseRequest(new EventHandler<WindowEvent>() {
             public void handle(WindowEvent windowEvent) {
                 primaryStage.close();

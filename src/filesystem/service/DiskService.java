@@ -76,22 +76,6 @@ public class DiskService {
 		List<Object> allFiles = new ArrayList<>();
 		List<Object> contents = disk.getDiskTable();
 		List<FileModel> exeFiles = new ArrayList<>();
-//		for(int i=0;i<DiskModel.BLOCK_SIZE;i++) {
-//			if(contents.get(i) instanceof FileModel) {
-//				FileModel file = (FileModel) contents.get(i);
-//				allFiles.add(file);
-//				if(file.getAttribute()==2) {
-//					files.add(file);
-//					if(file.getType()==FileModel.EXE) {
-//						exeFiles.add(file);
-//					}
-//				}
-//				else {
-//					dirs.add(file);
-//				}
-//			}
-//			
-//		}
 
 		for (int i = 0; i < DiskModel.BLOCK_SIZE; i++) {
 			if (contents.get(i) instanceof FileModel) {

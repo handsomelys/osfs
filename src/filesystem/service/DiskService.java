@@ -29,7 +29,7 @@ public class DiskService {
 	// save content into the disk
 	// content's type is object, it can be file model or string or others
 	public static void saveContent(Object content, DiskModel disk, int index) {
-		FATService.SetBlockValue(255, AttrForFS.getFat(), index);
+		FATService.SetBlockValue(-1, AttrForFS.getFat(), index);
 		disk.getDiskTable().set(index, content);
 	}
 
@@ -42,7 +42,14 @@ public class DiskService {
 		}
 		return -1;
 	}
-
+	public static int applyFreeBlock(DiskModel disk) {
+		for(int i = 3;i < disk.getDiskTable().size();i++) {
+			if(disk.getDiskTable().get(i) == null) {
+				return i;
+			}
+		}
+		return -1;
+	}
 	// delete object from disk
 	public static void deleteObject(DiskModel disk, int index) {
 		filesystem.service.FATService.freeBlock(index, AttrForFS.getFat());

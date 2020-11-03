@@ -64,7 +64,7 @@ public class FATModel implements Serializable {
 	 * @param index
 	 */
 	public void occupyBlock(int pre, int index) {
-		this.table[pre] = (byte) index;
+		this.table[pre] =  index;
 		--this.freeCount;
 	}
 
@@ -74,7 +74,7 @@ public class FATModel implements Serializable {
 	 * @param index
 	 */
 	public void SetBlockValue(int value, int index) {
-		this.table[index] = (byte) value;
+		this.table[index] =  value;
 	}
 
 	/**

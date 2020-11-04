@@ -209,12 +209,15 @@ public class Explorer extends Application implements Initializable {
 
     @FXML
     void exit(ActionEvent event) {
+//    	System.out.println(AttrForFS.getDisk().getDiskTable());
         this.primaryStage.close();
     }
 
     @FXML
     void refresh(ActionEvent event) {
         this.updateAll();
+        System.out.println(AttrForFS.getDisk().getDiskTable());
+        
     }
 
     @FXML

@@ -326,7 +326,7 @@ public class Terminal extends Application {
                     } else {
                         // relative path
                         try {
-                            this.putLine(FileService.getFileContent(FileService.getFileTraversal(commands[1])));
+                            this.putLine(FileService.getFileContent(FileService.getFileTraversal(this.current, commands[1])));
                         } catch (IOException e) {
                             this.putLine(e.getMessage());
                         }
@@ -435,10 +435,10 @@ public class Terminal extends Application {
             }
             case "format": {
                 AttrForFS.format();
+                this.current = AttrForFS.getRoot();
                 break;
             }
-            case "help":
-            {
+            case "help": {
             	this.getHelp();
             	break;
             }

@@ -64,7 +64,7 @@ public class FileService {
 		if (file.getAttribute() == FileModel.FILE) {
 			AttrForFS.getCurrentFiles().add(file);
 			if (file.getType() == FileModel.EXE) {
-				AttrForFS.getExeFiles().add(file);
+				AttrForFS.exeFiles.add(file);
 			}
 		} else {
 			AttrForFS.getCurrentDirs().add(file);
@@ -271,7 +271,7 @@ public class FileService {
 			AttrForFS.getCurrentDirs().remove(file);
 		}
 		if (file.getType() == FileModel.EXE) {
-			AttrForFS.getExeFiles().remove(file);
+			AttrForFS.exeFiles.remove(file);
 		}
 		DiskService.deleteObject(AttrForFS.getDisk(), file.getStartIndex());
 		file.getParentFile().getSubFiles().remove(file);
@@ -352,7 +352,7 @@ public class FileService {
 			throw new IOException(file.getName() + ": Directory can not be edited");
 		}
 		if (file.isReadOnly()) {
-			System.out.println("read only");
+			// System.out.println("read only");
 			throw new IOException(file.getName() + ": File is read only");
 
 		} else {
@@ -361,7 +361,7 @@ public class FileService {
 			int remainBlocks = DiskService.getDiskFreeCnt();
 
 			if (requireBlocks > remainBlocks) {
-				System.out.println("Error!Do not have the enough blocks");
+				// System.out.println("Error!Do not have the enough blocks");
 				return;
 			}
 			removeFileContent(file);
@@ -372,7 +372,7 @@ public class FileService {
 			int cur = 0;
 
 			int pre = index;
-			System.out.println(requireBlocks);
+			// System.out.println(requireBlocks);
 
 			for (int i = requireBlocks; i > 0; i--) {
 
@@ -394,10 +394,10 @@ public class FileService {
 			}
 
 			FATService.SetBlockValue(-1, AttrForFS.getFat(), pre);
-			for (int k = 0; k < AttrForFS.getFat().getTable().length; k++) {
-				System.out.println(AttrForFS.getFat().getTable()[k]);
-			}
-			System.out.println(AttrForFS.getDisk().getDiskTable());
+			// for (int k = 0; k < AttrForFS.getFat().getTable().length; k++) {
+			// 	System.out.println(AttrForFS.getFat().getTable()[k]);
+			// }
+			// System.out.println(AttrForFS.getDisk().getDiskTable());
 		}
 	}
 
@@ -531,7 +531,7 @@ public class FileService {
 		} else {
 			if (dot == rawFileName.length() - 2) {
 				String realFileName = rawFileName.substring(0, dot);
-				char extension = rawFileName.charAt(rawFileName.length() - 1);
+				// char extension = rawFileName.charAt(rawFileName.length() - 1);
 				if (realFileName.length() > 3) {
 					throw new IOException(rawFileName + ": invalid file name (too long)");
 				}
@@ -591,9 +591,9 @@ public class FileService {
 	}
 
 	public static String[] getRandomExeFile() {
-		int size = AttrForFS.getExeFiles().size();
+		int size = AttrForFS.exeFiles.size();
 		int randNumber = ((new Random()).nextInt(size));
-		FileModel f = AttrForFS.getExeFiles().get(randNumber);
+		FileModel f = AttrForFS.exeFiles.get(randNumber);
 		return new String[] { f.getName(), Compiler.decompile(f.getFileContent().getBytes()) };
 	}
 

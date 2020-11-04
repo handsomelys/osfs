@@ -101,11 +101,9 @@ public class FileModel implements Cloneable, Serializable {
 	public Object clone() throws CloneNotSupportedException{
 		Object obj = super.clone();
 		FileModel parentFile = ((FileModel)obj).getParentFile();
-		//String name = ((FileModel)obj).getName();	//这里应该加个查重 名字只有三个字符 还要考虑长度
 		String name = ((FileModel)obj).getName();	//filenames or directory names
 		char type = ((FileModel)obj).getType();	//file type
 		int attribute = ((FileModel)obj).getAttribute();	//define file or directory	1 is file,2 is directory,3 is root
-		//int startIndex = ;	//the start index of FAT  起始盘块要重新申请
 		int size = ((FileModel)obj).getSize();	//file size
 		boolean isReadOnly = ((FileModel)obj).isReadOnly();
 		boolean isHide = ((FileModel)obj).isHide();

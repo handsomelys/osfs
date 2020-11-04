@@ -4,9 +4,6 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
-import filesystem.service.FATService;
-
-
 public class DiskModel implements Serializable {
     private static final long serialVersionUID = -5996007659520449539L;
     
@@ -36,40 +33,40 @@ public class DiskModel implements Serializable {
          root.setName("root");
          this.diskTable.add(2, root);;
     }
-    /**
-     * save directory or file into the disk
-     * @param file
-     */
-    public void saveFile(FileModel file) {
-        this.diskTable.set(file.getStartIndex(),file);
-    }
-    
-    /**
-     * delete object from disk
-     * @param index
-     */
-    public void deleteFile(int index) {
-        FATService.freeBlock(index, this.fat);
-        this.diskTable.set(index, null) ;
-    }
+//    /**
+//     * save directory or file into the disk
+//     * @param file
+//     */
+//    public void saveFile(FileModel file) {
+//        this.diskTable.set(file.getStartIndex(),file);
+//    }
+//    
+//    /**
+//     * delete object from disk
+//     * @param index
+//     */
+//    public void deleteFile(int index) {
+//        FATService.freeBlock(index, this.fat);
+//        this.diskTable.set(index, null) ;
+//    }
 
-    /**
-     * get content from disk by index
-     * @param index
-     */
-    public FileModel getDiskContent(int index) {
-        return (FileModel)this.diskTable.get(index);
-    }
+//    /**
+//     * get content from disk by index
+//     * @param index
+//     */
+//    public FileModel getDiskContent(int index) {
+//        return (FileModel)this.diskTable.get(index);
+//    }
     
-    /**
-     * save content into the disk
-     * @param content
-     * @param index
-     */
-    public void saveContent(FileModel content, int index) {
-        FATService.SetBlockValue(255, this.fat, index);
-        this.diskTable.set(index,content);
-    }
+//    /**
+//     * save content into the disk
+//     * @param content
+//     * @param index
+//     */
+//    public void saveContent(FileModel content, int index) {
+//        FATService.SetBlockValue(255, this.fat, index);
+//        this.diskTable.set(index,content);
+//    }
     
     //get the free blocks counts
     public int getDiskFreeCount() {
@@ -100,14 +97,14 @@ public class DiskModel implements Serializable {
 //        return hashmap;
 //    }
     
-    public static int calculateNeedBlock(String Data) {
-        if (Data != null) {
-            double requireBlock = Data.length() * 1.0 / 64;
-            return (int) Math.ceil(requireBlock);
-        } else {
-            return 0;
-        }
-    }
+//    public static int calculateNeedBlock(String Data) {
+//        if (Data != null) {
+//            double requireBlock = Data.length() * 1.0 / 64;
+//            return (int) Math.ceil(requireBlock);
+//        } else {
+//            return 0;
+//        }
+//    }
     /**
      * transform the disk model into byte stream, for saving to file
      * @return disk model in byte array

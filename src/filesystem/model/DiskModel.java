@@ -82,29 +82,29 @@ public class DiskModel implements Serializable {
         return this.fat.getFreeCount();
     }
     
-    public static HashMap<String, Object> getDirsAndFiles(DiskModel disk) {
-        HashMap<String, Object> hashmap = new HashMap<String, Object>();
-        List<Object> files = new ArrayList<>();
-        List<Object> dirs = new ArrayList<>();
-        List<Object> allFiles = new ArrayList<>();
-        List<Object> contents = disk.getDiskTable();
-        
-        for(int i=0;i<128;i++) {
-            FileModel file = (FileModel) contents.get(i);
-            allFiles.add(file);
-            if(file.getAttribute()==1) //file
-                files.add(file);
-            else {
-                dirs.add(file);	//directory
-            }
-            
-        }
-        
-        hashmap.put("files", files);
-        hashmap.put("dirs", dirs);
-        hashmap.put("allFiles", allFiles);
-        return hashmap;
-    }
+//    public static HashMap<String, Object> getDirsAndFiles(DiskModel disk) {
+//        HashMap<String, Object> hashmap = new HashMap<String, Object>();
+//        List<Object> files = new ArrayList<>();
+//        List<Object> dirs = new ArrayList<>();
+//        List<Object> allFiles = new ArrayList<>();
+//        List<Object> contents = disk.getDiskTable();
+//        
+//        for(int i=0;i<128;i++) {
+//            FileModel file = (FileModel) contents.get(i);
+//            allFiles.add(file);
+//            if(file.getAttribute()==1) //file
+//                files.add(file);
+//            else {
+//                dirs.add(file);	//directory
+//            }
+//            
+//        }
+//        
+//        hashmap.put("files", files);
+//        hashmap.put("dirs", dirs);
+//        hashmap.put("allFiles", allFiles);
+//        return hashmap;
+//    }
     
     public static int calculateNeedBlock(String Data) {
         if (Data != null) {

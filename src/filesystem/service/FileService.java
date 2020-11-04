@@ -52,7 +52,11 @@ public class FileService {
 				throw new IOException("Duplication of name.");
 			} else {
 				file.setStartIndex(start_index);
-				FATService.applyForBlock(start_index, 255, AttrForFS.getFat());
+				FATService.applyForBlock(start_index, -1, AttrForFS.getFat());
+				System.out.println("start_index" + start_index);
+				for (int k = 0; k < 10; k++) {
+					System.out.println(AttrForFS.getFat().getTable()[k]);
+				}
 				file.setSize(1);
 				// DiskService.saveFile(file, AttrForFS.getDisk());
 			}
@@ -289,59 +293,55 @@ public class FileService {
 		try {
 			int[] fat = AttrForFS.getFat().getTable();
 			int start_index = file.getStartIndex();
-			if (fat[start_index] == 255 || fat[start_index] == -1) {
-				if (AttrForFS.getDisk().getDiskTable() == null) {
-					return;
-				} else {
-					AttrForFS.getDisk().getDiskTable().set(start_index, null);
-					return;
-				}
-			}
+
 			while (fat[start_index] != 255 && fat[start_index] != -1) {
 				AttrForFS.getDisk().getDiskTable().set(fat[start_index], null); // remove the file block
 				int tmp = fat[start_index];
-				filesystem.service.FATService.freeBlock(start_index, AttrForFS.getFat());
+				FATService.freeBlock(start_index, AttrForFS.getFat());
 				start_index = tmp;
 				int size = file.getSize() - 1; // file length -1
 				file.setSize(size);
 			}
+
 			if (file.getStartIndex() != start_index) {
-				filesystem.service.FATService.SetBlockValue(0, AttrForFS.getFat(), start_index); // set the former block
-																									// value to 0,
-																									// stands for vacant
+				FATService.SetBlockValue(0, AttrForFS.getFat(), start_index);
 			}
-			filesystem.service.FATService.SetBlockValue(-1, AttrForFS.getFat(), file.getStartIndex());
+//			
+//			if (fat[start_index] == 255 || fat[start_index] == -1) {
+//				if (AttrForFS.getDisk().getDiskTable() == null) {
+//					return;
+//				} else {
+//					AttrForFS.getDisk().getDiskTable().set(start_index, null);
+//					FATService.freeBlock(start_index, AttrForFS.getFat());
+//					return;
+//				}
+//			}
+			AttrForFS.getDisk().getDiskTable().set(file.getStartIndex(), null);
+			FATService.SetBlockValue(-1, AttrForFS.getFat(), file.getStartIndex());
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
 	}
 
 	public static String getFileContent(FileModel file) throws IOException {
-		// System.out.println(AttrForFS.getDisk().getDiskTable());
-		// for(int i=0;i<AttrForFS.getFat().getTable().length;i++) {
-		// System.out.print(AttrForFS.getFat().getTable()[i]);
-		// }
 		if (file.getAttribute() == FileModel.DIRECTORY) {
 			throw new IOException(file.getName() + ": directory is not allowed to get content");
 		}
-		// System.out.println();
 		int start_index = file.getStartIndex();
-		// System.out.println(start_index);
 		String result = "";
 		int[] fatTable = AttrForFS.getFat().getTable();
+
+		while (fatTable[start_index] != 255 && fatTable[start_index] != -1) { // until the end of file
+
+			result = result.concat(AttrForFS.getDisk().getDiskTable().get(start_index).toString());
+
+			start_index = fatTable[start_index]; // point to the next index
+		}
 		if (fatTable[start_index] == 255 || fatTable[start_index] == -1) {
 			if (AttrForFS.getDisk().getDiskTable().get(start_index) == null) {
 				return null;
 			}
-			result = AttrForFS.getDisk().getDiskTable().get(start_index).toString();
-			// System.out.println("1 " + result);
-		}
-		while (fatTable[start_index] != 255 && fatTable[start_index] != -1) { // until the end of file
-			// System.out.println("2 "+result);
-			// System.out.println(AttrForFS.getDisk().getDiskTable());
 			result = result.concat(AttrForFS.getDisk().getDiskTable().get(start_index).toString());
-			// System.out.println("3 "+result);
-			start_index = fatTable[start_index]; // point to the next index
 		}
 		return result;
 	}
@@ -375,29 +375,46 @@ public class FileService {
 			// System.out.println(requireBlocks);
 
 			for (int i = requireBlocks; i > 0; i--) {
+				if (i == requireBlocks) {
+					pre = file.getStartIndex();
+				} else {
+					pre = index;
+				}
+				System.out.println("pre " + pre);
+				System.out.println("index0 " + index);
+				for (int k = 0; k < 10; k++) {
+					System.out.println(AttrForFS.getFat().getTable()[k]);
+				}
+				index = FATService.addressOfFreeBlock(AttrForFS.getFat());
 
-				pre = index;
-
-				index = DiskService.applyFreeBlock(AttrForFS.getFat());
-
+				System.out.println("index " + index);
 				for (int j = 0; j < 64 && cur < txt.length; cur++, j++) {
 					buffer[j] = txt[cur];
 				}
 				DiskService.saveContent(String.valueOf(buffer), AttrForFS.getDisk(), pre);
+
 				FATService.applyForBlock(pre, index, AttrForFS.getFat());
+				FATService.SetBlockValue(-1, AttrForFS.getFat(), index);
+
+				if (cur == txt.length) {
+					FATService.SetBlockValue(0, AttrForFS.getFat(), index);
+				}
 				buffer = new char[64];
+				System.out.println(AttrForFS.getDisk().getDiskTable());
+
 			}
 			if (requireBlocks == 0) {
 				file.setSize(1);
 			} else {
 				file.setSize(requireBlocks);
 			}
-
+			System.out.println(AttrForFS.getDisk().getDiskTable());
+			System.out.println("pre2 " + pre);
 			FATService.SetBlockValue(-1, AttrForFS.getFat(), pre);
-			// for (int k = 0; k < AttrForFS.getFat().getTable().length; k++) {
-			// 	System.out.println(AttrForFS.getFat().getTable()[k]);
-			// }
-			// System.out.println(AttrForFS.getDisk().getDiskTable());
+//			for (int k = 0; k < AttrForFS.getFat().getTable().length; k++) {
+//				System.out.println(AttrForFS.getFat().getTable()[k]);
+//			}
+//			System.out.println(AttrForFS.getDisk().getDiskTable());
 		}
 	}
 

@@ -27,6 +27,6 @@ public class FATService {
 	}
 	//set the value of block
 	public static void SetBlockValue(int value,FATModel fat,int index) {
-		fat.getTable()[index] = (byte)value;
+		fat.getTable()[index] = value;
 	}
 }

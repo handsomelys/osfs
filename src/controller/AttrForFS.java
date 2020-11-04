@@ -87,9 +87,6 @@ public class AttrForFS {
 		AttrForFS.setCurrentFiles((List<Object>)hash.get("files"));
 		AttrForFS.setCurrentDirs((List<Object>)hash.get("dirs"));
 		AttrForFS.setCurrentFilesAndDirs((List<Object>)hash.get("allFiles"));
-
-		System.out.println(d);
-		System.out.println(getRoot().getSubFiles());
 	}
 
 	@SuppressWarnings("unchecked")
@@ -102,6 +99,10 @@ public class AttrForFS {
 		AttrForFS.setCurrentDirs((List<Object>)hash.get("dirs"));
 		AttrForFS.setCurrentFilesAndDirs((List<Object>)hash.get("allFiles"));
 
+		AttrForFS.generateExecutionFile();
+	}
+
+	public static void generateExecutionFile() {
 		try {
 			FileService.createDirectory(AttrForFS.getRoot(), "exe");
 			FileModel exe = FileService.getFileTraversal("exe");
@@ -109,8 +110,6 @@ public class AttrForFS {
 			FileModel cat = FileService.getFileTraversal(exe, "cat");
 			FileService.createDirectory(exe, "dog");
 			FileModel dog = FileService.getFileTraversal(exe, "dog");
-			// FileService.createFile(AttrForFS.getRoot(), "ff");
-			// FileService.editFileContent(FileService.getFileTraversal(AttrForFS.getRoot(), "ff"), ExecutionFileGenerator.generateInstructions());
 
 			FileService.createFile(cat, "c1.e");
 			FileModel c1 = FileService.getFileTraversal(cat, "c1.e");
@@ -171,7 +170,6 @@ public class AttrForFS {
 			FileService.editFileContent(d5, new String(Compiler.compile(ExecutionFileGenerator.generateInstructions())));
 			d5.setReadOnly(true);
 			AttrForFS.exeFiles.add(d5);
-			System.out.println(d);
 		} catch (IOException e) {
 			e.printStackTrace();
 		} catch (CompilerException e) {

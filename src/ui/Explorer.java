@@ -73,9 +73,6 @@ public class Explorer extends Application implements Initializable {
     private MenuItem menuBarDirectoryCreateDirectory;
 
     @FXML
-    private MenuItem menuBarDirectoryProperty;
-
-    @FXML
     private MenuItem menuBarDirectoryExit;
 
         // menu bar edit
@@ -205,13 +202,22 @@ public class Explorer extends Application implements Initializable {
     }
 
     @FXML
+    void property(ActionEvent event) {
+        AttributeController a = new AttributeController(this.selected);
+        a.start(new Stage());
+    }
+
+    @FXML
     void exit(ActionEvent event) {
+//    	System.out.println(AttrForFS.getDisk().getDiskTable());
         this.primaryStage.close();
     }
 
     @FXML
     void refresh(ActionEvent event) {
         this.updateAll();
+        System.out.println(AttrForFS.getDisk().getDiskTable());
+        
     }
 
     @FXML

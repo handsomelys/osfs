@@ -22,11 +22,11 @@ public class FATService {
 	}
 	//apply the space of block,set the FAT
 	public static void applyForBlock(int pre,int index,FATModel fat) {
-		fat.getTable()[pre] = (byte)index;
+		fat.getTable()[pre] = index;
 		fat.setFreeCount(fat.getFreeCount()-1);
 	}
 	//set the value of block
 	public static void SetBlockValue(int value,FATModel fat,int index) {
-		fat.getTable()[index] = (byte)value;
+		fat.getTable()[index] = value;
 	}
 }

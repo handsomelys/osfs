@@ -1,13 +1,14 @@
 package filesystem.service;
 
-import controller.AttrForFS;
-import controller.Compiler;
-import filesystem.model.FileModel;
-
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
+
+import java.io.IOException;
+
+import controller.AttrForFS;
+import controller.Compiler;
+import filesystem.model.*;
 
 public class FileService {
 
@@ -40,7 +41,7 @@ public class FileService {
 		}
 		file.setParentFile(parentFile);
 		file.setReadOnly(false);
-
+		// parentFile.getSubFiles().add(file);
 		// configure the disk and fat
 		int start_index = FATService.addressOfFreeBlock(AttrForFS.getFat());
 		if (start_index == -1) {
@@ -51,9 +52,9 @@ public class FileService {
 				throw new IOException("Duplication of name.");
 			} else {
 				file.setStartIndex(start_index);
-				FATService.applyForBlock(start_index, 255, AttrForFS.getFat());
+				FATService.applyForBlock(start_index, -1, AttrForFS.getFat());
+				System.out.println("start_index" + start_index);
 				file.setSize(1);
-				//DiskService.saveFile(file, AttrForFS.getDisk());
 			}
 		}
 
@@ -63,10 +64,11 @@ public class FileService {
 		if (file.getAttribute() == FileModel.FILE) {
 			AttrForFS.getCurrentFiles().add(file);
 			if (file.getType() == FileModel.EXE) {
-				AttrForFS.getExeFiles().add(file);
+				AttrForFS.exeFiles.add(file);
 			}
 		} else {
 			AttrForFS.getCurrentDirs().add(file);
+			DiskService.saveContent(file, AttrForFS.getDisk(),start_index);
 		}
 	}
 
@@ -136,18 +138,17 @@ public class FileService {
 	 */
 	public static String getNewName(FileModel parentFile, int fileAttribute) {
 		String prefix;
-		if (fileAttribute == 1) {
+		if (fileAttribute == FileModel.FILE) {	//如果文件属性是普通文件
 			prefix = "nf";
-		} else if (fileAttribute == 2 || fileAttribute == 3) {
+		} else if (fileAttribute == FileModel.DIRECTORY || fileAttribute == FileModel.ROOT) {//如果文件属性是目录
 			prefix = "nd";
-		} else {
+		} else {	//其他
 			prefix = "??";
 		}
-		int index = 0;
+		int index = 0;	//为每个新建的文件后缀加一个index，以防重名
 		boolean flag = false;
 		List<Object> subFiles = FileService.getSubFiles(parentFile);
-		for (; index < 10 && flag == false; ++index) { // there is only 8 files for maximum in a directory, i think this
-														// 10 is ok
+		for (; index < 10 && flag == false; ++index) { 
 			flag = true;
 			for (Object f : subFiles) {
 				if (f instanceof FileModel) {
@@ -211,16 +212,17 @@ public class FileService {
 
 	// remove the file from disk
 	public static void removeFile(FileModel file) {
-		removeFileContent(file);
-		AttrForFS.getCurrentFiles().remove(file);
+		removeFileContent(file);	//清空当前file的内容
+		AttrForFS.getCurrentFiles().remove(file);	//更新AttrForFS相关数据结构的内容
 		AttrForFS.getCurrentFilesAndDirs().remove(file);
 		if (file.getAttribute() == FileModel.DIRECTORY) {
 			AttrForFS.getCurrentDirs().remove(file);
 		}
 		if (file.getType() == FileModel.EXE) {
-			AttrForFS.getExeFiles().remove(file);
+			AttrForFS.exeFiles.remove(file);
 		}
-		DiskService.deleteObject(AttrForFS.getDisk(), file.getStartIndex());
+		DiskService.deleteObject(AttrForFS.getDisk(), file.getStartIndex());	//将磁盘中文件对应的位置设为null
+		file.getParentFile().getSubFiles().remove(file);	//将文件从父目录的目录项中除去
 	}
 
 	public static void removeDir(FileModel directory) throws IOException {
@@ -234,57 +236,46 @@ public class FileService {
 	public static void removeFileContent(FileModel file) {
 		try {
 			int[] fat = AttrForFS.getFat().getTable();
-			int start_index = file.getStartIndex();
-			while (fat[start_index] != 255 && fat[start_index] != -1) {
-				AttrForFS.getDisk().getDiskTable().set(fat[start_index], null); // remove the file block
+			int start_index = file.getStartIndex();	//获取文件下标
+						
+			while (fat[start_index] != 255 && fat[start_index] != -1) {	//循环 直至遇到FAT[当前下标]为-1，代表文件结束
+				AttrForFS.getDisk().getDiskTable().set(fat[start_index], null); 	//清空磁盘中当前下标的内容
 				int tmp = fat[start_index];
-				filesystem.service.FATService.freeBlock(start_index, AttrForFS.getFat());
+				FATService.freeBlock(start_index, AttrForFS.getFat());	//将FAT表中当前下标的值设为0，表示空闲
 				start_index = tmp;
-				int size = file.getSize() - 1; // file length -1
-				file.setSize(size);
+				int size = file.getSize() - 1; 
+				file.setSize(size);	//更新文件的大小
 			}
-			if (file.getStartIndex() != start_index) {
-				filesystem.service.FATService.SetBlockValue(0, AttrForFS.getFat(), start_index); // set the former block
-																									// value to 0,
-																									// stands for vacant
-			}
-			filesystem.service.FATService.SetBlockValue(255, AttrForFS.getFat(), file.getStartIndex()); // set the
-																										// current block
-																										// value to 255,
-																										// stands for
-																										// the file end
 
+			if (file.getStartIndex() != start_index) {
+				FATService.SetBlockValue(0, AttrForFS.getFat(), start_index);
+			}
+			AttrForFS.getDisk().getDiskTable().set(file.getStartIndex(), null);
+			FATService.SetBlockValue(-1, AttrForFS.getFat(), file.getStartIndex());	//将文件目前的起始下标的FAT表的值设为-1
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
 	}
 
 	public static String getFileContent(FileModel file) throws IOException {
-		// System.out.println(AttrForFS.getDisk().getDiskTable());
-		// for(int i=0;i<AttrForFS.getFat().getTable().length;i++) {
-		// 	System.out.print(AttrForFS.getFat().getTable()[i]);
-		// }
 		if (file.getAttribute() == FileModel.DIRECTORY) {
 			throw new IOException(file.getName() + ": directory is not allowed to get content");
 		}
-		// System.out.println();
-		int start_index = file.getStartIndex();
-		// System.out.println(start_index);
+		int start_index = file.getStartIndex();	//获得文本内容
 		String result = "";
 		int[] fatTable = AttrForFS.getFat().getTable();
-		if(fatTable[start_index] == 255 || fatTable[start_index] == -1) {
-			if(AttrForFS.getDisk().getDiskTable().get(start_index)==null) {
+
+		while (fatTable[start_index] != 255 && fatTable[start_index] != -1) { // 遇到fatTable[start_index] == -1，代表文件结束
+
+			result = result.concat(AttrForFS.getDisk().getDiskTable().get(start_index).toString());	//将磁盘中文本内容拼接起来
+
+			start_index = fatTable[start_index]; // point to the next index
+		}
+		if (fatTable[start_index] == 255 || fatTable[start_index] == -1) {	//当前的fatTable[start_index] == -1 代表文件到头，判断磁盘当前下标是否为null，不为null说明还有内容，与result拼接
+			if (AttrForFS.getDisk().getDiskTable().get(start_index) == null) {
 				return null;
 			}
-			result = AttrForFS.getDisk().getDiskTable().get(start_index).toString();
-			// System.out.println("1 " + result);
-		}
-		while (fatTable[start_index] != 255 && fatTable[start_index] != -1) { // until the end of file
-			// System.out.println("2 "+result);
-			// System.out.println(AttrForFS.getDisk().getDiskTable());
 			result = result.concat(AttrForFS.getDisk().getDiskTable().get(start_index).toString());
-			// System.out.println("3 "+result);
-			start_index = fatTable[start_index]; // point to the next index
 		}
 		return result;
 	}
@@ -295,45 +286,69 @@ public class FileService {
 			throw new IOException(file.getName() + ": Directory can not be edited");
 		}
 		if (file.isReadOnly()) {
-			System.out.println("read only");
+			// System.out.println("read only");
 			throw new IOException(file.getName() + ": File is read only");
 
 		} else {
+
 			int requireBlocks = DiskService.calculateNeedBlock(content);
 			int remainBlocks = DiskService.getDiskFreeCnt();
-			removeFileContent(file);
-			if (requireBlocks  > remainBlocks) {
-				System.out.println("Error!Do not have the enough blocks");
+
+			if (requireBlocks > remainBlocks) {
+				// System.out.println("Error!Do not have the enough blocks");
 				return;
 			}
-			
+			removeFileContent(file);
 			char[] buffer = new char[64];
-			char[] txt = content.toCharArray();
+
+			char[] txt = (content == null ? null : content.toCharArray());
 			int index = file.getStartIndex();
 			int cur = 0;
-			
 
-//			for (int j = 0; j < 64 && cur < txt.length; cur++, j++) {
-//				buffer[j] = txt[cur];
-//			}
-//			DiskService.saveContent(String.valueOf(buffer), AttrForFS.getDisk(), index);
-//			int tmp_index = DiskService.applyFreeBlock(AttrForFS.getFat());
-//			FATService.applyForBlock(index, tmp_index, AttrForFS.getFat());
-//			buffer = new char[64];
-//			
 			int pre = index;
-			for (int i = requireBlocks ; i > 0; i--) {
-				pre = index;
-				index = DiskService.applyFreeBlock(AttrForFS.getFat());
+			// System.out.println(requireBlocks);
+
+			for (int i = requireBlocks; i > 0; i--) {
+				if (i == requireBlocks) {
+					pre = file.getStartIndex();
+				} else {
+					pre = index;
+				}
+				System.out.println("pre " + pre);
+				System.out.println("index0 " + index);
+				for (int k = 0; k < 10; k++) {
+					System.out.println(AttrForFS.getFat().getTable()[k]);
+				}
+				index = FATService.addressOfFreeBlock(AttrForFS.getFat());
+
+				System.out.println("index " + index);
 				for (int j = 0; j < 64 && cur < txt.length; cur++, j++) {
 					buffer[j] = txt[cur];
 				}
 				DiskService.saveContent(String.valueOf(buffer), AttrForFS.getDisk(), pre);
+
 				FATService.applyForBlock(pre, index, AttrForFS.getFat());
+				FATService.SetBlockValue(-1, AttrForFS.getFat(), index);
+
+				if (cur == txt.length) {
+					FATService.SetBlockValue(0, AttrForFS.getFat(), index);
+				}
 				buffer = new char[64];
+				System.out.println(AttrForFS.getDisk().getDiskTable());
+
 			}
-			file.setSize(requireBlocks);
+			if (requireBlocks == 0) {
+				file.setSize(1);
+			} else {
+				file.setSize(requireBlocks);
+			}
+			System.out.println(AttrForFS.getDisk().getDiskTable());
+			System.out.println("pre2 " + pre);
 			FATService.SetBlockValue(-1, AttrForFS.getFat(), pre);
+//			for (int k = 0; k < AttrForFS.getFat().getTable().length; k++) {
+//				System.out.println(AttrForFS.getFat().getTable()[k]);
+//			}
+//			System.out.println(AttrForFS.getDisk().getDiskTable());
 		}
 	}
 
@@ -355,14 +370,14 @@ public class FileService {
 	// get the specific directory's sub files
 	public static List<Object> getSubFiles(FileModel parentFile) {
 		List<Object> subFiles = new ArrayList<>();
-		List<Object> allFilesSet = AttrForFS.getCurrentFilesAndDirs();
+		List<Object> allFilesSet = AttrForFS.getCurrentFilesAndDirs();	//在当前AttrForFS记录的所有文件中，若找到file的父目录为输入的参数，即添加到subFiles中
 		for (int i = 0; i < allFilesSet.size(); i++) {
 			FileModel tmpFile = (FileModel) allFilesSet.get(i);
 			if (parentFile.equals(tmpFile.getParentFile())) {
 				subFiles.add(tmpFile);
 			}
 		}
-		return subFiles;
+		return subFiles;	//返回输入的目录的子文件集
 	}
 
 	// update the directory's sub files
@@ -379,17 +394,17 @@ public class FileService {
 	// delete the sub-directory and files in the input directory, not include the
 	// directory itself
 	public static boolean deleteDirectoryContent(FileModel directory) {
-		List<Object> sub = (List<Object>) getSubFiles(directory);
+		List<Object> sub = (List<Object>) getSubFiles(directory);	//获得指定directory下所有子文件
 		for (int i = 0; i < sub.size(); i++) {
 			FileModel currentFile = (FileModel) sub.get(i);
 			List<Object> currentSub = (List<Object>) getSubFiles(currentFile);
-			if (currentSub.size() > 0) {
+			if (currentSub.size() > 0) {	//若文件夹不为空 递归调用此方法
 				deleteDirectoryContent(currentFile);
 			} else {
-				removeFile(currentFile);
+				removeFile(currentFile);	//删除文件
 			}
 		}
-		return true;
+		return true;	//若子文件都删完了 返回true
 	}
 
 	// delete the directory itself and the sub content
@@ -410,54 +425,43 @@ public class FileService {
 
 	public static void copyFile(FileModel file, FileModel destination, String filename) throws IOException {
 		try {
-			FileModel colonedFile = (FileModel) file.clone();
-			// createFile(coloneFile, destination, filename);
-			if (!checkSubFileValid(file.getParentFile())) {
+			FileModel clonedFile = (FileModel) file.clone();	//获得输入的file的一个clone对象
+			if (!checkSubFileValid(file.getParentFile())) {	//判断当前输入的file的父目录是否已经超过八个子文件
 				throw new IOException(destination.getNormalName() + ": at most 8 files in this directory");
 			}
-			if (filename.length() > 3) {
+			if (filename.length() > 3) {	//判断名字是否合法
 				throw new IOException(filename + ": invalid file name (too long)");
 			}
-			colonedFile.setParentFile(destination);
-			colonedFile.setName(filename);
+			clonedFile.setParentFile(destination);	//将clone的文件对象设置在和file同一个父目录下
+			clonedFile.setName(filename);	//设置文件名字
 
-			// configure the disk and fat
-			int start_index = FATService.addressOfFreeBlock(AttrForFS.getFat());
+			int start_index = FATService.addressOfFreeBlock(AttrForFS.getFat());	//判断是否有足够空间，申请空闲盘块
 			if (start_index == -1) {
 				throw new IOException("Disk is full.");
 			} else {
 
-				if (checkDuplicationOfName(colonedFile)) {
+				if (checkDuplicationOfName(clonedFile)) {
 					throw new IOException("Duplication of name.");
 				} else {
-					colonedFile.setStartIndex(start_index);
-					FATService.applyForBlock(start_index, 255, AttrForFS.getFat());
-					DiskService.saveFile(colonedFile, AttrForFS.getDisk());
+					clonedFile.setStartIndex(start_index);	//为clone后的文件设置各个属性值
+					FATService.applyForBlock(start_index, 255, AttrForFS.getFat());	//更新FAT表和磁盘块内容
+					DiskService.saveFile(clonedFile, AttrForFS.getDisk());
 				}
 			}
-			// update current files
-			updateDirectorySub(destination, colonedFile);
-			AttrForFS.getCurrentFilesAndDirs().add(colonedFile);
+
+			updateDirectorySub(destination, clonedFile);	//更新当前文件父目录的子文件集
+			AttrForFS.getCurrentFilesAndDirs().add(clonedFile);	//更新AttrForFS的各个数据结构内容
 			if (file.getAttribute() == FileModel.FILE) {
-				AttrForFS.getCurrentFiles().add(colonedFile);
+				AttrForFS.getCurrentFiles().add(clonedFile);
 			} else {
-				AttrForFS.getCurrentDirs().add(colonedFile);
+				AttrForFS.getCurrentDirs().add(clonedFile);
 			}
+			editFileContent(clonedFile, getFileContent(file));	//将文件的文本内容复制到clone后的文件
 		} catch (CloneNotSupportedException e) {
 			e.printStackTrace();
 		}
-	}
 
-	/*
-	 * public static boolean copydir(FileModel directory) throws
-	 * CloneNotSupportedException { FileModel coloneDir =
-	 * (FileModel)directory.clone(); if(createFile(coloneDir)) { for(FileModel
-	 * f:coloneDir.getSubFiles()) { if(createFile((FileModel)f.clone())) {
-	 * System.out.println("clone sucess!"); } for(FileModel
-	 * f:coloneDir.getSubFiles()) { if(f.getAttribute()==FileModel.DIRECTORY) {
-	 * if(!copydir((FileModel)f)) return false; } } } catch
-	 * (CloneNotSupportedException e) { e.printStackTrace(); } return true; }
-	 */
+	}
 
 	public static void changeTheAttribute(FileModel file, boolean readOnly) {
 		file.setReadOnly(readOnly);
@@ -467,44 +471,61 @@ public class FileService {
 		return getSubFiles(parentFile).size() < FileModel.MAX_SUB_NUMS;
 	}
 
-	public static boolean validInputName(String fileName) {
-		if (fileName == null || fileName.equals("")) {
-			System.out.println("null error");
-			return false;
-		} else if (fileName.toCharArray().length > 3) {
-			System.out.println("name over size error");
-			return false;
-		} else if (fileName.contains("$") || fileName.contains("/") || fileName.contains(".")) {
-			System.out.println("invalid chars error");
-			return false;
+	public static boolean validInputName(String rawFileName) throws IOException {
+		int dot = rawFileName.lastIndexOf(".");
+		if (dot == -1) {
+			if (rawFileName.length() > 3) {
+				throw new IOException(rawFileName + ": invalid file name (too long)");
+			}
+		} else {
+			if (dot == rawFileName.length() - 2) {
+				String realFileName = rawFileName.substring(0, dot);
+				// char extension = rawFileName.charAt(rawFileName.length() - 1);
+				if (realFileName.length() > 3) {
+					throw new IOException(rawFileName + ": invalid file name (too long)");
+				}
+			} else {
+				throw new IOException(rawFileName + ": invalid file name (extension too long)");
+			}
 		}
+//		if (fileName == null || fileName.equals("")) {
+//			System.out.println("null error");
+//			return false;
+//		} else if (fileName.toCharArray().length > 3) {
+//			System.out.println("name over size error");
+//			return false;
+//		} else if (fileName.contains("$") || fileName.contains("/") || fileName.contains(".")) {
+//			System.out.println("invalid chars error");
+//			return false;
+//		}
+//		return true;
 		return true;
 	}
 
 	public static FileModel rename(FileModel file, String newName) throws IOException {
-
+		//先复制一个file文件，将newName赋值过去，判断会不会与当前父目录的子文件重名，或者不合法
 		FileModel tmp = null;
 		try {
-			tmp = (FileModel) file.clone();
+			tmp = (FileModel) file.clone();	
 		} catch (CloneNotSupportedException e) {
 			e.printStackTrace();
 		}
-		if (file.getType() != FileModel.EXE || file.getAttribute()==FileModel.DIRECTORY) {
+		if (file.getType() != FileModel.EXE || file.getAttribute() == FileModel.DIRECTORY) {	//没有后缀拓展名
 			tmp.setName(newName);
-			if (validInputName(newName)) {
-				if (checkDuplicationOfName(tmp)) {
+			if (validInputName(newName)) {	//判断名字是否合法
+				if (checkDuplicationOfName(tmp)) {	//判断是否重名
 					throw new IOException("Duplication name");
 				} else {
-					file.setName(newName);
+					file.setName(newName);	//合法就修改名字
 					return file;
 				}
 			} else {
 				throw new IOException("invalid name");
 			}
-		} else if(file.getType() == FileModel.EXE){
+		} else if (file.getType() == FileModel.EXE) {	//可执行文件 有后缀拓展名 另外判断
 			tmp.setName(newName);
-			if(validInputName(newName)) {
-				if(checkDuplicationOfName(tmp)) {
+			if (validInputName(newName)) {
+				if (checkDuplicationOfName(tmp)) {
 					throw new IOException("Duplication name");
 				} else {
 					file.setName(newName);
@@ -519,11 +540,10 @@ public class FileService {
 	}
 
 	public static String[] getRandomExeFile() {
-		int size = AttrForFS.getExeFiles().size();
-		System.out.println(size);
+		int size = AttrForFS.exeFiles.size();
 		int randNumber = ((new Random()).nextInt(size));
-		FileModel f = AttrForFS.getExeFiles().get(randNumber);
-		return new String[]{f.getName(), Compiler.decompile(f.getFileContent().getBytes())};
+		FileModel f = AttrForFS.exeFiles.get(randNumber);
+		return new String[] { f.getName(), Compiler.decompile(f.getFileContent().getBytes()) };
 	}
 
 	public static void main(String[] args) throws CloneNotSupportedException, IOException {

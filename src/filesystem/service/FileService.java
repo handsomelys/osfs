@@ -1,14 +1,13 @@
 package filesystem.service;
 
+import controller.AttrForFS;
+import controller.Compiler;
+import filesystem.model.FileModel;
+
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
-
-import java.io.IOException;
-
-import controller.AttrForFS;
-import controller.Compiler;
-import filesystem.model.*;
 
 public class FileService {
 
@@ -541,6 +540,7 @@ public class FileService {
 
 	public static String[] getRandomExeFile() {
 		int size = AttrForFS.exeFiles.size();
+		System.out.println(size);
 		int randNumber = ((new Random()).nextInt(size));
 		FileModel f = AttrForFS.exeFiles.get(randNumber);
 		return new String[] { f.getName(), Compiler.decompile(f.getFileContent().getBytes()) };

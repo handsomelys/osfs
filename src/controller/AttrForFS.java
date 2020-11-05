@@ -1,17 +1,17 @@
 package controller;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Random;
-import java.util.HashMap;
-
 import filesystem.model.DiskModel;
 import filesystem.model.FATModel;
 import filesystem.model.FileModel;
 import filesystem.service.DiskService;
 import filesystem.service.FileService;
 import util.ExecutionFileGenerator;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Random;
 
 public class AttrForFS {
 	private static DiskModel disk;
@@ -98,7 +98,6 @@ public class AttrForFS {
 		AttrForFS.setCurrentFiles((List<Object>)hash.get("files"));
 		AttrForFS.setCurrentDirs((List<Object>)hash.get("dirs"));
 		AttrForFS.setCurrentFilesAndDirs((List<Object>)hash.get("allFiles"));
-
 		AttrForFS.generateExecutionFile();
 	}
 

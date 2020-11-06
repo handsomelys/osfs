@@ -16,13 +16,12 @@ import process.ProcessDispatcher;
 import process.process;
 
 import java.net.URL;
-import java.util.ArrayList;
 import java.util.ResourceBundle;
 
 public class createProcessController implements Initializable {
 
-    private Memory memory=Memory.getInstance();
-    private ProcessDispatcher  processDispatcher=ProcessDispatcher.getInstance();
+    private Memory memory= Memory.getInstance();
+    private ProcessDispatcher processDispatcher= ProcessDispatcher.getInstance();
     @FXML
     private TextArea instructiontext;
 
@@ -36,9 +35,8 @@ public class createProcessController implements Initializable {
     public void createprocess(ActionEvent event) {
         String name=new String();
         name=processNameText.getText();
-        ArrayList<String> instructionList=new ArrayList<>();
         String instructions=instructiontext.getText();
-        int flag=process.parseCommand(instructionList,instructions,name);
+        int flag= process.parseCommand(instructions,name);
         if (flag==0){
             alertinstruction();
             return;
@@ -51,6 +49,12 @@ public class createProcessController implements Initializable {
         }
 
     }
+
+    @FXML
+    public void randomCreateProcess(ActionEvent event){
+        process.randomCreateProcess();
+    }
+
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {

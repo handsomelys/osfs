@@ -1,7 +1,6 @@
 package filesystem.service;
 
 import controller.AttrForFS;
-import controller.Compiler;
 import filesystem.model.FileModel;
 
 import java.io.IOException;
@@ -52,7 +51,7 @@ public class FileService {
 			} else {
 				file.setStartIndex(start_index);
 				FATService.applyForBlock(start_index, -1, AttrForFS.getFat());
-				System.out.println("start_index" + start_index);
+				// System.out.println("start_index" + start_index);
 				file.setSize(1);
 			}
 		}
@@ -540,7 +539,7 @@ public class FileService {
 
 	public static String[] getRandomExeFile() {
 		int size = AttrForFS.exeFiles.size();
-		System.out.println(size);
+		// System.out.println(size);
 		int randNumber = ((new Random()).nextInt(size));
 		FileModel f = AttrForFS.exeFiles.get(randNumber);
 		// String s = "";

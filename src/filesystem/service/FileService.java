@@ -313,14 +313,14 @@ public class FileService {
 				} else {
 					pre = index;
 				}
-				System.out.println("pre " + pre);
-				System.out.println("index0 " + index);
+				// System.out.println("pre " + pre);
+				// System.out.println("index0 " + index);
 				for (int k = 0; k < 10; k++) {
 					System.out.println(AttrForFS.getFat().getTable()[k]);
 				}
 				index = FATService.addressOfFreeBlock(AttrForFS.getFat());
 
-				System.out.println("index " + index);
+				// System.out.println("index " + index);
 				for (int j = 0; j < 64 && cur < txt.length; cur++, j++) {
 					buffer[j] = txt[cur];
 				}
@@ -333,7 +333,7 @@ public class FileService {
 					FATService.SetBlockValue(0, AttrForFS.getFat(), index);
 				}
 				buffer = new char[64];
-				System.out.println(AttrForFS.getDisk().getDiskTable());
+				// System.out.println(AttrForFS.getDisk().getDiskTable());
 
 			}
 			if (requireBlocks == 0) {
@@ -341,8 +341,8 @@ public class FileService {
 			} else {
 				file.setSize(requireBlocks);
 			}
-			System.out.println(AttrForFS.getDisk().getDiskTable());
-			System.out.println("pre2 " + pre);
+			// System.out.println(AttrForFS.getDisk().getDiskTable());
+			// System.out.println("pre2 " + pre);
 			FATService.SetBlockValue(-1, AttrForFS.getFat(), pre);
 //			for (int k = 0; k < AttrForFS.getFat().getTable().length; k++) {
 //				System.out.println(AttrForFS.getFat().getTable()[k]);
@@ -543,7 +543,18 @@ public class FileService {
 		System.out.println(size);
 		int randNumber = ((new Random()).nextInt(size));
 		FileModel f = AttrForFS.exeFiles.get(randNumber);
-		return new String[] { f.getName(), Compiler.decompile(f.getFileContent().getBytes()) };
+		// String s = "";
+		// try {
+		// 	s = FileService.getFileContent(f);
+		// } catch (IOException e) {
+		// 	e.printStackTrace();
+		// }
+		// System.out.println(s+"here");
+		// for (String ss: util.TypeTransfrom.bytesToBinaryStrings(s.getBytes())) {
+		// 	if (!ss.equals("00000000"))
+		// 		System.out.println(ss);
+		// }
+		return new String[] { f.getName(), util.ExecutionFileGenerator.generateInstructions()+"end" };
 	}
 
 	public static void main(String[] args) throws CloneNotSupportedException, IOException {

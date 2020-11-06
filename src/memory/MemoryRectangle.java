@@ -33,8 +33,10 @@ public class MemoryRectangle
         this.setBackground(new Background(new BackgroundFill(getRandomColor(),null,null)));
         this.pi = new ProgressIndicator();
         this.pi.setLayoutY(10.0D);
-        this.pi.prefWidthProperty().bind(this.prefWidthProperty());
-        this.pi.prefHeightProperty().bind(this.prefWidthProperty());
+        this.pi.prefWidthProperty().bind(this.widthProperty());
+        this.pi.prefHeightProperty().bind(this.widthProperty());
+        // System.out.println(memorypane.widthProperty().multiply(true_x));
+        // System.out.println(this.prefWidthProperty());
         this.pi.setProgress(0.0D);
         Thread thread = new Thread(new Runnable()
         {

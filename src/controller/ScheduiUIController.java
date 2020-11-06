@@ -198,6 +198,7 @@ public class ScheduiUIController implements Initializable{
         String[] strings=FileService.getRandomExeFile();
         String  name=strings[0];
         String instructions=strings[1];
+        System.out.println(instructions);
         ArrayList<String> instructionList=new ArrayList<>();
         process.parseCommand(instructionList,instructions,name);
         return;
@@ -209,7 +210,7 @@ public class ScheduiUIController implements Initializable{
      this.memoryDispatcher=MemoryDispatcher.getInstance();
      this.processDispatcher=ProcessDispatcher.getInstance();
      this.deviceDispatcher= DeviceDispatcher.getInstance();
-     this.CPU1.setImage(new Image("/cpu1.png"));
+     this.CPU1.setImage(new Image("/resource/cpu1.png"));
      this.processDispatcher.setBlockedTableView(this.BlockedProcess,this.BlockedName,this.BlockedDeviceType,this.BlockeddeviceTime,this.BlockedTRT,this.BlockedRRT);
      this.processDispatcher.setDeviceTableView(this.DeviceTable,this.devicename,this.DevicePName,this.DeviceRT);
      this.processDispatcher.setEndTableView(this.EndedTable,this.endedRT,this.endedName,this.endedresult);

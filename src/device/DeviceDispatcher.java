@@ -68,7 +68,7 @@ public class DeviceDispatcher {
     public static void requestDevice(PCB pcb, char name, int time) {
         Thread thread = new Thread() {
             public void run() {
-                if (name == 'A') {
+                if (name == 'A' || name == 'a') {
                     if (!deviceList.get(0).isOccupied()) {
                         deviceList.get(0).requestDevice(pcb.getName(), time);
                         setTimerState(time, 0,pcb);
@@ -81,7 +81,7 @@ public class DeviceDispatcher {
                         return;
                     }
 
-                } else if (name == 'B') {
+                } else if (name == 'B' || name == 'b') {
                     if (!deviceList.get(2).isOccupied()) {
                         deviceList.get(2).requestDevice(pcb.getName(), time);
                         setTimerState(time, 2,pcb);
@@ -97,7 +97,7 @@ public class DeviceDispatcher {
                     } else {
                         return ;
                     }
-                } else if (name == 'C') {
+                } else if (name == 'C' || name == 'c') {
                     if (!deviceList.get(5).isOccupied()) {
                         deviceList.get(5).requestDevice(pcb.getName(), time);
                         setTimerState(time, 5,pcb);

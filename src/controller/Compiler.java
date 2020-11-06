@@ -35,14 +35,14 @@ public class Compiler                                                           
         boolean end = false                                                                                            ;
 
         while (!end)                                                                                                   {
-            byte i = 0                                                                                                 ;
+            byte i = 0b00100000                                                                                        ;
             char c = instructions.charAt(pointer)                                                                      ;
             if (c == 'x')                                                                                              {
                 pointer-=-1                                                                                            ;
                 c = instructions.charAt(pointer)                                                                       ;
                 if (c == '=')                                                                                          {
                     pointer-=-1                                                                                        ;
-                    // assignment is "000"
+                    // assignment is "001"
                     c = instructions.charAt(pointer)                                                                   ;
                     // int e = 0                                                                                       ;
                     // int n = 0                                                                                       ;
@@ -67,13 +67,13 @@ public class Compiler                                                           
 
                 else if (c == '+' && instructions.charAt(pointer+1) == '+')                                            {
                     pointer-=-2                                                                                        ;
-                    // increase is "001"
-                    i = 0b00100000                                                                                    ;}
+                    // increase is "010"
+                    i = 0b01000000                                                                                    ;}
 
                 else if (c == '-' && instructions.charAt(pointer+1) == '-')                                            {
                     pointer-=-2                                                                                        ;
-                    // decrease is "010"
-                    i = 0b01000000                                                                                    ;}
+                    // decrease is "011"
+                    i = 0b01100000                                                                                    ;}
                 
                 else                                                                                                   {
                     throw new CompilerException(line, "invaild instructions")                                        ;}}
@@ -140,15 +140,15 @@ public class Compiler                                                           
             byte n = (byte)(b & 0b00001111)                                                                            ;
             String si = ""                                                                                             ;
             switch (i)                                                                                                 {
-                case 0b00000000:                                                                                       {
+                case 0b00100000:                                                                                       {
                     si = "x=" + n                                                                                      ;
                     break                                                                                             ;}
 
-                case 0b00100000:                                                                                       {
+                case 0b01000000:                                                                                       {
                     si = "x++"                                                                                         ;
                     break                                                                                             ;}
 
-                case 0b01000000:                                                                                       {
+                case 0b01100000:                                                                                       {
                     si = "x--"                                                                                         ;
                     break                                                                                             ;}
 

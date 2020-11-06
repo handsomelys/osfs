@@ -87,6 +87,35 @@ public class AttrForFS {
 		AttrForFS.setCurrentFiles((List<Object>)hash.get("files"));
 		AttrForFS.setCurrentDirs((List<Object>)hash.get("dirs"));
 		AttrForFS.setCurrentFilesAndDirs((List<Object>)hash.get("allFiles"));
+
+		try {
+			AttrForFS.exeFiles.add(FileService.getFileTraversal("exe/cat/c1.e"));
+			AttrForFS.exeFiles.add(FileService.getFileTraversal("exe/cat/c2.e"));
+			AttrForFS.exeFiles.add(FileService.getFileTraversal("exe/cat/c3.e"));
+			AttrForFS.exeFiles.add(FileService.getFileTraversal("exe/cat/c4.e"));
+			AttrForFS.exeFiles.add(FileService.getFileTraversal("exe/cat/c5.e"));
+			AttrForFS.exeFiles.add(FileService.getFileTraversal("exe/dog/d1.e"));
+			AttrForFS.exeFiles.add(FileService.getFileTraversal("exe/dog/d2.e"));
+			AttrForFS.exeFiles.add(FileService.getFileTraversal("exe/dog/d3.e"));
+			AttrForFS.exeFiles.add(FileService.getFileTraversal("exe/dog/d4.e"));
+			AttrForFS.exeFiles.add(FileService.getFileTraversal("exe/dog/d5.e"));
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		// for (int i = 0; i < 10; ++i) {
+		// 	filesystem.model.FileModel f = AttrForFS.exeFiles.get(i);
+		// 	String s = "";
+		// 	try {
+		// 		s = filesystem.service.FileService.getFileContent(f);
+		// 	} catch (java.io.IOException e) {
+		// 		e.printStackTrace();
+		// 	}
+		// 	System.out.println(s+"here");
+		// 	for (String ss: util.TypeTransfrom.bytesToBinaryStrings(s.getBytes())) {
+		// 		if (!ss.equals("00000000"))
+		// 			System.out.println(ss);
+		// 	}
+		// }
 	}
 
 	@SuppressWarnings("unchecked")
@@ -98,6 +127,7 @@ public class AttrForFS {
 		AttrForFS.setCurrentFiles((List<Object>)hash.get("files"));
 		AttrForFS.setCurrentDirs((List<Object>)hash.get("dirs"));
 		AttrForFS.setCurrentFilesAndDirs((List<Object>)hash.get("allFiles"));
+		AttrForFS.exeFiles = new ArrayList<>();
 		AttrForFS.generateExecutionFile();
 	}
 

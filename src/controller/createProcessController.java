@@ -19,6 +19,8 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.ResourceBundle;
 
+import filesystem.service.FileService;
+
 public class createProcessController implements Initializable {
 
     private Memory memory=Memory.getInstance();
@@ -33,12 +35,32 @@ public class createProcessController implements Initializable {
     private Button createprocessBtn;
 
     @FXML
+    public void randomCreateProcess(ActionEvent event) {
+        String name=new String();
+        name=processNameText.getText();
+        // ArrayList<String> instructionList=new ArrayList<>();
+        String[] exe = FileService.getRandomExeFile();
+        String instructions=exe[1];
+        int flag=process.parseCommand(instructions,exe[0]);
+        if (flag==0){
+            alertinstruction();
+            return;
+        }else if (flag==1){
+            alertEnd();
+            return;
+        }else {
+            Stage stage = (Stage)createprocessBtn.getScene().getWindow();
+            stage.close();
+        }
+    }
+
+    @FXML
     public void createprocess(ActionEvent event) {
         String name=new String();
         name=processNameText.getText();
-        ArrayList<String> instructionList=new ArrayList<>();
+        // ArrayList<String> instructionList=new ArrayList<>();
         String instructions=instructiontext.getText();
-        int flag=process.parseCommand(instructionList,instructions,name);
+        int flag=process.parseCommand(instructions,name);
         if (flag==0){
             alertinstruction();
             return;
@@ -95,7 +117,7 @@ public class createProcessController implements Initializable {
         Alert alert = new Alert(Alert.AlertType.WARNING);
         alert.titleProperty().set("提示");
         alert.setHeaderText(null);
-        alert.headerTextProperty().set("程序未已\"end\"结尾,请程序结束处添加end指令");
+        alert.headerTextProperty().set("程序未以\"end\"结尾,请程序结束处添加end指令");
         alert.showAndWait();
     }
 

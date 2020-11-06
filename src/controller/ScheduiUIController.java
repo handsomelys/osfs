@@ -4,7 +4,6 @@ import Action.createprocess;
 import CPU.CPU;
 import device.DeviceDispatcher;
 import device.device;
-import filesystem.service.FileService;
 import javafx.application.Platform;
 import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.IntegerProperty;
@@ -28,9 +27,8 @@ import javafx.scene.shape.Path;
 import memory.MemoryDispatcher;
 import process.PCB;
 import process.ProcessDispatcher;
-import process.process;
+
 import java.net.URL;
-import java.util.ArrayList;
 import java.util.ResourceBundle;
 
 public class ScheduiUIController implements Initializable{
@@ -195,20 +193,14 @@ public class ScheduiUIController implements Initializable{
 
     @FXML
     private void jobScheduling(ActionEvent event){
-        String[] strings=FileService.getRandomExeFile();
-        String  name=strings[0];
-        String instructions=strings[1];
-        System.out.println(instructions);
-        ArrayList<String> instructionList=new ArrayList<>();
-        process.parseCommand(instructionList,instructions,name);
         return;
     }
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
      this.cpu= CPU.getInstance();
-     this.memoryDispatcher=MemoryDispatcher.getInstance();
-     this.processDispatcher=ProcessDispatcher.getInstance();
+     this.memoryDispatcher= MemoryDispatcher.getInstance();
+     this.processDispatcher= ProcessDispatcher.getInstance();
      this.deviceDispatcher= DeviceDispatcher.getInstance();
      this.CPU1.setImage(new Image("/resource/cpu1.png"));
      this.processDispatcher.setBlockedTableView(this.BlockedProcess,this.BlockedName,this.BlockedDeviceType,this.BlockeddeviceTime,this.BlockedTRT,this.BlockedRRT);

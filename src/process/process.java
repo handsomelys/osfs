@@ -6,11 +6,14 @@ import memory.RecordBlock;
 
 import java.util.ArrayList;
 import java.util.Map;
+import java.util.Random;
 
 public class process {
     private PCB pcb;
     private int size;//进程大小;指条数
     private static MemoryDispatcher memoryDispatcher = MemoryDispatcher.getInstance();
+    private static String[] instructionlist = new String[]{"x=", "x++", "x--", "!"};
+    private static String[] devicelist = new String[]{"A", "B", "C"};
 
     public static process createProcess(String[] instructions, String name) {
         process proc = new process();
@@ -51,7 +54,8 @@ public class process {
 
     }
 
-    public static int parseCommand(ArrayList<String> instructionList, String instructions, String name) {
+    public static int parseCommand(String instructions, String name) {
+        ArrayList<String> instructionList = new ArrayList<>();
         String instruction = new String();
         if (instructions.equals("")) {
             System.out.println("程序为空");
@@ -69,8 +73,8 @@ public class process {
             }
 
         }
-        if (!instructionList.get(instructionList.size() - 1).equals("end")) {
-            System.out.println("程序未已end结束");
+        if (!"end".equals(instructionList.get(instructionList.size() - 1))) {
+            System.out.println("程序未以end结束");
             return 1;
         }
         ProcessDispatcher.getReadyProcessList().add(process.createProcess((String[]) instructionList.toArray(new String[instructionList.size()]), name).getPcb());
@@ -90,9 +94,68 @@ public class process {
 
     }
 
+    public static void randomCreateProcess() {
+        // Random ra = new Random();
+        // String allinstruction = new String();
+        // String instruct = new String();
+        int num = 3;
+        while (num > 0) {
+            // int i = ra.nextInt(4) + 3;
+            // allinstruction = "";
+            // instruct = instructionlist[0];
+            // instruct += String.valueOf(ra.nextInt(10));
+            // allinstruction += (instruct);
+            // while (i > 0) {
+            //     int index = ra.nextInt(4);
+            //     instruct = instructionlist[index];
+            //     if (index == 0) {
+            //         instruct += (String.valueOf(ra.nextInt(10)));
+            //     } else if (index == 3) {
+            //         instruct += (devicelist[ra.nextInt(3)]);
+            //         instruct += (String.valueOf(ra.nextInt(10)));
+            //     }
+            //     allinstruction += (instruct);
+            //     i--;
+
+            // }
+            // allinstruction += ("end");
+            // System.out.println(allinstruction);
+            String name = randomCreatename();
+            parseCommand(util.ExecutionFileGenerator.generateInstructions(), name);
+            num--;
+
+        }
+        return;
+
+    }
+
+    private static String randomCreatename() {
+        int flag = -1;
+        Random ra = new Random();
+        String name = new String("P");
+        while (flag != 0) {
+            name = "";
+            name = "p";
+            name += (String.valueOf(ra.nextInt(10)));
+            flag = 0;
+            if (ProcessDispatcher.getReadyProcessList().size() != 0) {
+                for (PCB pcb : ProcessDispatcher.getReadyProcessList()) {
+                    if (pcb.getName().equals(name)) {
+                        flag++;
+                    }
+                }
+
+            } else {
+                break;
+            }
+
+        }
+        return name;
+
+    }
+
     public PCB getPcb() {
         return pcb;
     }
-
 
 }

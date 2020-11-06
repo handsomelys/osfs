@@ -23,7 +23,6 @@ import javafx.scene.shape.Rectangle;
 import javafx.util.Duration;
 import memory.Memory;
 import memory.MemoryDispatcher;
-
 import java.util.logging.Level;
 import java.util.logging.Logger;
 

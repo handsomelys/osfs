@@ -147,7 +147,7 @@ public class Main extends Application {
 						Stage stage=new Stage();
 						stage.setScene(scene);
 						stage.setTitle("进程调度");
-						stage.getIcons().add(new Image("/steam.png"));
+						stage.getIcons().add(new Image("/resource/steam.png"));
 						stage.centerOnScreen();
 						stage.show();
 						ProcessDispatcher.dispatchProcess();

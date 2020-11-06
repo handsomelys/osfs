@@ -74,7 +74,7 @@ public class process {
 
         }
         if (!"end".equals(instructionList.get(instructionList.size() - 1))) {
-            System.out.println("程序未已end结束");
+            System.out.println("程序未以end结束");
             return 1;
         }
         ProcessDispatcher.getReadyProcessList().add(process.createProcess((String[]) instructionList.toArray(new String[instructionList.size()]), name).getPcb());
@@ -95,33 +95,33 @@ public class process {
     }
 
     public static void randomCreateProcess() {
-        Random ra = new Random();
-        String allinstruction = new String();
-        String instruct = new String();
+        // Random ra = new Random();
+        // String allinstruction = new String();
+        // String instruct = new String();
         int num = 3;
         while (num > 0) {
-            int i = ra.nextInt(4) + 3;
-            allinstruction = "";
-            instruct = instructionlist[0];
-            instruct += String.valueOf(ra.nextInt(10));
-            allinstruction += (instruct);
-            while (i > 0) {
-                int index = ra.nextInt(4);
-                instruct = instructionlist[index];
-                if (index == 0) {
-                    instruct += (String.valueOf(ra.nextInt(10)));
-                } else if (index == 3) {
-                    instruct += (devicelist[ra.nextInt(3)]);
-                    instruct += (String.valueOf(ra.nextInt(10)));
-                }
-                allinstruction += (instruct);
-                i--;
+            // int i = ra.nextInt(4) + 3;
+            // allinstruction = "";
+            // instruct = instructionlist[0];
+            // instruct += String.valueOf(ra.nextInt(10));
+            // allinstruction += (instruct);
+            // while (i > 0) {
+            //     int index = ra.nextInt(4);
+            //     instruct = instructionlist[index];
+            //     if (index == 0) {
+            //         instruct += (String.valueOf(ra.nextInt(10)));
+            //     } else if (index == 3) {
+            //         instruct += (devicelist[ra.nextInt(3)]);
+            //         instruct += (String.valueOf(ra.nextInt(10)));
+            //     }
+            //     allinstruction += (instruct);
+            //     i--;
 
-            }
-            allinstruction += ("end");
-            System.out.println(allinstruction);
+            // }
+            // allinstruction += ("end");
+            // System.out.println(allinstruction);
             String name = randomCreatename();
-            parseCommand(allinstruction, name);
+            parseCommand(util.ExecutionFileGenerator.generateInstructions(), name);
             num--;
 
         }

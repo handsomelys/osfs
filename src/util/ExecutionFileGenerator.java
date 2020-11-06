@@ -6,7 +6,7 @@ public class ExecutionFileGenerator {
     public static String generateInstructions() {
         String result = "";
         Random r = new Random();
-        int count = r.nextInt(10) + 5;
+        int count = r.nextInt(5) + 5;
         for (int i = 0; i < count; ++i) {
             int choose = r.nextInt(4);
             String ii = "";
@@ -33,7 +33,13 @@ public class ExecutionFileGenerator {
         return result + "end";
     }
 
-    public static void main(String[] args) {
-        System.out.println(ExecutionFileGenerator.generateInstructions());
+    public static void main(String[] args) throws controller.CompilerException {
+        String i = ExecutionFileGenerator.generateInstructions();
+        System.out.println(i);
+        System.out.println(controller.Compiler.decompile(controller.Compiler.compile(i)));
+		for (String ss: util.TypeTransfrom.bytesToBinaryStrings(controller.Compiler.compile(i))) {
+			// if (!ss.equals("00000000"))
+				System.out.println(ss);
+        }
     }
 }

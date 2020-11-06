@@ -8,6 +8,7 @@ classes/
 .classpath
 .project
 bin/
+out/
 build.fxbuild
 getjar.bat
 manifest
